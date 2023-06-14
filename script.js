@@ -2,7 +2,7 @@ let square;
 const gamebox = document.getElementById("gamebox");
 let verticalSpeed = 2;
 const horizontalSpeed = 30;
-const allTileColors = [
+const allTileColors = [ //Color codes for tiles (each tile contains 4 different colors)
     ["#39a8a3", "#4adbd5", "#287572", "#256e6b"],
     ["#5c4133", "#8f654f", "#291d17", "#211712"],
     ["#1fa054", "#53bb6c", "#156e3a", "#166636"],
@@ -11,7 +11,7 @@ const allTileColors = [
     ["#d92327", "#ff4245", "#a61b1e", "#9c191c"],
     ["#fed304", "#fedf41", "#cca903", "#c2a103"],
 ];
-let columnTops = [  gamebox.clientHeight, 
+let columnTops = [  gamebox.clientHeight, //To keep track how high is each column
                     gamebox.clientHeight, 
                     gamebox.clientHeight, 
                     gamebox.clientHeight, 
@@ -45,7 +45,7 @@ class InputHandler {
 }
 
 function createNewTile() {
-    const tileColors = allTileColors[Math.floor(Math.random() * 7)] //Get randomly one of the colors
+    const tileColors = allTileColors[Math.floor(Math.random() * 7)] //Get randomly one of the color schemes
     const targetDiv = document.getElementById('gamebox');
     const svgNode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svgNode.setAttributeNS(null, 'width', '30px');
@@ -77,17 +77,20 @@ function createNewTile() {
     square = svgNode;
 }
 
-function updateColumnTops(column, top) {
+function updateColumnTops(column, top) { //Atm not very needed as a separate func. But was afraid that animate() will get pretty long later
     columnTops[column] = top;
 }
 
 const input = new InputHandler();
 
 function animate() {
-    let squareVerticalPos = parseFloat(square.style.top) || 0;
+    let squareVerticalPos = parseFloat(square.style.top) || 0; 
     const squareHorizontalPos = square.style.left === "" ? 150 : parseFloat(square.style.left);
+    //On prev line only "parseFloat(square.style.left) || 150;" didn't work, 
+    //as if the tile hits left side, square.style.left = "0px" and it would automatically put it to 150px from left then.
     const column = squareHorizontalPos / 30;
 
+    //Move tile downwards till the bottom or the top of column
     const newVerticalPos = squareVerticalPos + verticalSpeed;
     if (newVerticalPos <= columnTops[column] - square.clientHeight) {
         square.style.top = newVerticalPos + "px";
@@ -98,6 +101,7 @@ function animate() {
         createNewTile();
     }
 
+    //Move tile horizontally
     if (input.keys.includes("ArrowRight")){
         newHorizontalPos = squareHorizontalPos + horizontalSpeed;
         if (newHorizontalPos <= gamebox.clientWidth - square.clientWidth) {
@@ -116,14 +120,16 @@ function animate() {
         input.keys.splice(input.keys.indexOf("ArrowLeft"), 1);
     }
 
+    //Speed up downward movement with Down Arrow key
     if (input.keys.includes("ArrowDown")){
         verticalSpeed = 8;
     } else {
         verticalSpeed = 2;
     }
 
+    //Loop the animation
     requestAnimationFrame(animate);
 }
 
-createNewTile();
+createNewTile(); //Creates the first tile
 animate();
