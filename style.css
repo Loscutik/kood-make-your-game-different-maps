@@ -1,0 +1,21 @@
+body {
+    background-color: black;
+}
+
+.square {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0px;
+    left: 150px;
+}
+
+#gamebox {
+    position: relative;
+    background-color: black;
+    border: 3px solid #C0C0C0;
+    margin-left: 20vw;
+    margin-top: 5vh;
+    height: 600px;
+    width: 300px;
+}
