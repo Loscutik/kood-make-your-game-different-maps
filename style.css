@@ -2,12 +2,26 @@ body {
     background-color: black;
 }
 
-.square {
+.tetromino {
     margin: 0;
     padding: 0;
     position: absolute;
     top: 0px;
     left: 150px;
+    line-height: 0;
+}
+
+.emptyTile {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.tile {
+    margin: 0;
+    padding: 0;
 }
 
 #gamebox {
