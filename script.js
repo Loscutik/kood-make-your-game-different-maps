@@ -161,4 +161,4 @@ function animate() {
 }
 
 createTetromino();
-animate();
+// animate();

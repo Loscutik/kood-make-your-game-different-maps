@@ -24,12 +24,102 @@ body {
     padding: 0;
 }
 
+#container {
+    display: flex;
+    justify-content: center;
+    column-gap: 5vw;
+}
+
 #gamebox {
     position: relative;
     background-color: black;
     border: 3px solid #C0C0C0;
-    margin-left: 20vw;
     margin-top: 5vh;
     height: 600px;
     width: 300px;
+    min-width: 300px;
+}
+
+#board {
+    border: 3px solid #C0C0C0;
+    border-radius: 10px;
+    margin-top: 10vh;
+    height: 210px;
+    width: 250px;
+    min-width: 250px;
+}
+
+#boardInfoWrapper {
+    display: flex;
+    justify-content: center;
+    column-gap: 30px;
+    margin-top: 30px;
+    font-family: "Aldrich", sans-serif;
+    color: #C0C0C0;
+    font-size: 25px;
+}
+
+#boardInfoLeftColumn {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+#boardInfoRightColumn {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+#boardButtonsWrapper {
+    display: flex;
+    column-gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#boardButtonsWrapper button {
+    border-top: 3px inset rgba(255,255,255,.5);
+    border-left: 3px inset rgba(255,255,255,.5);
+	border-right: 3px inset rgba(0,0,0,.5);
+    border-bottom: 3px inset rgba(0,0,0,.5);
+	cursor: pointer;
+	width: 92px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+#pauseButton {
+    background: hsl(177, 60%, 38%);
+
+    &:focus,
+	&:hover {
+		background: hsl(177, 83%, 43%);
+	}
+}
+
+#restartButton {
+    background: hsl(359, 70%, 38%);
+
+    &:focus,
+	&:hover {
+		background: hsl(359, 93%, 43%);
+	}
+}
+
+.buttonTextWrapper {
+    padding: 4px;
+    padding-top: 5px;
+    font-family: "Aldrich", sans-serif;
+	color: white;
+}
+
+.buttonText {
+    font-size: 15px;
+}
+
+.buttonTextShortcut {
+    font-size: 10px;
 }

@@ -4,9 +4,43 @@
     <meta charset="UTF-8">
     <title>GAME</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Aldrich">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Coda">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Electrolize">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Share+Tech+Mono">
 </head>
 <body>
-    <div id="gamebox"></div>
+    <div id="container">
+        <div id="gamebox"></div>
+        <div id="board">
+            <div id="boardInfoWrapper">
+                <div id="boardInfoLeftColumn">
+                    <span class="boardText">TIME</span>
+                    <span class="boardText">SCORE</span>
+                    <span class="boardText">LIVES</span>
+                </div>
+                <div id="boardInfoRightColumn">
+                    <span class="boardValue">00:00</span>
+                    <span class="boardValue">00001</span>
+                    <span class="boardValue">3</span>
+                </div>
+            </div>
+            <div id="boardButtonsWrapper">
+                <button id="pauseButton">
+                    <div class="buttonTextWrapper">
+                        <div class="buttonText">PAUSE</div>
+                        <div class="buttonTextShortcut">(Space)</div>
+                    </div>
+                </button>
+                <button id="restartButton">
+                    <div class="buttonTextWrapper">
+                        <div class="buttonText">RESTART</div>
+                        <div class="buttonTextShortcut">(R)</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
     <script type="module" src="script.js"></script>
 </body>
 </html>
