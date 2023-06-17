@@ -40,6 +40,28 @@ body {
     min-width: 300px;
 }
 
+#gameMessageBox {
+    display: none;
+    position: absolute;
+    background-color: black;
+    z-index: 10;
+    border: 3px solid #C0C0C0;
+    border-radius: 10px;
+    left: 57px;
+    top: 200px;
+    height: 60px;
+    width: 180px;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameMessage {
+    font-family: "Aldrich", sans-serif;
+    color: #C0C0C0;
+    font-size: 25px;
+    margin-bottom: -5px;
+}
+
 #board {
     border: 3px solid #C0C0C0;
     border-radius: 10px;
@@ -96,12 +118,22 @@ body {
     align-content: center;
 }
 
-#pauseButton {
+.pauseButtonRed {
     background: hsl(177, 60%, 38%);
 
     &:focus,
 	&:hover {
 		background: hsl(177, 83%, 43%);
+	}
+}
+
+.pauseButtonGreen {
+    background: #1fa054;
+    background: hsl(145, 68%, 37%);
+
+    &:focus,
+	&:hover {
+		background: hsl(145, 91%, 42%);
 	}
 }
 

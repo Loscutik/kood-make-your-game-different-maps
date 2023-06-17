@@ -1,6 +1,14 @@
 import { tetrominoesData } from "./data.js";
 
+window.addEventListener("DOMContentLoaded", function(){
+    pauseButtonListener();
+    restartButtonListener();
+});
+
 let tetromino;
+let animationFrameId;
+let isPaused = false;
+let gameOver = false;
 const gamebox = document.getElementById("gamebox");
 let verticalSpeed = 2;
 const horizontalSpeed = 30;
@@ -24,16 +32,25 @@ class InputHandler {
             if ((   e.key === "ArrowLeft" ||
                     e.key === "ArrowRight" ||
                     e.key === "ArrowDown" ||
-                    e.key === "ArrowUp") && 
+                    e.key === "ArrowUp" ||
+                    e.key === " " ||
+                    e.key === "r") && 
                     !this.keys.includes(e.key)){
                 this.keys.push(e.key);
+            }
+            if (this.keys.includes(" ")){
+                pauseResumeToggle();
+            } else if (this.keys.includes("r")){
+                restartGame();
             }
         });
         window.addEventListener('keyup', e => {
             if (e.key === "ArrowLeft" ||
                 e.key === "ArrowRight" ||
                 e.key === "ArrowDown" ||
-                e.key === "ArrowUp"){
+                e.key === "ArrowUp" ||
+                e.key === " " ||
+                e.key === "r"){
                 this.keys.splice(this.keys.indexOf(e.key), 1);
             }
         });
@@ -56,6 +73,7 @@ function createTetromino() {
     }
     newTetromino.style.width = tetrominoData.width;
     newTetromino.style.height = tetrominoData.height;
+    newTetromino.style.zIndex = "1";
     gamebox.appendChild(newTetromino);
     tetromino = newTetromino;
 }
@@ -89,6 +107,79 @@ function createNewTile(tetromino, colorCodes) {
     svgNode.appendChild(tileNodeCorners);
 }
 
+function pauseResumeToggle() {
+    if (gameOver === true) {
+        return
+    };
+    const pauseBtn = document.getElementById("pauseButton");
+    const pauseBtnText = document.getElementById("pauseButtonText");
+    if (isPaused === true) {
+        pauseBtnText.textContent = "PAUSE";
+        pauseBtn.classList.remove("pauseButtonGreen");
+        pauseBtn.classList.add("pauseButtonRed");
+        toggleMessageBox();
+        isPaused = false;
+        animate();
+    } else {
+        pauseBtnText.textContent = "RESUME";
+        pauseBtn.classList.remove("pauseButtonRed");
+        pauseBtn.classList.add("pauseButtonGreen");
+        toggleMessageBox("PAUSED");
+        isPaused = true;
+    }
+}
+
+function restartGame() {
+    window.cancelAnimationFrame(animationFrameId);
+    const gamebox = document.getElementById("gamebox");
+    const tetrominoes = gamebox.querySelectorAll('.tetromino');
+    tetrominoes.forEach(tetromino => {
+        tetromino.remove();
+    });
+    columnTops = [  gamebox.clientHeight, //To keep track how high is each column
+                    gamebox.clientHeight, 
+                    gamebox.clientHeight, 
+                    gamebox.clientHeight, 
+                    gamebox.clientHeight, 
+                    gamebox.clientHeight, 
+                    gamebox.clientHeight, 
+                    gamebox.clientHeight,
+                    gamebox.clientHeight,
+                    gamebox.clientHeight];
+    const messageBox = document.getElementById("gameMessageBox");
+    messageBox.style.display = "none";
+    isPaused = false;
+    gameOver = false;
+    createTetromino();
+    animate();
+}
+
+function toggleMessageBox(message) {
+    const messageBox = document.getElementById("gameMessageBox");
+    const messageSpan = document.getElementById("gameMessage");
+    console.log(messageBox.style.display);
+    if (messageBox.style.display !== "flex") {
+        messageSpan.textContent = message;
+        messageBox.style.display = "flex";
+    } else {
+        messageBox.style.display = "none";
+    }
+}
+
+function pauseButtonListener() {
+    const pauseBtn = document.getElementById("pauseButton");
+    pauseBtn.addEventListener("click", function(){
+        pauseResumeToggle();
+    })
+}
+
+function restartButtonListener() {
+    const restartBtn = document.getElementById("restartButton");
+    restartBtn.addEventListener("click", function(){
+        restartGame();
+    })
+}
+
 function turnTetromino() {
     const currentHeight = tetromino.clientHeight;
     const currentWidth = tetromino.clientWidth;
@@ -103,6 +194,10 @@ function updateColumnTops(column, top) { //Atm not very needed as a separate fun
 const input = new InputHandler();
 
 function animate() {
+    if (isPaused === true) {
+        return
+    }
+
     let tetrominoVerticalPos = parseFloat(tetromino.style.top) || 0; 
     const tetrominoHorizontalPos = tetromino.style.left === "" ? 150 : parseFloat(tetromino.style.left);
     //On prev line only "parseFloat(square.style.left) || 150;" didn't work, 
@@ -115,7 +210,8 @@ function animate() {
         tetromino.style.top = newVerticalPos + "px";
     } else {
         if (columnTops[column] === 0){
-            alert("Game over!")
+            toggleMessageBox("GAME OVER");
+            gameOver = true;
             return
         }
         tetromino.style.top = (columnTops[column] - tetromino.clientHeight) + "px";
@@ -157,8 +253,8 @@ function animate() {
     }
 
     //Loop the animation
-    requestAnimationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
 }
 
 createTetromino();
-// animate();
+animate();

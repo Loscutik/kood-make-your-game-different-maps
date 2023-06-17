@@ -11,7 +11,11 @@
 </head>
 <body>
     <div id="container">
-        <div id="gamebox"></div>
+        <div id="gamebox">
+            <div id="gameMessageBox">
+                <span id="gameMessage"></span>
+            </div>
+        </div>
         <div id="board">
             <div id="boardInfoWrapper">
                 <div id="boardInfoLeftColumn">
@@ -36,9 +40,9 @@
                 </div>
             </div>
             <div id="boardButtonsWrapper">
-                <button id="pauseButton">
+                <button id="pauseButton" class="pauseButtonRed">
                     <div class="buttonTextWrapper">
-                        <div class="buttonText">PAUSE</div>
+                        <div id="pauseButtonText" class="buttonText">PAUSE</div>
                         <div class="buttonTextShortcut">(Space)</div>
                     </div>
                 </button>
