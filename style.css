@@ -71,6 +71,11 @@ body {
     row-gap: 10px;
 }
 
+#livesWrapper {
+    height: 20px;
+    margin-top: -1px;
+}
+
 #boardButtonsWrapper {
     display: flex;
     column-gap: 12px;
