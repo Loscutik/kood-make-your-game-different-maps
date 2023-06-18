@@ -1,6 +1,8 @@
 // placement changed to array of numbers
 // added shape property
-
+export const BOX_WIDTH =300;
+export const BOX_HEIGHT =600;
+export const TILE_SIZE = 30;
 export const tetrominoesData = [
     // 1) The long one
     {
