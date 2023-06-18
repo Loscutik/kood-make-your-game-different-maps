@@ -1,4 +1,5 @@
 import { tetrominoesData } from "./data.js";
+import { Tetromino } from "./tetrominoclass.js";
 
 let tetromino;
 const gamebox = document.getElementById("gamebox");
@@ -42,14 +43,14 @@ class InputHandler {
 
 function createTetromino() {
     const newTetromino = document.createElement("div");
-    const gamebox = document.getElementById('gamebox');
+    //const gamebox = document.getElementById('gamebox');
     newTetromino.classList.add("tetromino");
     let tetrominoData = tetrominoesData[Math.floor(Math.random() * 7)];
     for (let char of tetrominoData.placement){
-        if (char === "1"){
+        if (char === 1){    // placement changed to array of numbers
             createNewTile(newTetromino, tetrominoData.colorCodes)
         } else {
-            const emptyTile = document.createElement("div");
+            const emptyTile = document.createElement("svg"); //changed div to svg
             emptyTile.classList.add("emptyTile");
             newTetromino.appendChild(emptyTile);
         }
@@ -62,9 +63,13 @@ function createTetromino() {
 
 function createNewTile(tetromino, colorCodes) {
     const svgNode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svgNode.setAttributeNS(null, 'width', '30px');
-    svgNode.setAttributeNS(null, 'height', '30px');
-    svgNode.setAttributeNS(null, 'viewBox', '0 0 30 30');
+    // svgNode.setAttributeNS(null, 'width', '30px');
+    // svgNode.setAttributeNS(null, 'height', '30px');
+    // svgNode.setAttributeNS(null, 'viewBox', '0 0 30 30');
+    //!!! it's enaught to use setAttribute, not setAttributeNS
+    svgNode.setAttribute('width', '30px');
+    svgNode.setAttribute('height', '30px');
+    svgNode.setAttribute('viewBox', '0 0 30 30');
     svgNode.classList.add("tile");
     tetromino.appendChild(svgNode);
 
