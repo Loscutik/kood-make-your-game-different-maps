@@ -60,42 +60,6 @@ class InputHandler {
     }
 }
 
-
-// function turnTetromino() {
-//     const currentHeight = tetromino.clientHeight;
-//     const currentWidth = tetromino.clientWidth;
-//     tetromino.element.style.height = currentWidth + "px";
-//     tetromino.element.style.width = currentHeight + "px";
-// }
-function createNewTile(tetromino, colorCodes) {
-    const svgNode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svgNode.setAttributeNS(null, 'width', '30px');
-    svgNode.setAttributeNS(null, 'height', '30px');
-    svgNode.setAttributeNS(null, 'viewBox', '0 0 30 30');
-    svgNode.classList.add("tile");
-    tetromino.appendChild(svgNode);
-
-    const tileNodeMiddle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    tileNodeMiddle.setAttributeNS(null, 'd', 'M2.9 2.9h25v25h-25z');
-    tileNodeMiddle.setAttributeNS(null, 'style', 'fill:' + colorCodes[0] + ';fill-opacity:1;stroke-width:.17016');
-    svgNode.appendChild(tileNodeMiddle);
-
-    const tileNodeLeftSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    tileNodeLeftSide.setAttributeNS(null, 'd', 'M0 0v30l3-3V3h24l3-3z');
-    tileNodeLeftSide.setAttributeNS(null, 'style', 'fill:' + colorCodes[1] + ';fill-opacity:1;stroke-width:.264583');
-    svgNode.appendChild(tileNodeLeftSide);
-
-    const tileNodeRightSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    tileNodeRightSide.setAttributeNS(null, 'd', 'M30 0v30H0l3-3h24V3Z');
-    tileNodeRightSide.setAttributeNS(null, 'style', 'fill:' + colorCodes[2] + ';fill-opacity:1;stroke-width:.264583');
-    svgNode.appendChild(tileNodeRightSide);
-
-    const tileNodeCorners = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    tileNodeCorners.setAttributeNS(null, 'd', 'M0 30v-1h1v-1h1v-1h1v1H2v1H1v1zM27 3V2h1V1h1V0h1v1h-1v1h-1v1z');
-    tileNodeCorners.setAttributeNS(null, 'style', 'fill:' + colorCodes[3] + ';fill-opacity:1;stroke-width:.264583');
-    svgNode.appendChild(tileNodeCorners);
-}
-
 function pauseResumeToggle() {
     if (gameOver === true) {
         return
@@ -139,7 +103,7 @@ function restartGame() {
     messageBox.style.display = "none";
     isPaused = false;
     gameOver = false;
-    createTetromino();
+    tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
     animate();
 }
 
@@ -167,13 +131,6 @@ function restartButtonListener() {
     restartBtn.addEventListener("click", function(){
         restartGame();
     })
-}
-
-function turnTetromino() {
-    const currentHeight = tetromino.clientHeight;
-    const currentWidth = tetromino.clientWidth;
-    tetromino.style.height = currentWidth + "px";
-    tetromino.style.width = currentHeight + "px";
 }
 
 function updateColumnTops(column, top) { //Atm not very needed as a separate func. But was afraid that animate() will get pretty long later
