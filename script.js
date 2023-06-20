@@ -1,5 +1,6 @@
 import { tetrominoesData, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox } from "./gameStatus.js"
 
 
 window.addEventListener("DOMContentLoaded", function(){
@@ -7,25 +8,32 @@ window.addEventListener("DOMContentLoaded", function(){
     restartButtonListener();
 });
 
+window.addEventListener("runAnimation", animate);
+
+function pauseButtonListener() {
+    const pauseBtn = document.getElementById("pauseButton");
+    pauseBtn.addEventListener("click", function(){
+        pauseResumeToggle();
+    })
+}
+
+function restartButtonListener() {
+    const restartBtn = document.getElementById("restartButton");
+    restartBtn.addEventListener("click", function(){
+        tetromino = restartGame(initializeColumnTops);
+    })
+}
+
 let tetromino;
-let animationFrameId;
-let isPaused = false;
-let gameOver = false;
+let columnTops;
 const gamebox = document.getElementById("gamebox");
 
 let verticalSpeed = 2;
 const horizontalSpeed = 30;
 
-let columnTops = [gamebox.clientHeight, //To keep track how high is each column
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight];
+function initializeColumnTops() {
+    columnTops = Array(10).fill(gamebox.clientHeight);
+}
 
 class InputHandler {
     constructor() {
@@ -44,7 +52,7 @@ class InputHandler {
             if (this.keys.includes(" ")){
                 pauseResumeToggle();
             } else if (this.keys.includes("r")){
-                restartGame();
+                tetromino = restartGame(initializeColumnTops);
             }
         });
         window.addEventListener('keyup', e => {
@@ -60,87 +68,10 @@ class InputHandler {
     }
 }
 
-function pauseResumeToggle() {
-    if (gameOver === true) {
-        return
-    };
-    const pauseBtn = document.getElementById("pauseButton");
-    const pauseBtnText = document.getElementById("pauseButtonText");
-    if (isPaused === true) {
-        pauseBtnText.textContent = "PAUSE";
-        pauseBtn.classList.remove("pauseButtonGreen");
-        pauseBtn.classList.add("pauseButtonRed");
-        toggleMessageBox();
-        isPaused = false;
-        animate();
-    } else {
-        pauseBtnText.textContent = "RESUME";
-        pauseBtn.classList.remove("pauseButtonRed");
-        pauseBtn.classList.add("pauseButtonGreen");
-        toggleMessageBox("PAUSED");
-        isPaused = true;
-    }
-}
-
-function restartGame() {
-    window.cancelAnimationFrame(animationFrameId);
-    const gamebox = document.getElementById("gamebox");
-    const tetrominoes = gamebox.querySelectorAll('.tetromino');
-    tetrominoes.forEach(tetromino => {
-        tetromino.remove();
-    });
-    columnTops = [  gamebox.clientHeight, //To keep track how high is each column
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight,
-                    gamebox.clientHeight,
-                    gamebox.clientHeight];
-    const messageBox = document.getElementById("gameMessageBox");
-    messageBox.style.display = "none";
-    isPaused = false;
-    gameOver = false;
-    tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-    animate();
-}
-
-function toggleMessageBox(message) {
-    const messageBox = document.getElementById("gameMessageBox");
-    const messageSpan = document.getElementById("gameMessage");
-    console.log(messageBox.style.display);
-    if (messageBox.style.display !== "flex") {
-        messageSpan.textContent = message;
-        messageBox.style.display = "flex";
-    } else {
-        messageBox.style.display = "none";
-    }
-}
-
-function pauseButtonListener() {
-    const pauseBtn = document.getElementById("pauseButton");
-    pauseBtn.addEventListener("click", function(){
-        pauseResumeToggle();
-    })
-}
-
-function restartButtonListener() {
-    const restartBtn = document.getElementById("restartButton");
-    restartBtn.addEventListener("click", function(){
-        restartGame();
-    })
-}
-
-function updateColumnTops(column, top) { //Atm not very needed as a separate func. But was afraid that animate() will get pretty long later
-    columnTops[column] = top;
-}
-
 const input = new InputHandler();
 
 function animate() {
-    if (isPaused === true) {
+    if (currentStatus.isPaused === true) {
         return
     }
 
@@ -152,12 +83,12 @@ function animate() {
     } else {
         if (columnTops[column] === 0){
             toggleMessageBox("GAME OVER");
-            gameOver = true;
+            currentStatus.isOver = true;
             return
         }
         tetromino.top = columnTops[column] - tetromino.height;
         tetromino.element.style.top = tetromino.top + "px";
-        updateColumnTops(tetromino.left / 30, tetromino.top);
+        columnTops[column] = tetromino.top;
         tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
     }
 
@@ -192,8 +123,9 @@ function animate() {
     }
 
     //Loop the animation
-    animationFrameId = requestAnimationFrame(animate);
+    currentStatus.animationFrameId = requestAnimationFrame(animate);
 }
 
+initializeColumnTops();
 tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
 animate();
