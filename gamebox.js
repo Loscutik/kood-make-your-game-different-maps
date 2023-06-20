@@ -20,8 +20,12 @@ export const columnTopsStart = [
 
     updateColumnTops(column, top) { //Atm not very needed as a separate func. But was afraid that animate() will get pretty long later
         this.columnTopsCurrent[column] = top;
-    }
+    };
+
+    resetColumnTops () {
+        this.columnTopsCurrent = [...columnTopsStart];
+    };
 }
-export const gamebox= new Gamebox;
+export const gamebox = new Gamebox;
 
 

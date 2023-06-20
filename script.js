@@ -22,13 +22,11 @@ function pauseButtonListener() {
 function restartButtonListener() {
     const restartBtn = document.getElementById("restartButton");
     restartBtn.addEventListener("click", function(){
-        tetromino = restartGame(initializeColumnTops);
+        tetromino = restartGame();
     })
 }
 
 let tetromino;
-
-
 
 class InputHandler {
     constructor() {
@@ -47,7 +45,7 @@ class InputHandler {
             if (this.keys.includes(" ")) {
                 pauseResumeToggle();
             } else if (this.keys.includes("r")){
-                tetromino = restartGame(initializeColumnTops);
+                tetromino = restartGame();
             }
         });
         window.addEventListener('keyup', e => {
@@ -82,7 +80,6 @@ function animate() {
         }
     }
     
-
     //Turn tetromino with Up Arrow key
     if (input.keys.includes("ArrowUp")) {
         tetromino.turn();
@@ -111,6 +108,5 @@ function animate() {
     currentStatus.animationFrameId = requestAnimationFrame(animate);
 }
 
-initializeColumnTops();
 tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
 animate();

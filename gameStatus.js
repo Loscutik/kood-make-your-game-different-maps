@@ -1,5 +1,6 @@
 import { tetrominoesData } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
+import { gamebox } from "./gamebox.js"
 
 export const currentStatus = {
     _isPaused: false,
@@ -53,14 +54,14 @@ export function pauseResumeToggle() {
     }
 }
 
-export function restartGame(initializeColumnTops) {
+export function restartGame() {
     window.cancelAnimationFrame(currentStatus.animationFrameId);
-    const gamebox = document.getElementById("gamebox");
-    const tetrominoes = gamebox.querySelectorAll('.tetromino');
+    const gameboxElement = document.getElementById("gamebox");
+    const tetrominoes = gameboxElement.querySelectorAll('.tetromino');
     tetrominoes.forEach(tetromino => {
         tetromino.remove();
     });
-    initializeColumnTops();
+    gamebox.resetColumnTops();
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
     currentStatus.isPaused = false;
