@@ -1,8 +1,10 @@
 import { tetrominoesData, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
+import { columnTopsStart, gamebox } from "./gamebox.js"
 
+let verticalSpeed = 2;
 
-window.addEventListener("DOMContentLoaded", function(){
+window.addEventListener("DOMContentLoaded", function () {
     pauseButtonListener();
     restartButtonListener();
 });
@@ -11,39 +13,25 @@ let tetromino;
 let animationFrameId;
 let isPaused = false;
 let gameOver = false;
-const gamebox = document.getElementById("gamebox");
 
-let verticalSpeed = 2;
-const horizontalSpeed = 30;
-
-let columnTops = [gamebox.clientHeight, //To keep track how high is each column
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight,
-gamebox.clientHeight];
 
 class InputHandler {
     constructor() {
         this.keys = [];
         this.keysDownTimes = {}
         window.addEventListener('keydown', e => {
-            if ((   e.key === "ArrowLeft" ||
-                    e.key === "ArrowRight" ||
-                    e.key === "ArrowDown" ||
-                    e.key === "ArrowUp" ||
-                    e.key === " " ||
-                    e.key === "r") && 
-                    !this.keys.includes(e.key)){
+            if ((e.key === "ArrowLeft" ||
+                e.key === "ArrowRight" ||
+                e.key === "ArrowDown" ||
+                e.key === "ArrowUp" ||
+                e.key === " " ||
+                e.key === "r") &&
+                !this.keys.includes(e.key)) {
                 this.keys.push(e.key);
             }
-            if (this.keys.includes(" ")){
+            if (this.keys.includes(" ")) {
                 pauseResumeToggle();
-            } else if (this.keys.includes("r")){
+            } else if (this.keys.includes("r")) {
                 restartGame();
             }
         });
@@ -53,7 +41,7 @@ class InputHandler {
                 e.key === "ArrowDown" ||
                 e.key === "ArrowUp" ||
                 e.key === " " ||
-                e.key === "r"){
+                e.key === "r") {
                 this.keys.splice(this.keys.indexOf(e.key), 1);
             }
         });
@@ -84,21 +72,12 @@ function pauseResumeToggle() {
 
 function restartGame() {
     window.cancelAnimationFrame(animationFrameId);
-    const gamebox = document.getElementById("gamebox");
-    const tetrominoes = gamebox.querySelectorAll('.tetromino');
+    const tetrominoes = gamebox.element.querySelectorAll('.tetromino');
     tetrominoes.forEach(tetromino => {
         tetromino.remove();
     });
-    columnTops = [  gamebox.clientHeight, //To keep track how high is each column
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight, 
-                    gamebox.clientHeight,
-                    gamebox.clientHeight,
-                    gamebox.clientHeight];
+    columnTops = [...columnTopsStart] //To keep track how high is each column
+
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
     isPaused = false;
@@ -121,21 +100,19 @@ function toggleMessageBox(message) {
 
 function pauseButtonListener() {
     const pauseBtn = document.getElementById("pauseButton");
-    pauseBtn.addEventListener("click", function(){
+    pauseBtn.addEventListener("click", function () {
         pauseResumeToggle();
     })
 }
 
 function restartButtonListener() {
     const restartBtn = document.getElementById("restartButton");
-    restartBtn.addEventListener("click", function(){
+    restartBtn.addEventListener("click", function () {
         restartGame();
     })
 }
 
-function updateColumnTops(column, top) { //Atm not very needed as a separate func. But was afraid that animate() will get pretty long later
-    columnTops[column] = top;
-}
+
 
 const input = new InputHandler();
 
@@ -144,36 +121,32 @@ function animate() {
         return
     }
 
-    const column = tetromino.left / 30;
-    //Move tile downwards till the bottom or the top of column
-    tetromino.top += verticalSpeed;
-    if (tetromino.top + tetromino.height <= columnTops[column]) {
-        tetromino.element.style.top = tetromino.top + "px";
-    } else {
-        if (columnTops[column] === 0){
+    // moveDown moves the tetromino down if it is possible
+    // and returns true if the movement had done and false otherwise
+    if (!tetromino.moveDown(verticalSpeed)) {
+        gamebox.updateColumnTops(tetromino.left / 30, tetromino.top);
+        tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+        if (tetromino.hasBeenPlaced()) {
             toggleMessageBox("GAME OVER");
             gameOver = true;
             return
         }
-        tetromino.top = columnTops[column] - tetromino.height;
-        tetromino.element.style.top = tetromino.top + "px";
-        updateColumnTops(tetromino.left / 30, tetromino.top);
-        tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+    }
+    
+
+    //Turn tetromino with Up Arrow key
+    if (input.keys.includes("ArrowUp")) {
+        tetromino.turn();
+        input.keys.splice(input.keys.indexOf("ArrowUp"), 1);
     }
 
     //Move tile horizontally
     if (input.keys.includes("ArrowRight")) {
-        tetromino.left += horizontalSpeed;
-        if (tetromino.left > BOX_WIDTH - tetromino.width) tetromino.left = BOX_WIDTH - tetromino.width
-
-        tetromino.element.style.left = tetromino.left + "px";
+        tetromino.moveRight();
         input.keys.splice(input.keys.indexOf("ArrowRight"), 1);
 
     } else if (input.keys.includes("ArrowLeft")) {
-        tetromino.left -= horizontalSpeed;
-        if (tetromino.left < 0) tetromino.left = 0
-        
-        tetromino.element.style.left = tetromino.left + "px";
+        tetromino.moveLeft();
         input.keys.splice(input.keys.indexOf("ArrowLeft"), 1);
     }
 
@@ -184,12 +157,6 @@ function animate() {
         verticalSpeed = 2;
     }
 
-    //Turn tetromino with Up Arrow key
-    if (input.keys.includes("ArrowUp")) {
-        input.keys.splice(input.keys.indexOf("ArrowUp"), 1);
-        //tetromino.element.style.transform = `rotate(0.5turn)`
-        tetromino.turn();
-    }
 
     //Loop the animation
     animationFrameId = requestAnimationFrame(animate);
