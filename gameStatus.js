@@ -2,34 +2,10 @@ import { tetrominoesData } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
 
-export const currentStatus = {
-    _isPaused: false,
-    _isOver: false,
-    _animationFrameId: 0,
-    get isPaused() {
-        return this._isPaused;
-    },
-    set isPaused(bool) {
-        if (typeof bool !== "boolean") {
-            throw new Error("isPaused must be a boolean")
-        }
-        this._isPaused = bool;
-    },
-    get isOver() {
-        return this._isOver;
-    },
-    set isOver(bool) {
-        if (typeof bool !== "boolean") {
-            throw new Error("isPaused must be a boolean")
-        }
-        this._isOver = bool;
-    },
-    get animationFrameId() {
-        return this._animationFrameId;
-    },
-    set animationFrameId(id) {
-        this._animationFrameId = id;
-    }
+export let currentStatus = {
+    isPaused: false,
+    isOver: false,
+    animationFrameId: 0,
 }
 
 export function pauseResumeToggle() {
