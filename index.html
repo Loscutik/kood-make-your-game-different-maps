@@ -5,11 +5,30 @@
     <title>GAME</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Aldrich">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Coda">
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Coda">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Electrolize">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Share+Tech+Mono">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Share+Tech+Mono"> -->
 </head>
 <body>
+    <div id="startBox">
+        <span id="startTitle">TETRIS</span>
+        <span class="controlsTitle">CONTROLS:</span>
+        <div id="controlsWrapper">
+            <span id="controlsRotate">ROTATE</span>
+            <span id="controlsMoveLeft">MOVE<br>LEFT</span>
+            <svg id="controlsKeyImg" xmlns="http://www.w3.org/2000/svg" width="130px" viewBox="7 21.98 86 56.04"><g style="fill:silver;fill-opacity:1"><path d="M47.05 65.64h2.07v-7.17c0-.41.34-.75.75-.75s.75.34.75.75v7.17h2.07c.41 0 .66.44.46.79l-2.82 4.89a.53.53 0 0 1-.92 0l-2.82-4.89a.53.53 0 0 1 .46-.79zm5.65-31.28h-2.07v7.17c0 .41-.34.75-.75.75a.76.76 0 0 1-.75-.75v-7.17h-2.07a.53.53 0 0 1-.46-.79l2.82-4.89c.2-.35.71-.35.92 0l2.82 4.89c.2.35-.05.79-.46.79zm27.93 33.12V65.4h-7.17a.76.76 0 0 1-.75-.75c0-.41.34-.75.75-.75h7.17v-2.07c0-.41.44-.66.79-.46l4.89 2.82c.35.2.35.71 0 .92l-4.89 2.82a.52.52 0 0 1-.79-.45zm-61.26-5.65v2.07h7.17c.41 0 .75.34.75.75s-.34.75-.75.75h-7.17v2.07c0 .41-.44.66-.79.46l-4.89-2.82a.53.53 0 0 1 0-.92l4.89-2.82c.35-.2.79.05.79.46z" style="display:inline;fill:silver;fill-opacity:1"/><rect width="24.93" height="24.88" x="37.41" y="22.92" ry="2.55" style="fill:none;fill-opacity:1;stroke:silver;stroke-width:1.82146;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:6.4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"/><rect width="24.89" height="24.89" x="37.42" y="52.2" ry="2.55" style="fill:none;fill-opacity:1;stroke:silver;stroke-width:1.82063;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:6.4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"/><rect width="24.91" height="24.91" x="67.18" y="52.2" ry="2.55" style="fill:none;fill-opacity:1;stroke:silver;stroke-width:1.82193;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:6.4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"/><rect width="24.9" height="24.88" x="7.91" y="52.22" ry="2.55" style="fill:none;fill-opacity:1;stroke:silver;stroke-width:1.82055;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:6.4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"/></g></svg>
+            <span id="controlsMoveRight">MOVE<br>RIGHT</span>
+            <span id="controlsFastDrop">FAST<br>DROP</span>
+        </div>
+        <span class="controlsTitle">NEW TWIST:</span>
+        <span id="newTwistText">TEXT ABOUT THE ADDITIONAL RULE WHICH WE WILL HAVE ABOUT THE LIVES RUNNING OUT LOREM IPSUM DOLOR SIT AMET, CONECTETUR ADIPISCING ELIT, SED DO EUSMOD TEMPOR INCIDIDUNT.</span>
+        <button id="startButton">
+            <div class="buttonTextWrapper">
+                <div class="buttonText">START</div>
+                <div class="buttonTextShortcut">(Enter)</div>
+            </div>
+        </button>
+    </div>
     <div id="container">
         <div id="gamebox">
             <div id="gameMessageBox">

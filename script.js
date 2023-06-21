@@ -108,5 +108,5 @@ function animate() {
     currentStatus.animationFrameId = requestAnimationFrame(animate);
 }
 
-tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-animate();
+// tetromino r= new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+// animate();

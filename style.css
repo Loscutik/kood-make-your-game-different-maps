@@ -30,6 +30,99 @@ body {
     column-gap: 5vw;
 }
 
+#startBox {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    border: 3px solid #C0C0C0;
+    background-color: black;
+    border-radius: 10px;
+    font-family: "Aldrich", sans-serif;
+    color: #C0C0C0;
+    z-index: 10;
+    left: 50%;
+    top: 40%;
+    margin-left: -250px;
+    margin-top: -190px;
+    height: 440px;
+    width: 500px;
+    align-items: center;
+}
+
+#startTitle {
+    font-size: 30px;
+    margin-bottom: -5px;
+    margin-top: 25px;
+}
+
+.controlsTitle {
+    margin-top: 25px;
+    align-self: start;
+    margin-left: 20px;
+}
+
+#controlsWrapper {
+    margin-top: -16px;
+    display: grid;
+    text-align: center;
+    row-gap: 5px;
+    column-gap: 5px;
+    font-size: 16px;
+}
+
+#controlsRotate {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+#controlsMoveLeft {
+    grid-row: 2;
+    grid-column: 1;
+    align-self: end;
+}
+
+#controlsKeyImg {
+    grid-row: 2;
+    grid-column: 2;
+}
+
+#controlsMoveRight {
+    grid-row: 2;
+    grid-column: 3;
+    align-self: end;
+}
+
+#controlsFastDrop {
+    grid-row: 3;
+    grid-column: 2;
+}
+
+#newTwistText {
+    margin-left: 140px;
+    margin-right: 40px;
+    margin-top: -16px;
+}
+
+#startButton {
+    border-top: 3px inset rgba(255,255,255,.5);
+    border-left: 3px inset rgba(255,255,255,.5);
+	border-right: 3px inset rgba(0,0,0,.5);
+    border-bottom: 3px inset rgba(0,0,0,.5);
+	cursor: pointer;
+	width: 110px;
+    padding: 0;
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background: hsl(145, 68%, 37%);
+
+    &:focus,
+	&:hover {
+		background: hsl(145, 91%, 42%);
+	}
+}
+
 #gamebox {
     position: relative;
     background-color: black;
@@ -128,7 +221,6 @@ body {
 }
 
 .pauseButtonGreen {
-    background: #1fa054;
     background: hsl(145, 68%, 37%);
 
     &:focus,
