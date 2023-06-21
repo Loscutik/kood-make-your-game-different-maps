@@ -2,6 +2,14 @@ body {
     background-color: black;
 }
 
+#container {
+    display: flex;
+    justify-content: center;
+    column-gap: 5vw;
+}
+
+/* ------------------------------ TETROMINOES ------------------------------*/
+
 .tetromino {
     margin: 0;
     padding: 0;
@@ -24,11 +32,7 @@ body {
     padding: 0;
 }
 
-#container {
-    display: flex;
-    justify-content: center;
-    column-gap: 5vw;
-}
+/* ------------------------------ START SCREEN ------------------------------*/
 
 #startBox {
     display: flex;
@@ -36,24 +40,26 @@ body {
     position: fixed;
     border: 3px solid #C0C0C0;
     background-color: black;
-    border-radius: 10px;
+    border-radius: 5px;
     font-family: "Aldrich", sans-serif;
     color: #C0C0C0;
     z-index: 10;
     left: 50%;
-    top: 40%;
+    top: 60px;
     margin-left: -250px;
-    margin-top: -190px;
-    height: 440px;
+    height: 445px;
     width: 500px;
     align-items: center;
 }
 
-#startTitle {
-    font-size: 30px;
+#gameTitle {
+    font-size: 35px;
+    letter-spacing: 1px;
     margin-bottom: -5px;
     margin-top: 25px;
 }
+
+/*------- START SCREEN: CONTROLS OVERVIEW -------*/
 
 .controlsTitle {
     margin-top: 25px;
@@ -79,6 +85,8 @@ body {
     grid-row: 2;
     grid-column: 1;
     align-self: end;
+    margin-bottom: 2px;
+    margin-right: 3px;
 }
 
 #controlsKeyImg {
@@ -90,18 +98,25 @@ body {
     grid-row: 2;
     grid-column: 3;
     align-self: end;
+    margin-bottom: 2px;
+    margin-left: 3px;
 }
 
 #controlsFastDrop {
+    margin-top: 3px;
     grid-row: 3;
     grid-column: 2;
 }
 
+/*------- START SCREEN: RULES TEXT -------*/
+
 #newTwistText {
-    margin-left: 140px;
-    margin-right: 40px;
+    margin-left: 135px;
+    margin-right: 30px;
     margin-top: -16px;
 }
+
+/*------- START SCREEN: START BUTTON -------*/
 
 #startButton {
     border-top: 3px inset rgba(255,255,255,.5);
@@ -123,6 +138,26 @@ body {
 	}
 }
 
+#startButtonText {
+    font-size: 20px;
+}
+
+#startButtonTextShortcut {
+    font-size: 14px;
+}
+
+#startScreenOverlay {
+    position: absolute;
+    z-index: 9;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+}
+
+/* -------------------------------- GAMEBOX --------------------------------*/
+
 #gamebox {
     position: relative;
     background-color: black;
@@ -133,13 +168,15 @@ body {
     min-width: 300px;
 }
 
+/*------- GAMEBOX: MESSAGE BOX -------*/
+
 #gameMessageBox {
     display: none;
     position: absolute;
     background-color: black;
     z-index: 10;
     border: 3px solid #C0C0C0;
-    border-radius: 10px;
+    border-radius: 5px;
     left: 57px;
     top: 200px;
     height: 60px;
@@ -155,9 +192,11 @@ body {
     margin-bottom: -5px;
 }
 
+/* ------------------------------ STATUS BOARD ------------------------------*/
+
 #board {
     border: 3px solid #C0C0C0;
-    border-radius: 10px;
+    border-radius: 5px;
     margin-top: 10vh;
     height: 210px;
     width: 250px;
@@ -190,6 +229,8 @@ body {
     height: 20px;
     margin-top: -1px;
 }
+
+/*------- STATUS BOARD: PAUSE/RESTART BUTTONS -------*/
 
 #boardButtonsWrapper {
     display: flex;

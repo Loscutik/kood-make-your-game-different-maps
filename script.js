@@ -1,16 +1,29 @@
 import { tetrominoesData, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { columnTopsStart, gamebox } from "./gamebox.js"
-import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox } from "./gameStatus.js"
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString } from "./gameStatus.js"
 
 let verticalSpeed = 2;
 
 window.addEventListener("DOMContentLoaded", function () {
+    startButtonListener();
     pauseButtonListener();
     restartButtonListener();
 });
 
 window.addEventListener("runAnimation", animate);
+
+function startButtonListener() {
+    const startBtn = document.getElementById("startButton");
+    startBtn.addEventListener("click", function(){
+        document.getElementById("startBox").style.display = "none";
+        document.getElementById("startScreenOverlay").style.display = "none";
+        currentStatus.startScreen = false;
+        currentStatus.startTime = performance.now();
+        tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+        animate();
+    })
+}
 
 function pauseButtonListener() {
     const pauseBtn = document.getElementById("pauseButton");
@@ -34,18 +47,26 @@ class InputHandler {
         this.keysDownTimes = {}
         window.addEventListener('keydown', e => {
             if ((e.key === "ArrowLeft" ||
-                e.key === "ArrowRight" ||
+                e.key === "ArrowRight" ||  
                 e.key === "ArrowDown" ||
                 e.key === "ArrowUp" ||
                 e.key === " " ||
-                e.key === "r") &&
+                e.key === "r" ||
+                e.key === "Enter") &&
                 !this.keys.includes(e.key)) {
                 this.keys.push(e.key);
             }
-            if (this.keys.includes(" ")) {
+            if (this.keys.includes(" ") & !currentStatus.startScreen) {
                 pauseResumeToggle();
-            } else if (this.keys.includes("r")){
+            } else if (this.keys.includes("r") & !currentStatus.startScreen) {
                 tetromino = restartGame();
+            } else if (this.keys.includes("Enter") & currentStatus.startScreen) {
+                document.getElementById("startBox").style.display = "none";
+                document.getElementById("startScreenOverlay").style.display = "none";
+                currentStatus.startScreen = false;
+                currentStatus.startTime = performance.now();
+                tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+                animate();
             }
         });
         window.addEventListener('keyup', e => {
@@ -54,7 +75,8 @@ class InputHandler {
                 e.key === "ArrowDown" ||
                 e.key === "ArrowUp" ||
                 e.key === " " ||
-                e.key === "r") {
+                e.key === "r" ||
+                e.key === "Enter") {
                 this.keys.splice(this.keys.indexOf(e.key), 1);
             }
         });
@@ -103,10 +125,18 @@ function animate() {
         verticalSpeed = 2;
     }
 
+    //Update timer on every 60ms
+    if (currentStatus.frameCount % 60 === 0) {
+        let elapsedTime = performance.now() - currentStatus.startTime;
+        console.log(elapsedTime);
+        document.getElementById('timer').textContent = msToMinutesSecondsString(elapsedTime);
+    }
+
+    currentStatus.frameCount++;
 
     //Loop the animation
     currentStatus.animationFrameId = requestAnimationFrame(animate);
 }
 
-// tetromino r= new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+// tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
 // animate();

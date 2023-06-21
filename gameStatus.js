@@ -3,6 +3,9 @@ import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
 
 export let currentStatus = {
+    startScreen: true,
+    startTime: undefined,
+    frameCount: 0,
     isPaused: false,
     isOver: false,
     animationFrameId: 0,
@@ -32,16 +35,26 @@ export function pauseResumeToggle() {
 
 export function restartGame() {
     window.cancelAnimationFrame(currentStatus.animationFrameId);
+    document.getElementById('timer').textContent = "00:00";
+    currentStatus.frameCount = 0;
     const gameboxElement = document.getElementById("gamebox");
     const tetrominoes = gameboxElement.querySelectorAll('.tetromino');
     tetrominoes.forEach(tetromino => {
         tetromino.remove();
     });
+    if (currentStatus.isPaused === true) {
+        const pauseBtn = document.getElementById("pauseButton");
+        const pauseBtnText = document.getElementById("pauseButtonText");
+        pauseBtnText.textContent = "PAUSE";
+        pauseBtn.classList.remove("pauseButtonGreen");
+        pauseBtn.classList.add("pauseButtonRed");
+        currentStatus.isPaused = false;
+    }
     gamebox.resetColumnTops();
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
-    currentStatus.isPaused = false;
     currentStatus.isOver = false;
+    currentStatus.startTime = performance.now();
     window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
 }
@@ -55,4 +68,10 @@ export function toggleMessageBox(message) {
     } else {
         messageBox.style.display = "none";
     }
+}
+
+export function msToMinutesSecondsString(ms) {
+    var minutes = Math.floor(ms / 60000);
+    var seconds = ((ms % 60000) / 1000).toFixed(0);
+    return (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 }

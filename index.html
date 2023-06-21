@@ -11,7 +11,7 @@
 </head>
 <body>
     <div id="startBox">
-        <span id="startTitle">TETRIS</span>
+        <span id="gameTitle">TETRIS</span>
         <span class="controlsTitle">CONTROLS:</span>
         <div id="controlsWrapper">
             <span id="controlsRotate">ROTATE</span>
@@ -21,14 +21,15 @@
             <span id="controlsFastDrop">FAST<br>DROP</span>
         </div>
         <span class="controlsTitle">NEW TWIST:</span>
-        <span id="newTwistText">TEXT ABOUT THE ADDITIONAL RULE WHICH WE WILL HAVE ABOUT THE LIVES RUNNING OUT LOREM IPSUM DOLOR SIT AMET, CONECTETUR ADIPISCING ELIT, SED DO EUSMOD TEMPOR INCIDIDUNT.</span>
+        <span id="newTwistText">TEXT ABOUT THE ADDITIONAL RULE WHICH WE WILL HAVE ABOUT THE LIVES RUNNING OUT. LOREM IPSUM DOLOR SIT AMET, CONECTETUR ADIPISCING ELIT, SED DO EUSMOD TEMPOR INCIDIDUNT.</span>
         <button id="startButton">
             <div class="buttonTextWrapper">
-                <div class="buttonText">START</div>
-                <div class="buttonTextShortcut">(Enter)</div>
+                <div id="startButtonText">START</div>
+                <div id="startButtonTextShortcut">(Enter)</div>
             </div>
         </button>
     </div>
+    <div id="startScreenOverlay"></div>
     <div id="container">
         <div id="gamebox">
             <div id="gameMessageBox">
@@ -43,7 +44,7 @@
                     <span class="boardText">LIVES</span>
                 </div>
                 <div id="boardInfoRightColumn">
-                    <span class="boardValue">00:00</span>
+                    <span id="timer" class="boardValue">00:00</span>
                     <span class="boardValue">00001</span>
                     <div id="livesWrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" width="21px" viewBox="0 0 20 18">
