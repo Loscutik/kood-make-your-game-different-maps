@@ -4,9 +4,9 @@ import { columnTopsStart, gamebox } from "./gamebox.js"
 import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString } from "./gameStatus.js"
 
 //Option to disable start screen for development:
-// 1) On style.css #startBox -> display: none; & #startScreenOverlay -> display: none;
-// 2) gameStatus.js -> currentStatus.startScreen = false;
-// 3) script.js -> on the bottom decomment "tetromino = ..." & "animate()"
+// 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
+// 2) gameStatus.js: currentStatus.startScreen = false;
+// 3) script.js: on the bottom decomment "tetromino = ..." & "animate()"
 
 let verticalSpeed = 2;
 
