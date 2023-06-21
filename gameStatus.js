@@ -4,7 +4,9 @@ import { gamebox } from "./gamebox.js"
 
 export let currentStatus = {
     startScreen: true,
-    startTime: undefined,
+    startTime: performance.now(),
+    pauseStartTime: undefined,
+    pauseDuration: 0,
     frameCount: 0,
     isPaused: false,
     isOver: false,
@@ -18,6 +20,7 @@ export function pauseResumeToggle() {
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
     if (currentStatus.isPaused === true) {
+        currentStatus.pauseDuration += performance.now() - currentStatus.pauseStartTime;
         pauseBtnText.textContent = "PAUSE";
         pauseBtn.classList.remove("pauseButtonGreen");
         pauseBtn.classList.add("pauseButtonRed");
@@ -25,6 +28,7 @@ export function pauseResumeToggle() {
         currentStatus.isPaused = false;
         window.dispatchEvent(new Event('runAnimation'));
     } else {
+        currentStatus.pauseStartTime = performance.now();
         pauseBtnText.textContent = "RESUME";
         pauseBtn.classList.remove("pauseButtonRed");
         pauseBtn.classList.add("pauseButtonGreen");
@@ -48,12 +52,13 @@ export function restartGame() {
         pauseBtnText.textContent = "PAUSE";
         pauseBtn.classList.remove("pauseButtonGreen");
         pauseBtn.classList.add("pauseButtonRed");
-        currentStatus.isPaused = false;
+        currentStatus.isPaused = false;   
     }
     gamebox.resetColumnTops();
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
     currentStatus.isOver = false;
+    currentStatus.pauseDuration = 0;
     currentStatus.startTime = performance.now();
     window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
