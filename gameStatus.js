@@ -46,6 +46,7 @@ export function restartGame() {
     tetrominoes.forEach(tetromino => {
         tetromino.remove();
     });
+    gamebox.resetGrid();
     if (currentStatus.isPaused === true) {
         const pauseBtn = document.getElementById("pauseButton");
         const pauseBtnText = document.getElementById("pauseButtonText");
@@ -54,7 +55,6 @@ export function restartGame() {
         pauseBtn.classList.add("pauseButtonRed");
         currentStatus.isPaused = false;   
     }
-    gamebox.resetColumnTops();
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
     currentStatus.isOver = false;

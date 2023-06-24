@@ -1,6 +1,6 @@
 import { tetrominoesData, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
-import { columnTopsStart, gamebox } from "./gamebox.js"
+import { gamebox } from "./gamebox.js"
 import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString } from "./gameStatus.js"
 
 //Option to disable start screen for development:
@@ -98,9 +98,9 @@ function animate() {
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
     if (!tetromino.moveDown(verticalSpeed)) {
-        gamebox.updateColumnTops(tetromino.left / 30, tetromino.top);
+        gamebox.freezeTilesInBox(tetromino.getTiles());
         tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-        if (tetromino.hasBeenPlaced()) {
+        if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeGridCells())) {
             toggleMessageBox("GAME OVER");
             currentStatus.isOver = true;
             return
