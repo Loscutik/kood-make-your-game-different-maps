@@ -99,6 +99,7 @@ function animate() {
     // and returns true if the movement had done and false otherwise
     if (!tetromino.moveDown(verticalSpeed)) {
         gamebox.freezeTilesInBox(tetromino.getTiles());
+        // DEBUG tetromino = new Tetromino(tetrominoesData[0]);
         tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
         if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeGridCells())) {
             toggleMessageBox("GAME OVER");
@@ -109,7 +110,7 @@ function animate() {
     
     //Turn tetromino with Up Arrow key
     if (input.keys.includes("ArrowUp")) {
-        tetromino.turn();
+        tetromino.rotate();
         input.keys.splice(input.keys.indexOf("ArrowUp"), 1);
     }
 

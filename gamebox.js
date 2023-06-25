@@ -40,7 +40,6 @@ class Gamebox {
     }
 
     hasObstacleUnderOf(cellsToCheck) {
-     //D console.log(cellsToCheck);
         return cellsToCheck.some(({row, col})=>{
             let rowUnder=row+1;
             return rowUnder===BOX_ROWS || this.grid[rowUnder][col]!==null;

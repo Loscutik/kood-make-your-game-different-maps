@@ -5,6 +5,8 @@ const horizontalSpeed = TILE_SIZE;
 
 export class Tetromino {
     constructor(initialData) {
+        this.shape = initialData.shape;
+
         this.model = {
             rows: initialData.rows,
             columns: initialData.columns,
@@ -27,45 +29,10 @@ export class Tetromino {
         }
 
         this.view.element = createTetrominoElm(this.view.left, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
-
-        // TODO: assign the turn method
-        switch (initialData.shape) {
-            case 'O':
-                this.turn = () => { }
-                break;
-            case 'I':
-                this.turn = () => {
-                    this.turnContainer();
-                    this.view.element.style.transform = `translate(${-(this.rotationCounter % 2) * 45}px, 0) rotate(${this.rotationCounter / 4}turn)`;
-                }
-                break;
-            default:
-                this.turn = () => {
-                    this.turnContainer();
-                    switch (this.rotationCounter) {
-                        case 0:
-                            this.view.element.style.transform = `rotate(0turn) `;
-                            break;
-                        case 1:
-                            this.view.element.style.transform = `translate(${-TILE_SIZE / 2}px, 0) rotate(0.25turn) `;
-                            break;
-                        case 2:
-                            this.view.element.style.transform = `rotate(0.5turn) `;
-                            break;
-                        case 3:
-                            this.view.element.style.transform = `translate(${-TILE_SIZE / 2}px, 0) rotate(0.75turn) `;
-                            break;
-                    }
-                    this.updatePlacementAfterTurning();
-                }
-        }
-
-
     }
 
     moveDown(speed) {
         let offset = this.model.offsetFromGridLine + speed;
-        //D console.log(offset);
         if (offset <= TILE_SIZE) {
             this.model.offsetFromGridLine = offset;
 
@@ -76,13 +43,13 @@ export class Tetromino {
             this.model.addressOnGrid.row++;
             if (!gamebox.hasObstacleUnderOf(this.getBottomEdgeGridCells())) {
                 this.model.offsetFromGridLine = offset - TILE_SIZE; // offset supposed to be < 2*TILE_SIZE. In this case we need to do %TILE_SIZE, but -TILE_SIZE is faster
-                
+
                 this.view.translateOffsetY += speed;
                 this.moveElm();
                 return true;
-            }else{
-                this.view.translateOffsetY += TILE_SIZE-this.model.offsetFromGridLine;
-                
+            } else {
+                this.view.translateOffsetY += TILE_SIZE - this.model.offsetFromGridLine;
+
                 this.model.offsetFromGridLine = 0;
                 this.moveElm();
                 return false;
@@ -121,41 +88,61 @@ export class Tetromino {
             `translate(${this.view.translateOffsetX}px, ${this.view.translateOffsetY}px) rotate(${0.25 * this.view.rotationCounter}turn) `;
     }
 
+
     //TODO: Implement
-    turnContainer() {
+    rotate() {
+
+        if (this.shape === 'O') return;
+
         [this.model.rows, this.model.columns] = [this.model.columns, this.model.rows];
-        [this.height, this.width] = [this.width, this.height];
+        // - change placement of the tiles
+        const newPlacement = Array(this.model.rows);
 
-        let left = this.left + (Math.floor(this.model.rows / 2) - Math.floor(this.model.columns / 2));
-        left = Math.max(left, 0);
-        left = Math.min(left, BOX_WIDTH - this.model.columns * TILE_SIZE);
-        // this.view.element.style.left = left + "px"; 
+        for (let row = 0; row < this.model.rows; row++) {
+            newPlacement[row] = Array(this.model.columns);
+            for (let col = 0; col < this.model.columns; col++) {
+                newPlacement[row][col] = this.model.placement[col][row];
+            }
+        }
 
-        let top = this.top + (Math.floor(this.model.columns / 2) - Math.floor(this.model.rows / 2));
-        top = Math.max(top, 0);
-        top = Math.min(top, BOX_HEIGHT - this.height)
-        // this.view.element.style.top = top + "px";// we don't need to change element.styles if we are using style.transform 
+        if (this.shape !== 'I') {
 
-        // this.view.element.style.height = this.height + "px";
-        // this.view.element.style.width = this.width + "px";
-        this.view.rotationCounter = this.view.rotationCounter < 3 ? this.view.rotationCounter + 1 : 0;
-    }
-
-    //TODO: Implement
-    updatePlacementAfterTurning() {
-        /*calculate the new placement of the tiles */
-        let newPlacement = [];
-        const length = this.model.columns * this.model.rows;
-        const offset = length - this.model.columns + 1;
-        for (let i = 0; i < length; i++) {
-            newPlacement[i] = this.model.placement[offset * (i + 1) % (length + 1) - 1];
+            for (let row = 0; row < this.model.rows; row++) {
+                for (let col = 0; col < Math.trunc(this.model.columns / 2); col++) {
+                    [newPlacement[row][col], newPlacement[row][this.model.columns - 1 - col]] =
+                        [newPlacement[row][this.model.columns - 1 - col], newPlacement[row][col]];
+                }
+            }
         }
 
         this.model.placement = newPlacement;
 
-        this.tileBottomEdges = getBottomEdgeGridCells(this.model.rows, this.model.columns, this.top + this.height, this.model.placement);
+        // - rotate the container
+        this.view.rotationCounter = (this.view.rotationCounter + 1) % 4;
+
+        const diff = this.model.columns - this.model.rows;
+        const containerMeasureChange = Math.trunc(diff / 2);
+        // in theory we can calculate the shift of the tetromino after the rotation ( (diff%2)*TILE_SIZE), but
+        // for all tetrominos (except for "O" which doesn't need to rotate) 'diff%2' is equal  +/-0.5.
+        // just simlify the calculation
+        const containerHalfShift = Math.sign(diff) * 0.5 * TILE_SIZE;
+
+        // -- Horizontal positions
+        this.model.addressOnGrid.col += containerMeasureChange;
+        // correct horizontal position of the tetromino view after rotation, in the other case it would stay in the middle of the grid.
+        this.view.translateOffsetX += containerHalfShift
+
+        // -- Vertical positions
+        let verticalOffset = this.model.offsetFromGridLine + containerHalfShift;
+        this.model.addressOnGrid.row += containerMeasureChange + Math.floor(verticalOffset / TILE_SIZE);
+        this.model.offsetFromGridLine = (TILE_SIZE + verticalOffset) % TILE_SIZE; // (TILE_SIZE+verticalOffset) - correction for negative verticalOffset 
+
+        //TODO: check if there are any obsticles
+
+        this.moveElm();
 
     }
+
 
     getBottomEdgeGridCells() {
         let tilesOnEdge = [];
@@ -183,11 +170,11 @@ export class Tetromino {
         }, []);
     }
 
-    getTiles(){
-        let tilesAddresses=[];
-        for (let row =0; row<this.model.rows; row++){
-            this.model.placement[row].reduce((allTiles,mark, col) => {
-                if (mark){
+    getTiles() {
+        let tilesAddresses = [];
+        for (let row = 0; row < this.model.rows; row++) {
+            this.model.placement[row].reduce((allTiles, mark, col) => {
+                if (mark) {
                     allTiles.push({ row: this.model.addressOnGrid.row + row, col: this.model.addressOnGrid.col + col })
                 }
                 return allTiles;
@@ -206,7 +193,7 @@ function createTetrominoElm(left, height, width, placement, colorCodes) {
         if (position) {
             createNewTile(newTetromino, colorCodes)
         } else {
-            const emptyTile = document.createElement("div"); 
+            const emptyTile = document.createElement("div");
             emptyTile.classList.add("emptyTile");
             newTetromino.appendChild(emptyTile);
         }
