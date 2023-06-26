@@ -47,6 +47,7 @@ class Gamebox {
     }
 
     freezeTilesInBox(cells){
+        console.log(cells.row, cells.col);
         cells.forEach(({row, col})=>this.grid[row][col] =true);
     
     }

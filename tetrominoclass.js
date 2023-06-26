@@ -120,7 +120,7 @@ export class Tetromino {
         // - rotate the container
         this.view.rotationCounter = (this.view.rotationCounter + 1) % 4;
 
-        const diff = this.model.columns - this.model.rows;
+        const diff = this.model.rows - this.model.columns;
         const containerMeasureChange = Math.trunc(diff / 2);
         // in theory we can calculate the shift of the tetromino after the rotation ( (diff%2)*TILE_SIZE), but
         // for all tetrominos (except for "O" which doesn't need to rotate) 'diff%2' is equal  +/-0.5.
@@ -133,8 +133,8 @@ export class Tetromino {
         this.view.translateOffsetX += containerHalfShift
 
         // -- Vertical positions
-        let verticalOffset = this.model.offsetFromGridLine + containerHalfShift;
-        this.model.addressOnGrid.row += containerMeasureChange + Math.floor(verticalOffset / TILE_SIZE);
+        let verticalOffset = this.model.offsetFromGridLine - containerHalfShift;
+        this.model.addressOnGrid.row -= containerMeasureChange - Math.floor(verticalOffset / TILE_SIZE);
         this.model.offsetFromGridLine = (TILE_SIZE + verticalOffset) % TILE_SIZE; // (TILE_SIZE+verticalOffset) - correction for negative verticalOffset 
 
         //TODO: check if there are any obsticles
@@ -150,7 +150,6 @@ export class Tetromino {
         for (let col = 0; col < this.model.columns; col++) {
             let row = this.model.rows - 1;
             while (!this.model.placement[row][col]) row--;
-            //row = this.model.offsetFromGridLine ? row + 1 : row;
             tilesOnEdge.push({ row: this.model.addressOnGrid.row + row, col: this.model.addressOnGrid.col + col });
         }
         return tilesOnEdge;
