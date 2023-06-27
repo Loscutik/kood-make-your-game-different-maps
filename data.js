@@ -103,11 +103,3 @@ export const tetrominoesData = [
     },
 
 ];
-
-
-// const allTileColors = { //Color codes for tiles (each tile contains 4 different colors)
-//     blue:   ["#39a8a3", "#4adbd5", "#287572", "#256e6b"],
-
-//     purple: ["#7e3d97", "#955aa4", "#532963", "#4a2459"],
-
-// };

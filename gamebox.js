@@ -82,15 +82,16 @@ class Gamebox {
             tile.getElementsByClassName("tileCorners")[0].classList.add("tileCornersBrighten");
         })
 
-        setTimeout(function() {
-            tilesToRemove.forEach(tile => tile.parentNode.removeChild(tile));
-            tilesToFall.forEach(tile => {
-                //Transform would be better here, but issues with previous transforms applied
-                tile.classList.add("tileFall");
-                let currentTop = parseInt(window.getComputedStyle(tile).top, 10);
-                tile.style.top = (currentTop + TILE_SIZE) + "px";
-            });
-        }, 700);
+        // WORK IN PROGRESS:
+        // setTimeout(function() {
+        //     tilesToRemove.forEach(tile => tile.parentNode.removeChild(tile));
+        //     tilesToFall.forEach(tile => {
+        //         //Transform would be better here, but issues with previous transforms applied
+        //         tile.classList.add("tileFall");
+        //         let currentTop = parseInt(window.getComputedStyle(tile).top, 10);
+        //         tile.style.top = (currentTop + TILE_SIZE) + "px";
+        //     });
+        // }, 700);
     }
 }
 export const gamebox = new Gamebox;
