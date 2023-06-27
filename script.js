@@ -20,7 +20,7 @@ window.addEventListener("runAnimation", animate);
 
 function startButtonListener() {
     const startBtn = document.getElementById("startButton");
-    startBtn.addEventListener("click", function(){
+    startBtn.addEventListener("click", function () {
         document.getElementById("startBox").style.display = "none";
         document.getElementById("startScreenOverlay").style.display = "none";
         currentStatus.startScreen = false;
@@ -32,14 +32,14 @@ function startButtonListener() {
 
 function pauseButtonListener() {
     const pauseBtn = document.getElementById("pauseButton");
-    pauseBtn.addEventListener("click", function(){
+    pauseBtn.addEventListener("click", function () {
         pauseResumeToggle();
     })
 }
 
 function restartButtonListener() {
     const restartBtn = document.getElementById("restartButton");
-    restartBtn.addEventListener("click", function(){
+    restartBtn.addEventListener("click", function () {
         tetromino = restartGame();
     })
 }
@@ -52,7 +52,7 @@ class InputHandler {
         this.keysDownTimes = {}
         window.addEventListener('keydown', e => {
             if ((e.key === "ArrowLeft" ||
-                e.key === "ArrowRight" ||  
+                e.key === "ArrowRight" ||
                 e.key === "ArrowDown" ||
                 e.key === "ArrowUp" ||
                 e.key === " " ||
@@ -101,13 +101,13 @@ function animate() {
         gamebox.freezeTilesInBox(tetromino.getTiles());
         // DEBUG tetromino = new Tetromino(tetrominoesData[0]);
         tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-        if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeGridCells())) {
+        if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeCells())) {
             toggleMessageBox("GAME OVER");
             currentStatus.isOver = true;
             return
         }
     }
-    
+
     //Turn tetromino with Up Arrow key
     if (input.keys.includes("ArrowUp")) {
         tetromino.rotate();
