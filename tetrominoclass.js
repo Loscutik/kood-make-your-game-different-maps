@@ -291,21 +291,25 @@ function createNewTile(tetromino, colorCodes) {
     tetromino.appendChild(svgNode);
 
     const tileNodeMiddle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeMiddle.classList.add("tileMiddle");
     tileNodeMiddle.setAttributeNS(null, 'd', `M2.9 2.9h25v25h-25z`);
     tileNodeMiddle.setAttributeNS(null, 'style', 'fill:' + colorCodes[0] + ';fill-opacity:1;stroke-width:.17016');
     svgNode.appendChild(tileNodeMiddle);
 
     const tileNodeLeftSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeLeftSide.classList.add("tileLeft");
     tileNodeLeftSide.setAttributeNS(null, 'd', `M0 0v${TILE_SIZE}l3-3V3h24l3-3z`);
     tileNodeLeftSide.setAttributeNS(null, 'style', 'fill:' + colorCodes[1] + ';fill-opacity:1;stroke-width:.264583');
     svgNode.appendChild(tileNodeLeftSide);
 
     const tileNodeRightSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeRightSide.classList.add("tileRight");
     tileNodeRightSide.setAttributeNS(null, 'd', `M${TILE_SIZE} 0v${TILE_SIZE}H0l3-3h24V3Z`);
     tileNodeRightSide.setAttributeNS(null, 'style', 'fill:' + colorCodes[2] + ';fill-opacity:1;stroke-width:.264583');
     svgNode.appendChild(tileNodeRightSide);
 
     const tileNodeCorners = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeCorners.classList.add("tileCorners");
     tileNodeCorners.setAttributeNS(null, 'd', `M0 ${TILE_SIZE}v-1h1v-1h1v-1h1v1H2v1H1v1zM27 3V2h1V1h1V0h1v1h-1v1h-1v1z`);
     tileNodeCorners.setAttributeNS(null, 'style', 'fill:' + colorCodes[3] + ';fill-opacity:1;stroke-width:.264583');
     svgNode.appendChild(tileNodeCorners);

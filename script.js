@@ -99,6 +99,7 @@ function animate() {
     // and returns true if the movement had done and false otherwise
     if (!tetromino.moveDown(verticalSpeed)) {
         gamebox.freezeTilesInBox(tetromino.getTiles());
+        gamebox.checkForFinishedRows();
         tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
         if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeCells())) {
             toggleMessageBox("GAME OVER");
