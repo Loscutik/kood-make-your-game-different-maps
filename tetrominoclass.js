@@ -191,7 +191,7 @@ export class Tetromino {
                 tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
             }
 
-            
+            //PREVIOUS IMPLEMENTATION
             // add the cell under the bottom tile  
             // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
             // find the ledge (if any) and add the cell under it
