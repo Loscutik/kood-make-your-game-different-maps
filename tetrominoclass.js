@@ -86,6 +86,11 @@ export class Tetromino {
     moveElm() {
         this.view.element.style.transform =
             `translate(${this.view.translateOffsetX}px, ${this.view.translateOffsetY}px) rotate(${0.25 * this.view.rotationCounter}turn) `;
+
+        for(let i=0; i<this.view.element.children.length; i++) {
+            this.view.element.children[i].style.transform = 
+                `rotate(${-0.25 * this.view.rotationCounter}turn)`;
+        }
     }
 
 
@@ -127,7 +132,7 @@ export class Tetromino {
         const containerMeasureChange = Math.trunc(diff / 2);
         // in theory we can calculate the shift of the tetromino after the rotation ( (diff%2)*TILE_SIZE), but
         // for all tetrominos (except for "O" which doesn't need to rotate) 'diff%2' is equal  +/-0.5.
-        // just simlify the calculation
+        // just simplify the calculation
         const containerHalfShift = Math.sign(diff) * 0.5 * TILE_SIZE;
 
         // -- Horizontal positions
