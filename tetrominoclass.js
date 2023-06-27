@@ -122,9 +122,6 @@ export class Tetromino {
 
         this.model.placement = newPlacement;
 
-        console.log(this.model.addressOnGrid)
-        console.log(this.model.offsetFromGridLine)
-
         // - rotate the container
         this.view.rotationCounter = (this.view.rotationCounter + 1) % 4;
 
@@ -158,10 +155,6 @@ export class Tetromino {
 
         //TODO: check if there are any obsticles
 
-
-        console.log(this.model.addressOnGrid)
-        console.log(this.model.offsetFromGridLine)
-
         this.moveElm();
 
     }
@@ -192,18 +185,25 @@ export class Tetromino {
         // X           ^          XX
         // ^                       ^
         if (this.model.offsetFromGridLine > 0) {
-            // add the cell under the bottom tile  
-            tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // find the ledge (if any) and add the cell under it
-            if (tilesOnEdge.at(-1).col < this.model.columns - 1) {
-                for (let r = this.model.rows - 2; r >= 0; r--) {
-                    if (this.model.placement[r][this.model.columns - 1]) {
-                        tilesOnEdge.push({ row: this.model.addressOnGrid.row + r, col: this.model.addressOnGrid.col + this.model.columns - 1 });
-                    }
-                }
+            // add the cells under the bottom tile  
+            let tilesOnEdgeLength = tilesOnEdge.length;
+            for (let i = 0; i < tilesOnEdgeLength; i++) {
+                tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
             }
-        }
 
+            
+            // add the cell under the bottom tile  
+            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
+            // find the ledge (if any) and add the cell under it
+            // if (tilesOnEdge.at(-1).col < this.model.columns - 1) {
+            //     console.log("Happens")
+            //     for (let r = this.model.rows - 2; r >= 0; r--) {
+            //         if (this.model.placement[r][this.model.columns - 1]) {
+            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r, col: this.model.addressOnGrid.col + this.model.columns - 1 });
+            //         }
+            //     }
+            // }
+        }
         return tilesOnEdge;
     }
 
@@ -221,16 +221,23 @@ export class Tetromino {
         //   X           ^          XX
         //   ^                      ^
         if (this.model.offsetFromGridLine > 0) {
-            // add the cell under the bottom tile  
-            tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // find the ledge (if any) and add the cell under it
-            if (tilesOnEdge.at(-1).col > 0) {
-                for (let r = this.model.rows - 2; r >= 0; r--) {
-                    if (this.model.placement[r][0]) {
-                        tilesOnEdge.push({ row: this.model.addressOnGrid.row + r, col: this.model.addressOnGrid.col });
-                    }
-                }
+            // add the cells under the bottom tile  
+            let tilesOnEdgeLength = tilesOnEdge.length;
+            for (let i = 0; i < tilesOnEdgeLength; i++) {
+                tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
             }
+
+            //PREVIOUS IMPLEMENTATION
+            // // add the cell under the bottom tile  
+            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
+            // // find the ledge (if any) and add the cell under it
+            // if (tilesOnEdge.at(-1).col > 0) {
+            //     for (let r = this.model.rows - 2; r >= 0; r--) {
+            //         if (this.model.placement[r][0]) {
+            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r, col: this.model.addressOnGrid.col });
+            //         }
+            //     }
+            // }
         }
 
         return tilesOnEdge;
