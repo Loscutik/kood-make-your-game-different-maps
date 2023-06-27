@@ -32,8 +32,12 @@ export class Tetromino {
     }
 
     moveDown(speed) {
+        // check if the previose movment (right/left or rotation) put the tetromino on an obstacle
+        if (this.model.offsetFromGridLine!==0 && gamebox.hasObstacleUnderOf(this.getBottomEdgeCells())){
+            return false;
+        }
         let offset = this.model.offsetFromGridLine + speed;
-        if (offset < TILE_SIZE) {
+        if (offset < TILE_SIZE ) {
             this.model.offsetFromGridLine = offset;
 
             this.view.translateOffsetY += speed;
@@ -65,6 +69,7 @@ export class Tetromino {
             // move the view
             this.view.translateOffsetX += TILE_SIZE;
             this.moveElm();
+
             return true;
         }
         return false;
@@ -189,17 +194,18 @@ export class Tetromino {
             let tilesOnEdgeLength = tilesOnEdge.length;
             for (let i = 0; i < tilesOnEdgeLength; i++) {
                 tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
+
             }
 
             //PREVIOUS IMPLEMENTATION
             // add the cell under the bottom tile  
             // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
             // find the ledge (if any) and add the cell under it
-            // if (tilesOnEdge.at(-1).col < this.model.columns - 1) {
+            // if (tilesOnEdge.at(-1).col < this.model.addressOnGrid.col+ this.model.columns - 1) {
             //     console.log("Happens")
             //     for (let r = this.model.rows - 2; r >= 0; r--) {
             //         if (this.model.placement[r][this.model.columns - 1]) {
-            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r, col: this.model.addressOnGrid.col + this.model.columns - 1 });
+            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r+1, col: this.model.addressOnGrid.col + this.model.columns - 1 });
             //         }
             //     }
             // }
@@ -225,16 +231,17 @@ export class Tetromino {
             let tilesOnEdgeLength = tilesOnEdge.length;
             for (let i = 0; i < tilesOnEdgeLength; i++) {
                 tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
+
             }
 
             //PREVIOUS IMPLEMENTATION
             // // add the cell under the bottom tile  
             // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
             // // find the ledge (if any) and add the cell under it
-            // if (tilesOnEdge.at(-1).col > 0) {
+            // if (tilesOnEdge.at(-1).col > this.model.addressOnGrid.col) {
             //     for (let r = this.model.rows - 2; r >= 0; r--) {
             //         if (this.model.placement[r][0]) {
-            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r, col: this.model.addressOnGrid.col });
+            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r + 1, col: this.model.addressOnGrid.col });
             //         }
             //     }
             // }
