@@ -91,6 +91,11 @@ export class Tetromino {
     moveElm() {
         this.view.element.style.transform =
             `translate(${this.view.translateOffsetX}px, ${this.view.translateOffsetY}px) rotate(${0.25 * this.view.rotationCounter}turn) `;
+
+        for(let i=0; i<this.view.element.children.length; i++) {
+            this.view.element.children[i].style.transform = 
+                `rotate(${-0.25 * this.view.rotationCounter}turn)`;
+        }
     }
 
 
@@ -234,19 +239,26 @@ export class Tetromino {
         // X           ^          XX
         // ^                       ^
         if (this.model.offsetFromGridLine > 0) {
-            // add the cell under the bottom tile  
-            tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // find the ledge (if any) and add the cell under it
-            if (tilesOnEdge.at(-1).col < this.model.addressOnGrid.col + this.model.columns - 1) {
-                console.log("Happens")
-                for (let r = this.model.rows - 2; r >= 0; r--) {
-                    if (this.model.placement[r][this.model.columns - 1]) {
-                        tilesOnEdge.push({ row: this.model.addressOnGrid.row + r + 1, col: this.model.addressOnGrid.col + this.model.columns - 1 });
-                    }
-                }
-            }
-        }
+            // add the cells under the bottom tile  
+            let tilesOnEdgeLength = tilesOnEdge.length;
+            for (let i = 0; i < tilesOnEdgeLength; i++) {
+                tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
 
+            }
+
+            //PREVIOUS IMPLEMENTATION
+            // add the cell under the bottom tile  
+            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
+            // find the ledge (if any) and add the cell under it
+            // if (tilesOnEdge.at(-1).col < this.model.addressOnGrid.col+ this.model.columns - 1) {
+            //     console.log("Happens")
+            //     for (let r = this.model.rows - 2; r >= 0; r--) {
+            //         if (this.model.placement[r][this.model.columns - 1]) {
+            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r+1, col: this.model.addressOnGrid.col + this.model.columns - 1 });
+            //         }
+            //     }
+            // }
+        }
         return tilesOnEdge;
     }
 
@@ -264,16 +276,24 @@ export class Tetromino {
         //   X           ^          XX
         //   ^                      ^
         if (this.model.offsetFromGridLine > 0) {
-            // add the cell under the bottom tile  
-            tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // find the ledge (if any) and add the cell under it
-            if (tilesOnEdge.at(-1).col > this.model.addressOnGrid.col) {
-                for (let r = this.model.rows - 2; r >= 0; r--) {
-                    if (this.model.placement[r][0]) {
-                        tilesOnEdge.push({ row: this.model.addressOnGrid.row + r + 1, col: this.model.addressOnGrid.col });
-                    }
-                }
+            // add the cells under the bottom tile  
+            let tilesOnEdgeLength = tilesOnEdge.length;
+            for (let i = 0; i < tilesOnEdgeLength; i++) {
+                tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
+
             }
+
+            //PREVIOUS IMPLEMENTATION
+            // // add the cell under the bottom tile  
+            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
+            // // find the ledge (if any) and add the cell under it
+            // if (tilesOnEdge.at(-1).col > this.model.addressOnGrid.col) {
+            //     for (let r = this.model.rows - 2; r >= 0; r--) {
+            //         if (this.model.placement[r][0]) {
+            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r + 1, col: this.model.addressOnGrid.col });
+            //         }
+            //     }
+            // }
         }
 
         return tilesOnEdge;
@@ -327,21 +347,25 @@ function createNewTile(tetromino, colorCodes) {
     tetromino.appendChild(svgNode);
 
     const tileNodeMiddle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeMiddle.classList.add("tileMiddle");
     tileNodeMiddle.setAttributeNS(null, 'd', `M2.9 2.9h25v25h-25z`);
     tileNodeMiddle.setAttributeNS(null, 'style', 'fill:' + colorCodes[0] + ';fill-opacity:1;stroke-width:.17016');
     svgNode.appendChild(tileNodeMiddle);
 
     const tileNodeLeftSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeLeftSide.classList.add("tileLeft");
     tileNodeLeftSide.setAttributeNS(null, 'd', `M0 0v${TILE_SIZE}l3-3V3h24l3-3z`);
     tileNodeLeftSide.setAttributeNS(null, 'style', 'fill:' + colorCodes[1] + ';fill-opacity:1;stroke-width:.264583');
     svgNode.appendChild(tileNodeLeftSide);
 
     const tileNodeRightSide = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeRightSide.classList.add("tileRight");
     tileNodeRightSide.setAttributeNS(null, 'd', `M${TILE_SIZE} 0v${TILE_SIZE}H0l3-3h24V3Z`);
     tileNodeRightSide.setAttributeNS(null, 'style', 'fill:' + colorCodes[2] + ';fill-opacity:1;stroke-width:.264583');
     svgNode.appendChild(tileNodeRightSide);
 
     const tileNodeCorners = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tileNodeCorners.classList.add("tileCorners");
     tileNodeCorners.setAttributeNS(null, 'd', `M0 ${TILE_SIZE}v-1h1v-1h1v-1h1v1H2v1H1v1zM27 3V2h1V1h1V0h1v1h-1v1h-1v1z`);
     tileNodeCorners.setAttributeNS(null, 'style', 'fill:' + colorCodes[3] + ';fill-opacity:1;stroke-width:.264583');
     svgNode.appendChild(tileNodeCorners);
