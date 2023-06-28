@@ -50,6 +50,10 @@ class Gamebox {
         cells.forEach(({row, col})=>this.grid[row][col] =true);
     
     }
+
+    isCellsFree(cellsToCheck) {
+        return cellsToCheck.every(({row,col})=>!this.grid[row][col]);
+    }
 }
 export const gamebox = new Gamebox;
 
