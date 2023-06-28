@@ -40,6 +40,7 @@ function pauseButtonListener() {
 function restartButtonListener() {
     const restartBtn = document.getElementById("restartButton");
     restartBtn.addEventListener("click", function () {
+        gamebox.resetGrid();
         tetromino = restartGame();
     })
 }
@@ -64,6 +65,7 @@ class InputHandler {
             if (this.keys.includes(" ") & !currentStatus.startScreen) {
                 pauseResumeToggle();
             } else if (this.keys.includes("r") & !currentStatus.startScreen) {
+                gamebox.resetGrid();
                 tetromino = restartGame();
             } else if (this.keys.includes("Enter") & currentStatus.startScreen) {
                 document.getElementById("startBox").style.display = "none";
@@ -90,7 +92,7 @@ class InputHandler {
 
 const input = new InputHandler();
 
-function animate() {
+async function animate() {
     if (currentStatus.isPaused === true) {
         return
     }
@@ -99,7 +101,7 @@ function animate() {
     // and returns true if the movement had done and false otherwise
     if (!tetromino.moveDown(verticalSpeed)) {
         gamebox.freezeTilesInBox(tetromino.getTiles());
-        gamebox.checkForFinishedRows();
+        await gamebox.checkForFinishedRows();
         tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
         if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeCells())) {
             toggleMessageBox("GAME OVER");
@@ -131,10 +133,16 @@ function animate() {
         verticalSpeed = 2;
     }
 
-    //Update timer on every 60ms
+    //On every 60 frames:
     if (currentStatus.frameCount % 60 === 0) {
+        //Update timer
         let elapsedTime = performance.now() - currentStatus.startTime - currentStatus.pauseDuration;
         document.getElementById('timer').textContent = msToMinutesSecondsString(elapsedTime);
+
+        //Calculate the average frame rate over the last 60 frames
+        let averageFPS = 60 / ((performance.now() - currentStatus.lastFrame) / 1000);
+        document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
+        currentStatus.lastFrame = performance.now();
     }
 
     currentStatus.frameCount++;

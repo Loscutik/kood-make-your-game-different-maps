@@ -8,6 +8,12 @@ body {
     column-gap: 5vw;
 }
 
+#fpsWrapper {
+    position: absolute;
+    color: white;
+    font-size: 30px;
+}
+
 /* ------------------------------ TETROMINOES ------------------------------*/
 
 .tetromino {
@@ -34,7 +40,7 @@ body {
 }
 
 .tileFall {
-    transition: transform 1s;
+    transition: transform 0.2s;
 }
 
 @keyframes brightenMiddle {
@@ -44,7 +50,7 @@ body {
 }
 
 .tileMiddleBrighten {
-    animation: brightenMiddle 1s forwards;
+    animation: brightenMiddle 0.5s forwards;
 }
 
 @keyframes brightenLeft {
@@ -54,7 +60,7 @@ body {
 }
 
 .tileLeftBrighten {
-    animation: brightenLeft 1s forwards;
+    animation: brightenLeft 0.5s forwards;
 }
 
 @keyframes brightenRight {
@@ -64,7 +70,7 @@ body {
 }
 
 .tileRightBrighten {
-    animation: brightenRight 1s forwards;
+    animation: brightenRight 0.5s forwards;
 }
 
 @keyframes brightenCorners {
@@ -74,7 +80,7 @@ body {
 }
 
 .tileCornersBrighten {
-    animation: brightenCorners 1s forwards;
+    animation: brightenCorners 0.5s forwards;
 }
 
 /* ------------------------------ START SCREEN ------------------------------*/

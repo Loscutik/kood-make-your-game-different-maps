@@ -1,6 +1,5 @@
 import { tetrominoesData } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
-import { gamebox } from "./gamebox.js"
 
 export let currentStatus = {
     startScreen: true,
@@ -8,9 +7,11 @@ export let currentStatus = {
     pauseStartTime: undefined,
     pauseDuration: 0,
     frameCount: 0,
+    lastFrame: performance.now(),
     isPaused: false,
     isOver: false,
     animationFrameId: 0,
+    score: 0,
 }
 
 export function pauseResumeToggle() {
@@ -46,7 +47,6 @@ export function restartGame() {
     tetrominoes.forEach(tetromino => {
         tetromino.remove();
     });
-    gamebox.resetGrid();
     if (currentStatus.isPaused === true) {
         const pauseBtn = document.getElementById("pauseButton");
         const pauseBtnText = document.getElementById("pauseButtonText");
@@ -59,6 +59,8 @@ export function restartGame() {
     messageBox.style.display = "none";
     currentStatus.isOver = false;
     currentStatus.pauseDuration = 0;
+    currentStatus.score = 0;
+    displayScore(0);
     currentStatus.startTime = performance.now();
     window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
@@ -79,4 +81,30 @@ export function msToMinutesSecondsString(ms) {
     var minutes = Math.floor(ms / 60000);
     var seconds = ((ms % 60000) / 1000).toFixed(0);
     return (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+}
+
+//Updated score by how many rows were completed at once
+export function updateScore(rowsCompleted) {
+    const pointsPerRows = {
+        1: 100,
+        2: 300,
+        3: 500,
+        4: 800,
+    }
+    if (rowsCompleted > 4) {
+        rowsCompleted = 4;
+    }
+    currentStatus.score += pointsPerRows[rowsCompleted];
+    displayScore(currentStatus.score);
+}
+
+//Add leading zeroes to score and display new score in DOM
+function displayScore(newScore) {
+    const leadingZeroes = 4 - String(newScore).length;
+    let scoreString = "";
+    for (let i = 0; i < leadingZeroes; i++) {
+        scoreString += "0"
+    }
+    scoreString += newScore;
+    document.getElementById("score").innerHTML = scoreString;
 }

@@ -1,4 +1,5 @@
 import { BOX_ROWS, BOX_COLUMNS, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
+import { currentStatus, updateScore } from "./gameStatus.js"
 
 class Gamebox {
 
@@ -13,8 +14,6 @@ class Gamebox {
                 this.grid[r][c] = null;
             }
         }
-
-
     }
 
     resetGrid() {
@@ -47,15 +46,33 @@ class Gamebox {
     }
 
     freezeTilesInBox(cells){
-        cells.forEach(({row, col})=>this.grid[row][col] =true);
+        cells.forEach(({row, col}) => this.grid[row][col] = true);
     }
 
     checkForFinishedRows(){
+        const rowRemovalPromises = []; //Store promises of each line removal
+        let completedRows = 0;
         for (let rowIndex in this.grid) {
             if (this.grid[rowIndex].every(value => value === true)) {
-                this.removeRowOfTiles(rowIndex);
+                completedRows += 1;
+                let rowRemovalPromise = this.removeRowOfTiles(rowIndex);
+                rowRemovalPromises.push(rowRemovalPromise);
+                this.updateGridAfterCompletingRow(rowIndex);
             }
         }
+        if (completedRows != 0){
+            updateScore(completedRows);
+        }
+        return Promise.all(rowRemovalPromises);
+    }
+
+    updateGridAfterCompletingRow(rowIndex){
+        for (let i = rowIndex; i > 0; i--){
+            this.grid[i] = [...this.grid[i-1]];
+        }
+        for (let j = 0; j < BOX_COLUMNS; j++) {
+            this.grid[0][j] = null;
+        } 
     }
 
     removeRowOfTiles(rowIndex){
@@ -66,6 +83,7 @@ class Gamebox {
         const tilesToRemove = [];
         const tilesToFall = [];
 
+        //Get tiles by coordinates which are in given row or above
         for (let i = tiles.length - 1; i >= 0; i--) {
             let tileClientRect = tiles[i].getBoundingClientRect();
             if (rowToBeDeletedCoord > tileClientRect.top &&
@@ -75,6 +93,7 @@ class Gamebox {
                 tilesToFall.push(tiles[i]);
             }
         }
+        //Add classes to tile parts to add animation to them (first they go white, then fade away)
         tilesToRemove.forEach(tile => {
             tile.getElementsByClassName("tileMiddle")[0].classList.add("tileMiddleBrighten");
             tile.getElementsByClassName("tileLeft")[0].classList.add("tileLeftBrighten");
@@ -82,16 +101,29 @@ class Gamebox {
             tile.getElementsByClassName("tileCorners")[0].classList.add("tileCornersBrighten");
         })
 
-        // WORK IN PROGRESS:
-        // setTimeout(function() {
-        //     tilesToRemove.forEach(tile => tile.parentNode.removeChild(tile));
-        //     tilesToFall.forEach(tile => {
-        //         //Transform would be better here, but issues with previous transforms applied
-        //         tile.classList.add("tileFall");
-        //         let currentTop = parseInt(window.getComputedStyle(tile).top, 10);
-        //         tile.style.top = (currentTop + TILE_SIZE) + "px";
-        //     });
-        // }, 700);
+        return new Promise((resolve) => {
+            setTimeout(function() { //Wait once the animation is finished
+                currentStatus.lastFrame += 350;
+                tilesToRemove.forEach(tile => {
+                    //Change class of the tile
+                    tile.classList.remove("tile");
+                    tile.classList.add("emptyTile");
+                    //Remove tetromino div if it's now empty
+                    let tetrominoTiles = Array.from(tile.parentNode.children);
+                    if (tetrominoTiles.every(child => child.classList.contains("emptyTile"))) {
+                        tile.parentNode.remove();
+                    };
+                });
+                //Move tiles above downwards to fill the gap from removed row
+                tilesToFall.forEach(tile => {
+                    tile.classList.add("tileFall");
+                    const currentTransform = tile.style.transform;
+                    tile.style.transform = currentTransform + " translateY(30px)";
+                });
+
+                resolve();
+            }, 350);
+        })
     }
 
     isCellsFree(cellsToCheck) {
