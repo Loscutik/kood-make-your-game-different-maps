@@ -92,8 +92,8 @@ export class Tetromino {
         this.view.element.style.transform =
             `translate(${this.view.translateOffsetX}px, ${this.view.translateOffsetY}px) rotate(${0.25 * this.view.rotationCounter}turn) `;
 
-        for(let i=0; i<this.view.element.children.length; i++) {
-            this.view.element.children[i].style.transform = 
+        for (let i = 0; i < this.view.element.children.length; i++) {
+            this.view.element.children[i].style.transform =
                 `rotate(${-0.25 * this.view.rotationCounter}turn)`;
         }
     }
@@ -113,12 +113,12 @@ export class Tetromino {
         // just simlify the calculation
         const containerHalfShift = Math.sign(diff) * 0.5 * TILE_SIZE;
 
+        const newAddressOnGrid = {};
         // -- Horizontal positions
         // --- correct horizontal position of the tetromino view after rotation, in the other case it would stay in the middle of the grid.
-        let newTranslateOffsetX = this.view.translateOffsetX - containerHalfShift; 
+        let newTranslateOffsetX = this.view.translateOffsetX - containerHalfShift;
 
-        const newAddressOnGrid = {};
-        newAddressOnGrid.col = this.model.addressOnGrid.col + containerMeasureChange; 
+        newAddressOnGrid.col = this.model.addressOnGrid.col + containerMeasureChange;
 
         // --- correct horizontal position on the left side of the gamebox
         if (newAddressOnGrid.col < 0) {
@@ -134,11 +134,31 @@ export class Tetromino {
         }
 
         // -- Vertical positions
+        //TODO --- correct vertical position on the right side of the gamebox
         let verticalOffset = this.model.offsetFromGridLine - containerHalfShift;
         newAddressOnGrid.row = this.model.addressOnGrid.row - (containerMeasureChange - Math.floor(verticalOffset / TILE_SIZE));
         let newOffsetFromGridLine = (TILE_SIZE + verticalOffset) % TILE_SIZE; // (TILE_SIZE+verticalOffset) - correction for negative verticalOffset 
 
-        // check if there are any obsticles
+        // --- correct vertical position above of the gamebox
+        let newTranslateOffsetY = this.view.translateOffsetY;
+        if (newAddressOnGrid.row < 0) {
+            newTranslateOffsetY += -newAddressOnGrid.row * TILE_SIZE - newOffsetFromGridLine;
+            newAddressOnGrid.row = 0;
+            newOffsetFromGridLine=0;
+        }
+
+        // --- correct vertical position on the bottom of the gamebox
+        const bottomAllowdEdgeForAddress = BOX_ROWS - this.model.columns - (newOffsetFromGridLine !== 0 ? 1 : 0); //  rows after rotation = columns before rotation
+        if (newAddressOnGrid.row > bottomAllowdEdgeForAddress) {
+            newTranslateOffsetY -= (newAddressOnGrid.row - bottomAllowdEdgeForAddress) * TILE_SIZE;
+            newAddressOnGrid.row = bottomAllowdEdgeForAddress;
+        }
+
+        // console.log('row= ', this.model.addressOnGrid.row, 'new row= ', newAddressOnGrid.row);
+        // console.log('col= ', this.model.addressOnGrid.col, 'new col= ', newAddressOnGrid.col);
+        // console.log('ofs= ', this.model.offsetFromGridLine, 'new ofs= ', newOffsetFromGridLine);
+
+        // check if there are any obstacles
         const cellsToBeFree = [];
         if (diff < 0) {
             const rotationContainer = {
@@ -147,19 +167,19 @@ export class Tetromino {
             }
 
             for (let r = this.model.addressOnGrid.row; r < newAddressOnGrid.row; r++) {
-                for (let c = this.model.addressOnGrid.col + 1; c <= newAddressOnGrid.col + rotationContainer.cols; c++) {
+                for (let c = this.model.addressOnGrid.col + 1; c < newAddressOnGrid.col + rotationContainer.cols; c++) {
                     cellsToBeFree.push({ row: r, col: c });
                 }
             }
-            for (let r = newAddressOnGrid.row + 1; r <= this.model.addressOnGrid.row + rotationContainer.rows; r++) {
+            for (let r = newAddressOnGrid.row + 1; r < this.model.addressOnGrid.row + rotationContainer.rows; r++) {
                 for (let c = newAddressOnGrid.col; c < this.model.addressOnGrid.col; c++) {
                     cellsToBeFree.push({ row: r, col: c });
                 }
             }
         } else {
             const rotationContainer = {
-                rows: this.model.cols + (newOffsetFromGridLine !== 0 ? 1 : 0),
-                cols: this.model.cols,
+                rows: this.model.addressOnGrid.cols + (newOffsetFromGridLine !== 0 ? 1 : 0),
+                cols: this.model.addressOnGrid.cols,
             }
 
             for (let r = newAddressOnGrid.row; r < this.model.addressOnGrid.row; r++) {
@@ -167,9 +187,44 @@ export class Tetromino {
                     cellsToBeFree.push({ row: r, col: c });
                 }
             }
-            for (let r = this.model.addressOnGrid.row + 1; r <= newAddressOnGrid.row + rotationContainer.rows; r++) {
-                for (let c = newAddressOnGrid.col + 1; c <= this.model.addressOnGrid.col + rotationContainer.cols; c++) {
+            for (let r = this.model.addressOnGrid.row + 1; r < newAddressOnGrid.row + rotationContainer.rows; r++) {
+                for (let c = newAddressOnGrid.col + 1; c < this.model.addressOnGrid.col + rotationContainer.cols; c++) {
                     cellsToBeFree.push({ row: r, col: c });
+                }
+            }
+        }
+
+        // -- change placement of the tiles 
+        // after the rotation rows and columns will swift,  
+        // therefore for calculating newPlacement this.model.columns is used instead of rows and this.model.rows instead of columns
+        const newPlacement = Array(this.model.columns);
+
+        for (let row = 0; row < this.model.columns; row++) {
+            newPlacement[row] = Array(this.model.rows);
+            for (let col = 0; col < this.model.rows; col++) {
+                newPlacement[row][col] = this.model.placement[col][row];
+            }
+        }
+
+        if (this.shape !== 'I') {
+
+            for (let row = 0; row < this.model.columns; row++) {
+                for (let col = 0; col < Math.trunc(this.model.rows / 2); col++) {
+                    [newPlacement[row][col], newPlacement[row][this.model.rows - 1 - col]] =
+                        [newPlacement[row][this.model.rows - 1 - col], newPlacement[row][col]];
+                }
+            }
+        }
+
+        // add the cells ocupated by the new placement to cellsToBeFree
+        for (let row = 0; row < this.model.columns; row++) {
+            for (let col = 0; col < this.model.rows; col++) {
+                if (newPlacement[row][col]) {
+                    cellsToBeFree.push({ row: newAddressOnGrid.row + row, col: newAddressOnGrid.col + col });
+                    if (newOffsetFromGridLine > 0) {
+                        cellsToBeFree.push({ row: newAddressOnGrid.row + row + 1, col: newAddressOnGrid.col + col });
+                    }
+
                 }
             }
         }
@@ -177,36 +232,18 @@ export class Tetromino {
         if (!gamebox.isCellsFree(cellsToBeFree)) return false;
 
         // if there were no obstacles make rotation
-        [this.model.rows, this.model.columns] = [this.model.columns, this.model.rows];
-        // -- change placement of the tiles
-        const newPlacement = Array(this.model.rows);
-
-        for (let row = 0; row < this.model.rows; row++) {
-            newPlacement[row] = Array(this.model.columns);
-            for (let col = 0; col < this.model.columns; col++) {
-                newPlacement[row][col] = this.model.placement[col][row];
-            }
-        }
-
-        if (this.shape !== 'I') {
-
-            for (let row = 0; row < this.model.rows; row++) {
-                for (let col = 0; col < Math.trunc(this.model.columns / 2); col++) {
-                    [newPlacement[row][col], newPlacement[row][this.model.columns - 1 - col]] =
-                        [newPlacement[row][this.model.columns - 1 - col], newPlacement[row][col]];
-                }
-            }
-        }
-
         this.model.placement = newPlacement;
+        [this.model.rows, this.model.columns] = [this.model.columns, this.model.rows];
+
 
         // - rotate the container
         this.view.rotationCounter = (this.view.rotationCounter + 1) % 4;
         this.view.translateOffsetX = newTranslateOffsetX;
+        this.view.translateOffsetY = newTranslateOffsetY;
         this.model.addressOnGrid.row = newAddressOnGrid.row;
         this.model.addressOnGrid.col = newAddressOnGrid.col;
         this.model.offsetFromGridLine = newOffsetFromGridLine;
-        
+
         //TODO: handle the case when the tetromino too close to the bottom
 
         this.moveElm();
