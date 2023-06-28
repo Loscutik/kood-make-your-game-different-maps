@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Aldrich">
 </head>
 <body>
+    <div id="fpsWrapper">
+        <span>FPS:</span>
+        <span id="fpsDisplay">0</span>
+    </div>
     <div id="startBox">
         <span id="gameTitle">TETRIS</span>
         <span class="controlsTitle">CONTROLS:</span>
@@ -42,7 +46,7 @@
                 </div>
                 <div id="boardInfoRightColumn">
                     <span id="timer" class="boardValue">00:00</span>
-                    <span class="boardValue">00001</span>
+                    <span id="score" class="boardValue">0000</span>
                     <div id="livesWrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" width="21px" viewBox="0 0 20 18">
                             <path d="M11 18H9v-1H8v-1H7v-1H6v-1H5v-1H4v-1H3v-1H2v-1H1V8H0V3h1V2h1V1h1V0h5v1h1v1h2V1h1V0h5v1h1v1h1v1h1v5h-1v2h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1" style="fill:#d92327;fill-opacity:1"/>
