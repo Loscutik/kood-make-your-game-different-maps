@@ -129,6 +129,23 @@ class Gamebox {
     isCellsFree(cellsToCheck) {
         return cellsToCheck.every(({row,col})=>!this.grid[row][col]);
     }
+
+    checkIfNewTetrominoOverlapping(newTetrominoNumber) {
+        if (newTetrominoNumber === 0) {         //If new tetromino is long one, return false
+            return false
+        } else if (this.grid[1][3] === null &&  //If row 1, columns 3, 4, 5 are free, return false
+            this.grid[1][4] === null &&
+            this.grid[1][5] === null) {
+                return false;
+        } else if (this.grid[1][3] === true &&  //If row 1, column 3 is occupied,
+            this.grid[1][4] === null &&         //but new tetromino is square
+            this.grid[1][5] === null &&         //or reverse "S", return false
+            (newTetrominoNumber === 1 ||
+            newTetrominoNumber === 6)) {         
+                return false;
+        }
+        return true;
+    }
 }
 export const gamebox = new Gamebox;
 

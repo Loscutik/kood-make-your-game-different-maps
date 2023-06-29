@@ -4,7 +4,7 @@ import { gamebox } from "./gamebox.js";
 const horizontalSpeed = TILE_SIZE;
 
 export class Tetromino {
-    constructor(initialData) {
+    constructor(initialData, halfTetromino) {
         this.shape = initialData.shape;
 
         this.model = {
@@ -28,12 +28,18 @@ export class Tetromino {
             translateOffsetY: 0,
         }
 
-        this.view.element = createTetrominoElm(this.view.left, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
+        if (halfTetromino === true) { //In the end of game, create half of tetromino as there's not space for more
+            this.model.rows = 1;
+            this.model.placement = [this.model.placement[1]];
+            this.view.element = createTetrominoElm(this.view.left, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
+        } else { //Normal tetromino creating
+            this.view.element = createTetrominoElm(this.view.left, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
+        }
     }
 
     moveDown(speed) {
         // check if the previose movment (right/left or rotation) put the tetromino on an obstacle
-        if (this.model.offsetFromGridLine !== 0 && gamebox.hasObstacleUnderOf(this.getBottomEdgeCells())) {
+        if (this.model.offsetFromGridLine === 0 && gamebox.hasObstacleUnderOf(this.getBottomEdgeCells())) {
             return false;
         }
         let offset = this.model.offsetFromGridLine + speed;

@@ -102,7 +102,14 @@ async function animate() {
     if (!tetromino.moveDown(verticalSpeed)) {
         gamebox.freezeTilesInBox(tetromino.getTiles());
         await gamebox.checkForFinishedRows();
-        tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+        const randomTetrominoNumber = Math.floor(Math.random() * 7);
+        if (!gamebox.checkIfNewTetrominoOverlapping(randomTetrominoNumber)) {
+            tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
+        } else {
+            //Create bottom half of tetromino, as there's only space for that
+            tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber], true);
+        }
+        //New tetromino fits fully to screen, but ends game
         if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeCells())) {
             toggleMessageBox("GAME OVER");
             currentStatus.isOver = true;
