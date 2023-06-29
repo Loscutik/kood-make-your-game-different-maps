@@ -1,7 +1,7 @@
 import { tetrominoesData, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
-import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString } from "./gameStatus.js"
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, removeHeartOrEndGame } from "./gameStatus.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
@@ -72,6 +72,7 @@ class InputHandler {
                 document.getElementById("startScreenOverlay").style.display = "none";
                 currentStatus.startScreen = false;
                 currentStatus.startTime = performance.now();
+                currentStatus.heartStartTime = performance.now();
                 tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
                 animate();
             }
@@ -145,10 +146,21 @@ async function animate() {
 
     //On every 60 frames:
     if (currentStatus.frameCount % 60 === 0) {
-        //Update timer
-        let elapsedTime = performance.now() - currentStatus.startTime - currentStatus.pauseDuration;
-        document.getElementById('timer').textContent = msToMinutesSecondsString(elapsedTime);
+        //Update main timer
+        let playingTime = performance.now() - currentStatus.startTime - currentStatus.pauseDuration;
+        document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
 
+        //Update heart timer
+        let heartTime = 20 - ((performance.now() - currentStatus.heartStartTime - currentStatus.pauseDuration) / 1000).toFixed();
+        if (heartTime > 20) heartTime = 20;
+
+        if (heartTime < 1) {
+            removeHeartOrEndGame();
+        } else {
+            const heartStopperCollection = document.getElementsByClassName('heartStopper');
+            heartStopperCollection[currentStatus.livesLeft-1].textContent = heartTime;
+        }
+        
         //Calculate the average frame rate over the last 60 frames
         let averageFPS = 60 / ((performance.now() - currentStatus.lastFrame) / 1000);
         document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);

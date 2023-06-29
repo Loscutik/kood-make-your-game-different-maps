@@ -41,11 +41,11 @@ export class Tetromino {
         
         // check if the previose movment (right/left or rotation) put the tetromino on an obstacle
         if (this.model.offsetFromGridLine === 0 && gamebox.hasObstacleUnderOf(this.getBottomEdgeCells())) {
-            console.log("in down 0",this.model.offsetFromGridLine)
+            // console.log("in down 0",this.model.offsetFromGridLine)
             return false;
         }
         
-        console.log("in down ",this.model.offsetFromGridLine)
+        // console.log("in down ",this.model.offsetFromGridLine)
         let offset = this.model.offsetFromGridLine + speed;
         if (offset < TILE_SIZE) {
             this.model.offsetFromGridLine = offset;
@@ -74,7 +74,7 @@ export class Tetromino {
     }
 
     moveRight() {
-        console.log(this.shape,' - ', this.model.offsetFromGridLine)
+        // console.log(this.shape,' - ', this.model.offsetFromGridLine)
         if (!gamebox.hasObstacleRightOf(this.getRightEdgeCells())) {
             // move the model
             this.model.addressOnGrid.col++;

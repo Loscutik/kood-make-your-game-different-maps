@@ -62,6 +62,7 @@ class Gamebox {
         }
         if (completedRows != 0){
             updateScore(completedRows);
+            currentStatus.heartStartTime = performance.now() + 1000;
         }
         return Promise.all(rowRemovalPromises);
     }
