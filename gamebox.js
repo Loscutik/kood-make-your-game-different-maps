@@ -130,6 +130,7 @@ class Gamebox {
         return cellsToCheck.every(({row,col})=>!this.grid[row][col]);
     }
 
+    //Avoid new tetromino overlapping with existing one when middle columns (3, 4, 5) are getting full
     checkIfNewTetrominoOverlapping(newTetrominoNumber) {
         if (newTetrominoNumber === 0) {         //If new tetromino is long one, return false
             return false
