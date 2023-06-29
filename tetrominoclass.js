@@ -1,23 +1,128 @@
+//TODO del console outputs
 import { BOX_ROWS, BOX_COLUMNS, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { gamebox } from "./gamebox.js";
 
 const horizontalSpeed = TILE_SIZE;
 
+class TetrominoModel {
+    constructor(initialData) {
+        this.rows = initialData.rows;
+        this.columns = initialData.columns;
+        this.offsetFromGridLine = 0;
+
+        this.addressOnGrid = { row: 0, col: Math.floor((BOX_COLUMNS - this.columns) / 2) };
+        this.placement = Array(this.rows);
+        for (let i = 0; i < this.rows; i++) {
+            this.placement[i] = [...initialData.placement[i]];
+        }
+
+        this.getBottomEdgeCells = function () {
+            let tilesOnEdge = [];
+            const additionRow = this.offsetFromGridLine === 0 ? 0 : 1
+            for (let col = 0; col < this.columns; col++) {
+                let row = this.rows - 1;
+                while (!this.placement[row][col]) row--;
+                tilesOnEdge.push({ row: this.addressOnGrid.row + row + additionRow, col: this.addressOnGrid.col + col });
+            }
+            return tilesOnEdge;
+        }
+
+        this.getRightEdgeCells = function () {
+            const tilesOnEdge = this.placement.reduce((tilesOnEdge, rowVector, rowNumber) => {
+                tilesOnEdge.push({ row: this.addressOnGrid.row + rowNumber, col: this.addressOnGrid.col + rowVector.lastIndexOf(true) });
+                return tilesOnEdge;
+            }, []);
+
+
+            // if the tetromino is shifted from the grid,
+            // add to the list of tiles on edge those that are under ledges:
+            // XX    or    XX    or   X
+            // X^         XX^         X
+            // X           ^          XX
+            // ^                       ^
+            if (this.offsetFromGridLine > 0) {
+                // add the cells under the bottom tile  
+                let tilesOnEdgeLength = tilesOnEdge.length;
+                for (let i = 0; i < tilesOnEdgeLength; i++) {
+                    tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
+
+                }
+
+                //PREVIOUS IMPLEMENTATION
+                // add the cell under the bottom tile  
+                // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
+                // find the ledge (if any) and add the cell under it
+                // if (tilesOnEdge.at(-1).col < this.addressOnGrid.col+ this.columns - 1) {
+                //     for (let r = this.rows - 2; r >= 0; r--) {
+                //         if (this.placement[r][this.columns - 1]) {
+                //             tilesOnEdge.push({ row: this.addressOnGrid.row + r+1, col: this.addressOnGrid.col + this.columns - 1 });
+                //         }
+                //     }
+                // }
+            }
+            return tilesOnEdge;
+        }
+
+
+        this.getLeftEdgeCells = function () {
+            const tilesOnEdge = this.placement.reduce((tilesOnEdge, rowVector, rowNumber) => {
+                tilesOnEdge.push({ row: this.addressOnGrid.row + rowNumber, col: this.addressOnGrid.col + rowVector.indexOf(true) })
+                return tilesOnEdge;
+            }, []);
+
+            // if the tetromino is shifted from the grid,
+            // add to the list of tiles on edge those that are under ledges:
+            //  XX    or    XX       or  X
+            //  ^X          ^XX          X
+            //   X           ^          XX
+            //   ^                      ^
+            if (this.offsetFromGridLine > 0) {
+                // add the cells under the bottom tile  
+                let tilesOnEdgeLength = tilesOnEdge.length;
+                for (let i = 0; i < tilesOnEdgeLength; i++) {
+                    tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
+
+                }
+
+                //PREVIOUS IMPLEMENTATION
+                // // add the cell under the bottom tile  
+                // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
+                // // find the ledge (if any) and add the cell under it
+                // if (tilesOnEdge.at(-1).col > this.addressOnGrid.col) {
+                //     for (let r = this.rows - 2; r >= 0; r--) {
+                //         if (this.placement[r][0]) {
+                //             tilesOnEdge.push({ row: this.addressOnGrid.row + r + 1, col: this.addressOnGrid.col });
+                //         }
+                //     }
+                // }
+            }
+
+            return tilesOnEdge;
+        }
+
+        this.getTiles = function () {
+            let tilesAddresses = [];
+            for (let row = 0; row < this.rows; row++) {
+                this.placement[row].reduce((allTiles, mark, col) => {
+                    if (mark) {
+                        allTiles.push({ row: this.addressOnGrid.row + row, col: this.addressOnGrid.col + col })
+                        if (this.offsetFromGridLine) {
+                            allTiles.push({ row: this.addressOnGrid.row + row + 1, col: this.addressOnGrid.col + col })
+                        }
+                    }
+                    return allTiles;
+                }, tilesAddresses);
+            }
+            return tilesAddresses;
+        }
+    }
+}
+
 export class Tetromino {
     constructor(initialData, halfTetromino) {
         this.shape = initialData.shape;
 
-        this.model = {
-            rows: initialData.rows,
-            columns: initialData.columns,
-            offsetFromGridLine: 0,
-        }
-
-        this.model.addressOnGrid = { row: 0, col: Math.floor((BOX_COLUMNS - this.model.columns) / 2) };
-        this.model.placement = Array(this.model.rows);
-        for (let i = 0; i < this.model.rows; i++) {
-            this.model.placement[i] = [...initialData.placement[i]];
-        }
+        this.model = new TetrominoModel(initialData);
 
         this.view = {
             left: (BOX_WIDTH / 2 - Math.ceil(this.model.columns / 2) * TILE_SIZE), // TODO check if this is necessey
@@ -38,14 +143,12 @@ export class Tetromino {
     }
 
     moveDown(speed) {
-        
+
         // check if the previose movment (right/left or rotation) put the tetromino on an obstacle
-        if (this.model.offsetFromGridLine === 0 && gamebox.hasObstacleUnderOf(this.getBottomEdgeCells())) {
-            console.log("in down 0",this.model.offsetFromGridLine)
+        if (this.model.offsetFromGridLine === 0 && gamebox.hasObstacleUnderOf(this.model.getBottomEdgeCells())) {
             return false;
         }
-        
-        console.log("in down ",this.model.offsetFromGridLine)
+
         let offset = this.model.offsetFromGridLine + speed;
         if (offset < TILE_SIZE) {
             this.model.offsetFromGridLine = offset;
@@ -54,28 +157,26 @@ export class Tetromino {
             this.moveElm();
             return true;
         } else {
+            const hasObstacleUnder = gamebox.hasObstacleUnderOf(this.model.getBottomEdgeCells());
             this.model.addressOnGrid.row++;
-            if (!gamebox.hasObstacleUnderOf(this.getBottomEdgeCells())) {
+            if (!hasObstacleUnder) {
                 this.model.offsetFromGridLine = offset - TILE_SIZE; // offset supposed to be < 2*TILE_SIZE. In this case we need to do %TILE_SIZE, but -TILE_SIZE is faster
 
                 this.view.translateOffsetY += speed;
-                this.moveElm();
-                return true;
-            } else { 
+            } else {
                 // if there is an obstacle in the possible futere cell, 
                 // move the tetromino by only the distance exactly needed to finish the movement in the current cell  
                 this.view.translateOffsetY += TILE_SIZE - this.model.offsetFromGridLine;
 
                 this.model.offsetFromGridLine = 0;
-                this.moveElm();
-                return true;
             }
+            this.moveElm();
+            return true;
         }
     }
 
     moveRight() {
-        console.log(this.shape,' - ', this.model.offsetFromGridLine)
-        if (!gamebox.hasObstacleRightOf(this.getRightEdgeCells())) {
+        if (!gamebox.hasObstacleRightOf(this.model.getRightEdgeCells())) {
             // move the model
             this.model.addressOnGrid.col++;
 
@@ -89,7 +190,7 @@ export class Tetromino {
     }
 
     moveLeft() {
-        if (!gamebox.hasObstacleLeftOf(this.getLeftEdgeCells())) {
+        if (!gamebox.hasObstacleLeftOf(this.model.getLeftEdgeCells())) {
             // move the model
             this.model.addressOnGrid.col--;
 
@@ -112,252 +213,52 @@ export class Tetromino {
     }
 
 
-    //TODO: refactor this
     rotate() {
 
         if (this.shape === 'O') return;
 
-        const diff = this.model.columns - this.model.rows;
-        const containerMeasureChange = Math.trunc(diff / 2);
-        // in theory we can calculate the shift of the tetromino after the rotation ( (diff%2)*TILE_SIZE), but
-        // for all tetrominos (except for "O" which doesn't need to rotate) 'diff%2' is equal  +/-0.5.
-        // just simlify the calculation
-        const containerHalfShift = Math.sign(diff) * 0.5 * TILE_SIZE;
-
-        const newAddressOnGrid = {};
-        // -- Horizontal positions
-        // --- correct horizontal position of the tetromino view after rotation, in the other case it would stay in the middle of the grid.
-        let newTranslateOffsetX = this.view.translateOffsetX - containerHalfShift;
-
-        newAddressOnGrid.col = this.model.addressOnGrid.col + containerMeasureChange;
-
-        // --- correct horizontal position on the left side of the gamebox
-        if (newAddressOnGrid.col < 0) {
-            newTranslateOffsetX += -newAddressOnGrid.col * TILE_SIZE;
-            newAddressOnGrid.col = 0;
-        }
-
-        // --- correct horizontal position on the right side of the gamebox
-        const rightAllowdEdgeForAddress = BOX_COLUMNS - this.model.rows; // columns after rotation = rows before rotation
-        if (newAddressOnGrid.col > rightAllowdEdgeForAddress) {
-            newTranslateOffsetX -= (newAddressOnGrid.col - rightAllowdEdgeForAddress) * TILE_SIZE;
-            newAddressOnGrid.col = rightAllowdEdgeForAddress;
-        }
-
-        // -- Vertical positions
-        //TODO --- correct vertical position on the right side of the gamebox
-        let verticalOffset = this.model.offsetFromGridLine - containerHalfShift;
-        newAddressOnGrid.row = this.model.addressOnGrid.row - (containerMeasureChange - Math.floor(verticalOffset / TILE_SIZE));
-        let newOffsetFromGridLine = (TILE_SIZE + verticalOffset) % TILE_SIZE; // (TILE_SIZE+verticalOffset) - correction for negative verticalOffset 
-
-        // --- correct vertical position above of the gamebox
-        let newTranslateOffsetY = this.view.translateOffsetY;
-        if (newAddressOnGrid.row < 0) {
-            newTranslateOffsetY += -newAddressOnGrid.row * TILE_SIZE - newOffsetFromGridLine;
-            newAddressOnGrid.row = 0;
-            newOffsetFromGridLine=0;
-        }
-
-        // --- correct vertical position on the bottom of the gamebox
-        const bottomAllowdEdgeForAddress = BOX_ROWS - this.model.columns - (newOffsetFromGridLine !== 0 ? 1 : 0); //  rows after rotation = columns before rotation
-        if (newAddressOnGrid.row > bottomAllowdEdgeForAddress) {
-            newTranslateOffsetY -= (newAddressOnGrid.row - bottomAllowdEdgeForAddress) * TILE_SIZE;
-            newAddressOnGrid.row = bottomAllowdEdgeForAddress;
-        }
-
-        // console.log('row= ', this.model.addressOnGrid.row, 'new row= ', newAddressOnGrid.row);
-        // console.log('col= ', this.model.addressOnGrid.col, 'new col= ', newAddressOnGrid.col);
-        // console.log('ofs= ', this.model.offsetFromGridLine, 'new ofs= ', newOffsetFromGridLine);
+        const tetrominoAfterRotate = {};
+        calculateTetrominoContainerAfterRotate(this, tetrominoAfterRotate);
+        UpdatePlacementAfterRotate(this, tetrominoAfterRotate);
 
         // check if there are any obstacles
         const cellsToBeFree = [];
-        if (diff < 0) {
-            const rotationContainer = {
-                rows: this.model.rows + (this.model.offsetFromGridLine !== 0 ? 1 : 0),
-                cols: this.model.rows,
-            }
 
-            for (let r = this.model.addressOnGrid.row; r < newAddressOnGrid.row; r++) {
-                for (let c = this.model.addressOnGrid.col + 1; c < newAddressOnGrid.col + rotationContainer.cols; c++) {
-                    cellsToBeFree.push({ row: r, col: c });
-                }
-            }
-            for (let r = newAddressOnGrid.row + 1; r < this.model.addressOnGrid.row + rotationContainer.rows; r++) {
-                for (let c = newAddressOnGrid.col; c < this.model.addressOnGrid.col; c++) {
-                    cellsToBeFree.push({ row: r, col: c });
-                }
-            }
-        } else {
-            const rotationContainer = {
-                rows: this.model.addressOnGrid.cols + (newOffsetFromGridLine !== 0 ? 1 : 0),
-                cols: this.model.addressOnGrid.cols,
-            }
-
-            for (let r = newAddressOnGrid.row; r < this.model.addressOnGrid.row; r++) {
-                for (let c = this.model.addressOnGrid.col; c < newAddressOnGrid.col; c++) {
-                    cellsToBeFree.push({ row: r, col: c });
-                }
-            }
-            for (let r = this.model.addressOnGrid.row + 1; r < newAddressOnGrid.row + rotationContainer.rows; r++) {
-                for (let c = newAddressOnGrid.col + 1; c < this.model.addressOnGrid.col + rotationContainer.cols; c++) {
-                    cellsToBeFree.push({ row: r, col: c });
-                }
-            }
-        }
-
-        // -- change placement of the tiles 
-        // after the rotation rows and columns will swift,  
-        // therefore for calculating newPlacement this.model.columns is used instead of rows and this.model.rows instead of columns
-        const newPlacement = Array(this.model.columns);
-
-        for (let row = 0; row < this.model.columns; row++) {
-            newPlacement[row] = Array(this.model.rows);
-            for (let col = 0; col < this.model.rows; col++) {
-                newPlacement[row][col] = this.model.placement[col][row];
-            }
-        }
-
-        if (this.shape !== 'I') {
-
-            for (let row = 0; row < this.model.columns; row++) {
-                for (let col = 0; col < Math.trunc(this.model.rows / 2); col++) {
-                    [newPlacement[row][col], newPlacement[row][this.model.rows - 1 - col]] =
-                        [newPlacement[row][this.model.rows - 1 - col], newPlacement[row][col]];
-                }
-            }
-        }
+        //we don't need this, the next checking is enough 
+        // getCellsOnRotationWay(this, tetrominoAfterRotate,cellsToBeFree)
 
         // add the cells ocupated by the new placement to cellsToBeFree
-        for (let row = 0; row < this.model.columns; row++) {
-            for (let col = 0; col < this.model.rows; col++) {
-                if (newPlacement[row][col]) {
-                    cellsToBeFree.push({ row: newAddressOnGrid.row + row, col: newAddressOnGrid.col + col });
-                    if (newOffsetFromGridLine > 0) {
-                        cellsToBeFree.push({ row: newAddressOnGrid.row + row + 1, col: newAddressOnGrid.col + col });
-                    }
+        cellsToBeFree.push(...tetrominoAfterRotate.model.getTiles());
+        // for (let row = 0; row < tetrominoAfterRotate.model.rows; row++) {
+        //     for (let col = 0; col < tetrominoAfterRotate.model.columns; col++) {
+        //         if (tetrominoAfterRotate.model.placement[row][col]) {
+        //             cellsToBeFree.push({ row: tetrominoAfterRotate.model.addressOnGrid.row + row, col: tetrominoAfterRotate.model.addressOnGrid.col + col });
+        //             if (tetrominoAfterRotate.model.offsetFromGridLine > 0) {
+        //                 cellsToBeFree.push({ row: tetrominoAfterRotate.model.addressOnGrid.row + row + 1, col: tetrominoAfterRotate.model.addressOnGrid.col + col });
+        //             }
 
-                }
-            }
-        }
+        //         }
+        //     }
+        // }
 
         if (!gamebox.isCellsFree(cellsToBeFree)) return false;
 
         // if there were no obstacles make rotation
-        this.model.placement = newPlacement;
-        [this.model.rows, this.model.columns] = [this.model.columns, this.model.rows];
-
-
-        // - rotate the container
+        [this.model.rows, this.model.columns] = [tetrominoAfterRotate.model.rows, tetrominoAfterRotate.model.columns];
+        this.model.placement = tetrominoAfterRotate.model.placement;
+        this.model.addressOnGrid.row = tetrominoAfterRotate.model.addressOnGrid.row;
+        this.model.addressOnGrid.col = tetrominoAfterRotate.model.addressOnGrid.col;
+        this.model.offsetFromGridLine = tetrominoAfterRotate.model.offsetFromGridLine;
         this.view.rotationCounter = (this.view.rotationCounter + 1) % 4;
-        this.view.translateOffsetX = newTranslateOffsetX;
-        this.view.translateOffsetY = newTranslateOffsetY;
-        this.model.addressOnGrid.row = newAddressOnGrid.row;
-        this.model.addressOnGrid.col = newAddressOnGrid.col;
-        this.model.offsetFromGridLine = newOffsetFromGridLine;
-
-        //TODO: handle the case when the tetromino too close to the bottom
+        this.view.translateOffsetX = tetrominoAfterRotate.view.translateOffsetX;
+        this.view.translateOffsetY = tetrominoAfterRotate.view.translateOffsetY;
 
         this.moveElm();
 
     }
 
-
-    getBottomEdgeCells() {
-        let tilesOnEdge = [];
-
-        for (let col = 0; col < this.model.columns; col++) {
-            let row = this.model.rows - 1;
-            while (!this.model.placement[row][col]) row--;
-            tilesOnEdge.push({ row: this.model.addressOnGrid.row + row, col: this.model.addressOnGrid.col + col });
-        }
-        return tilesOnEdge;
-    }
-
-    getRightEdgeCells() {
-        const tilesOnEdge = this.model.placement.reduce((tilesOnEdge, rowVector, rowNumber) => {
-            tilesOnEdge.push({ row: this.model.addressOnGrid.row + rowNumber, col: this.model.addressOnGrid.col + rowVector.lastIndexOf(true) });
-            return tilesOnEdge;
-        }, []);
-
-
-        // if the tetromino is shifted from the grid,
-        // add to the list of tiles on edge those that are under ledges:
-        // XX    or    XX    or   X
-        // X^         XX^         X
-        // X           ^          XX
-        // ^                       ^
-        if (this.model.offsetFromGridLine > 0) {
-            // add the cells under the bottom tile  
-            let tilesOnEdgeLength = tilesOnEdge.length;
-            for (let i = 0; i < tilesOnEdgeLength; i++) {
-                tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
-
-            }
-
-            //PREVIOUS IMPLEMENTATION
-            // add the cell under the bottom tile  
-            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // find the ledge (if any) and add the cell under it
-            // if (tilesOnEdge.at(-1).col < this.model.addressOnGrid.col+ this.model.columns - 1) {
-            //     console.log("Happens")
-            //     for (let r = this.model.rows - 2; r >= 0; r--) {
-            //         if (this.model.placement[r][this.model.columns - 1]) {
-            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r+1, col: this.model.addressOnGrid.col + this.model.columns - 1 });
-            //         }
-            //     }
-            // }
-        }
-        return tilesOnEdge;
-    }
-
-
-    getLeftEdgeCells() {
-        const tilesOnEdge = this.model.placement.reduce((tilesOnEdge, rowVector, rowNumber) => {
-            tilesOnEdge.push({ row: this.model.addressOnGrid.row + rowNumber, col: this.model.addressOnGrid.col + rowVector.indexOf(true) })
-            return tilesOnEdge;
-        }, []);
-
-        // if the tetromino is shifted from the grid,
-        // add to the list of tiles on edge those that are under ledges:
-        //  XX    or    XX       or  X
-        //  ^X          ^XX          X
-        //   X           ^          XX
-        //   ^                      ^
-        if (this.model.offsetFromGridLine > 0) {
-            // add the cells under the bottom tile  
-            let tilesOnEdgeLength = tilesOnEdge.length;
-            for (let i = 0; i < tilesOnEdgeLength; i++) {
-                tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
-
-            }
-
-            //PREVIOUS IMPLEMENTATION
-            // // add the cell under the bottom tile  
-            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // // find the ledge (if any) and add the cell under it
-            // if (tilesOnEdge.at(-1).col > this.model.addressOnGrid.col) {
-            //     for (let r = this.model.rows - 2; r >= 0; r--) {
-            //         if (this.model.placement[r][0]) {
-            //             tilesOnEdge.push({ row: this.model.addressOnGrid.row + r + 1, col: this.model.addressOnGrid.col });
-            //         }
-            //     }
-            // }
-        }
-
-        return tilesOnEdge;
-    }
-
     getTiles() {
-        let tilesAddresses = [];
-        for (let row = 0; row < this.model.rows; row++) {
-            this.model.placement[row].reduce((allTiles, mark, col) => {
-                if (mark) {
-                    allTiles.push({ row: this.model.addressOnGrid.row + row, col: this.model.addressOnGrid.col + col })
-                }
-                return allTiles;
-            }, tilesAddresses);
-        }
-        return tilesAddresses;
+        return this.model.getTiles();
     }
 
 }
@@ -417,4 +318,139 @@ function createNewTile(tetromino, colorCodes) {
     tileNodeCorners.setAttributeNS(null, 'd', `M0 ${TILE_SIZE}v-1h1v-1h1v-1h1v1H2v1H1v1zM27 3V2h1V1h1V0h1v1h-1v1h-1v1z`);
     tileNodeCorners.setAttributeNS(null, 'style', 'fill:' + colorCodes[3] + ';fill-opacity:1;stroke-width:.264583');
     svgNode.appendChild(tileNodeCorners);
+}
+
+/*------------------------------------*/
+function calculateTetrominoContainerAfterRotate(tetromino, tetrominoAfterRotate) {
+    tetrominoAfterRotate.correctPositionOnTopEdgeOfGamebox = correctPositionOnTopEdgeOfGamebox;
+    tetrominoAfterRotate.correctPositionOnBottomEdgeOfGamebox = correctPositionOnBottomEdgeOfGamebox;
+    tetrominoAfterRotate.correctPositionOnLeftEdgeOfGamebox = correctPositionOnLeftEdgeOfGamebox;
+    tetrominoAfterRotate.correctPositionOnRightEdgeOfGamebox = correctPositionOnRightEdgeOfGamebox;
+
+    const diff = tetromino.model.columns - tetromino.model.rows;
+    const containerMeasureChange = Math.trunc(diff / 2);
+    // in theory we can calculate the shift of the tetromino after the rotation ( (diff%2)*TILE_SIZE), but
+    // for all tetrominos (except for "O" which doesn't need to rotate) 'diff%2' is equal  +/-0.5.
+    // just simlify the calculation
+    const containerHalfShift = Math.sign(diff) * 0.5 * TILE_SIZE;
+
+    tetrominoAfterRotate.model = new TetrominoModel(tetromino.model); // tetromino.model is used for convinience, but it'd better not to use its data later, cause some of them are counted as for start position. So futher tetromino.<property> explicitly are uesed. 
+    [tetrominoAfterRotate.model.rows, tetrominoAfterRotate.model.columns] = [tetromino.model.columns, tetromino.model.rows];
+
+    tetrominoAfterRotate.view = {
+        translateOffsetY: tetromino.view.translateOffsetY,
+    }
+
+    // -- Vertical positions
+    let verticalOffset = tetromino.model.offsetFromGridLine - containerHalfShift;
+    tetrominoAfterRotate.model.addressOnGrid.row = tetromino.model.addressOnGrid.row - (containerMeasureChange - Math.floor(verticalOffset / TILE_SIZE));
+    tetrominoAfterRotate.model.offsetFromGridLine = (TILE_SIZE + verticalOffset) % TILE_SIZE; // (TILE_SIZE+verticalOffset) - correction for negative verticalOffset 
+
+    tetrominoAfterRotate.correctPositionOnTopEdgeOfGamebox();
+    tetrominoAfterRotate.correctPositionOnBottomEdgeOfGamebox();
+
+    // -- Horizontal positions
+    // --- correct horizontal position of the tetromino view after rotation, in the other case it would stay in the middle of the grid.
+    tetrominoAfterRotate.view.translateOffsetX = tetromino.view.translateOffsetX - containerHalfShift;
+    tetrominoAfterRotate.model.addressOnGrid.col = tetromino.model.addressOnGrid.col + containerMeasureChange;
+
+    tetrominoAfterRotate.correctPositionOnLeftEdgeOfGamebox();
+    tetrominoAfterRotate.correctPositionOnRightEdgeOfGamebox();
+
+}
+
+/*------------------------------------*/
+function UpdatePlacementAfterRotate(tetromino, tetrominoAfterRotate) {
+    tetrominoAfterRotate.model.placement = Array(tetrominoAfterRotate.model.rows);
+
+    for (let row = 0; row < tetrominoAfterRotate.model.rows; row++) {
+        tetrominoAfterRotate.model.placement[row] = Array(tetrominoAfterRotate.model.columns);
+        for (let col = 0; col < tetrominoAfterRotate.model.columns; col++) {
+            tetrominoAfterRotate.model.placement[row][col] = tetromino.model.placement[col][row];
+        }
+    }
+
+    if (tetromino.shape !== 'I') {
+
+        for (let row = 0; row < tetrominoAfterRotate.model.rows; row++) {
+            for (let col = 0; col < Math.trunc(tetrominoAfterRotate.model.columns / 2); col++) {
+                [tetrominoAfterRotate.model.placement[row][col], tetrominoAfterRotate.model.placement[row][tetrominoAfterRotate.model.columns - 1 - col]] =
+                    [tetrominoAfterRotate.model.placement[row][tetrominoAfterRotate.model.columns - 1 - col], tetrominoAfterRotate.model.placement[row][col]];
+            }
+        }
+    }
+}
+
+/*------------------------------------*/
+function correctPositionOnLeftEdgeOfGamebox() {
+    if (this.model.addressOnGrid.col < 0) {
+        this.view.translateOffsetX += -this.model.addressOnGrid.col * TILE_SIZE;
+        this.model.addressOnGrid.col = 0;
+    }
+}
+
+/*------------------------------------*/
+function correctPositionOnRightEdgeOfGamebox() {
+    const rightAllowdEdgeForAddress = BOX_COLUMNS - this.model.columns;
+    if (this.model.addressOnGrid.col > rightAllowdEdgeForAddress) {
+        this.view.translateOffsetX -= (this.model.addressOnGrid.col - rightAllowdEdgeForAddress) * TILE_SIZE;
+        this.model.addressOnGrid.col = rightAllowdEdgeForAddress;
+    }
+}
+
+/*------------------------------------*/
+function correctPositionOnTopEdgeOfGamebox() {
+    if (this.model.addressOnGrid.row < 0) {
+        this.view.translateOffsetY += -this.model.addressOnGrid.row * TILE_SIZE - this.model.offsetFromGridLine;
+        this.model.addressOnGrid.row = 0;
+        this.model.offsetFromGridLine = 0;
+    }
+}
+
+/*------------------------------------*/
+function correctPositionOnBottomEdgeOfGamebox() {
+    const bottomAllowdEdgeForAddress = BOX_ROWS - this.model.rows - (this.model.offsetFromGridLine !== 0 ? 1 : 0); //  rows after rotation = columns before rotation
+    if (this.model.addressOnGrid.row > bottomAllowdEdgeForAddress) {
+        this.view.translateOffsetY -= (this.model.addressOnGrid.row - bottomAllowdEdgeForAddress) * TILE_SIZE;
+        this.model.addressOnGrid.row = bottomAllowdEdgeForAddress;
+    }
+}
+
+/*it can work without this, cannot notice overlaps*/
+function getCellsOnRotationWay(tetromino, tetrominoAfterRotate, cellsToBeFree) {
+    if (tetromino.model.columns - tetromino.model.rows < 0) {
+        const rotationContainer = {
+            rows: tetromino.model.rows + (tetromino.model.offsetFromGridLine !== 0 ? 1 : 0),
+            cols: tetromino.model.rows,
+        }
+
+        for (let r = tetromino.model.addressOnGrid.row; r < tetrominoAfterRotate.model.addressOnGrid.row; r++) {
+            for (let c = tetromino.model.addressOnGrid.col + 1; c < tetrominoAfterRotate.model.addressOnGrid.col + rotationContainer.cols; c++) {
+                cellsToBeFree.push({ row: r, col: c });
+            }
+        }
+        for (let r = tetrominoAfterRotate.model.addressOnGrid.row + 1; r < tetromino.model.addressOnGrid.row + rotationContainer.rows; r++) {
+            for (let c = tetrominoAfterRotate.model.addressOnGrid.col; c < tetromino.model.addressOnGrid.col; c++) {
+                cellsToBeFree.push({ row: r, col: c });
+            }
+        }
+    } else {
+        const rotationContainer = {
+            rows: tetromino.model.cols + (tetrominoAfterRotate.model.offsetFromGridLine !== 0 ? 1 : 0),
+            cols: tetromino.model.cols,
+        }
+
+        for (let r = tetrominoAfterRotate.model.addressOnGrid.row; r < tetromino.model.addressOnGrid.row; r++) {
+            for (let c = tetromino.model.addressOnGrid.col; c < tetrominoAfterRotate.model.addressOnGrid.col; c++) {
+                cellsToBeFree.push({ row: r, col: c });
+            }
+        }
+        for (let r = tetromino.model.addressOnGrid.row + 1; r < tetrominoAfterRotate.model.addressOnGrid.row + rotationContainer.rows; r++) {
+            for (let c = tetrominoAfterRotate.model.addressOnGrid.col + 1; c < tetromino.model.addressOnGrid.col + rotationContainer.cols; c++) {
+                cellsToBeFree.push({ row: r, col: c });
+            }
+        }
+    }
+
+
 }

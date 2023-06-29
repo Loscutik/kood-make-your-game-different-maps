@@ -112,7 +112,7 @@ async function animate() {
             tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber], true);
         }
         //New tetromino fits fully to screen, but ends game
-        if (gamebox.hasObstacleUnderOf(tetromino.getBottomEdgeCells())) {
+        if (gamebox.hasObstacleUnderOf(tetromino.model.getBottomEdgeCells())) { // TODO: change this logic of checking gameover state
             toggleMessageBox("GAME OVER");
             currentStatus.isOver = true;
             return
