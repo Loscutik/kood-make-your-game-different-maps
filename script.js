@@ -91,6 +91,7 @@ class InputHandler {
 }
 
 const input = new InputHandler();
+let isMovedDown=true;
 
 async function animate() {
     if (currentStatus.isPaused === true) {
@@ -99,7 +100,8 @@ async function animate() {
 
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
-    if (!tetromino.moveDown(verticalSpeed)) {
+    isMovedDown=tetromino.moveDown(verticalSpeed);
+    if (!isMovedDown) {
         gamebox.freezeTilesInBox(tetromino.getTiles());
         await gamebox.checkForFinishedRows();
         tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
@@ -109,6 +111,7 @@ async function animate() {
             return
         }
     }
+
 
     //Turn tetromino with Up Arrow key
     if (input.keys.includes("ArrowUp")) {
