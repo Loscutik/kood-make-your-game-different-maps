@@ -40,10 +40,16 @@ function pauseButtonListener() {
 function restartButtonListener() {
     const restartBtn = document.getElementById("restartButton");
     restartBtn.addEventListener("click", function () {
-        gamebox.resetGrid();
-        tetromino = restartGame();
+        renewGame();
     })
 }
+
+function renewGame() {
+    gamebox.resetGrid();
+    tetromino = restartGame();
+    animate();
+}
+
 
 let tetromino;
 
@@ -65,8 +71,7 @@ class InputHandler {
             if (this.keys.includes(" ") & !currentStatus.startScreen) {
                 pauseResumeToggle();
             } else if (this.keys.includes("r") & !currentStatus.startScreen) {
-                gamebox.resetGrid();
-                tetromino = restartGame();
+                renewGame();
             } else if (this.keys.includes("Enter") & currentStatus.startScreen) {
                 document.getElementById("startBox").style.display = "none";
                 document.getElementById("startScreenOverlay").style.display = "none";
@@ -91,28 +96,30 @@ class InputHandler {
 }
 
 const input = new InputHandler();
-let isMovedDown=true;
+let isMovedDown = true;
 
 async function animate() {
-    if (currentStatus.isPaused === true) {
+    if (currentStatus.isPaused === true || Object.keys(tetromino).length === 0) {
         return
     }
 
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
-    isMovedDown=tetromino.moveDown(verticalSpeed);
+    isMovedDown = tetromino.moveDown(verticalSpeed);
     if (!isMovedDown) {
-        gamebox.freezeTilesInBox(tetromino.getTiles());
+        gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
         await gamebox.checkForFinishedRows();
         const randomTetrominoNumber = Math.floor(Math.random() * 7);
-        if (!gamebox.checkIfNewTetrominoOverlapping(randomTetrominoNumber)) {
-            tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
-        } else {
-            //Create bottom half of tetromino, as there's only space for that
-            tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber], true);
-        }
+        // if (!gamebox.checkIfNewTetrominoOverlapping(randomTetrominoNumber)) {
+        //     tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
+        // } else {
+        //     //Create bottom half of tetromino, as there's only space for that
+        //     tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber], true);
+        // }
+        tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
         //New tetromino fits fully to screen, but ends game
-        if (gamebox.hasObstacleUnderOf(tetromino.model.getBottomEdgeCells())) { // TODO: change this logic of checking gameover state
+        //console.log(tetromino.toString())
+        if (Object.keys(tetromino).length === 0) { // if the new tetromino is empty
             toggleMessageBox("GAME OVER");
             currentStatus.isOver = true;
             return

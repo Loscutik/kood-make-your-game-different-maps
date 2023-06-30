@@ -6,7 +6,7 @@ class Gamebox {
     constructor(element) {
         this.element = document.getElementById("gamebox");
 
-        
+
         this.grid = Array(BOX_ROWS);
         for (let r = 0; r < BOX_ROWS; r++) {
             this.grid[r] = Array(BOX_COLUMNS);
@@ -25,31 +25,31 @@ class Gamebox {
     }
 
     hasObstacleRightOf(cellsToCheck) {
-        return cellsToCheck.some(({row, col})=>{
-            let colToRight=col+1;
-            return colToRight===BOX_COLUMNS || this.grid[row][colToRight]!==null;
+        return cellsToCheck.some(({ row, col }) => {
+            let colToRight = col + 1;
+            return colToRight === BOX_COLUMNS || this.grid[row][colToRight] !== null;
         });
-    
+
     }
     hasObstacleLeftOf(cellsToCheck) {
-        return cellsToCheck.some(({row, col})=>{
-            let colToLeft=col-1;
-            return colToLeft<0 || this.grid[row][colToLeft]!==null;
+        return cellsToCheck.some(({ row, col }) => {
+            let colToLeft = col - 1;
+            return colToLeft < 0 || this.grid[row][colToLeft] !== null;
         });
     }
 
     hasObstacleUnderOf(cellsToCheck) {
-        return cellsToCheck.some(({row, col})=>{
-            let rowUnder=row+1;
-            return rowUnder===BOX_ROWS || this.grid[rowUnder][col]!==null;
+        return cellsToCheck.some(({ row, col }) => {
+            let rowUnder = row + 1;
+            return rowUnder === BOX_ROWS || this.grid[rowUnder][col] !== null;
         });
     }
 
-    freezeTilesInBox(cells){
-        cells.forEach(({row, col}) => this.grid[row][col] = true);
+    freezeTilesInBox(cells) {
+        cells.forEach(({ row, col }) => this.grid[row][col] = true);
     }
 
-    checkForFinishedRows(){
+    checkForFinishedRows() {
         const rowRemovalPromises = []; //Store promises of each line removal
         let completedRows = 0;
         for (let rowIndex in this.grid) {
@@ -60,22 +60,22 @@ class Gamebox {
                 this.updateGridAfterCompletingRow(rowIndex);
             }
         }
-        if (completedRows != 0){
+        if (completedRows != 0) {
             updateScore(completedRows);
         }
         return Promise.all(rowRemovalPromises);
     }
 
-    updateGridAfterCompletingRow(rowIndex){
-        for (let i = rowIndex; i > 0; i--){
-            this.grid[i] = [...this.grid[i-1]];
+    updateGridAfterCompletingRow(rowIndex) {
+        for (let i = rowIndex; i > 0; i--) {
+            this.grid[i] = [...this.grid[i - 1]];
         }
         for (let j = 0; j < BOX_COLUMNS; j++) {
             this.grid[0][j] = null;
-        } 
+        }
     }
 
-    removeRowOfTiles(rowIndex){
+    removeRowOfTiles(rowIndex) {
         const boxClientRect = this.element.getBoundingClientRect();
         const boxTop = boxClientRect.top + 3; //Box border width = 3
         const rowToBeDeletedCoord = TILE_SIZE * rowIndex + (TILE_SIZE / 2) + boxTop;
@@ -88,7 +88,7 @@ class Gamebox {
             let tileClientRect = tiles[i].getBoundingClientRect();
             if (rowToBeDeletedCoord > tileClientRect.top &&
                 rowToBeDeletedCoord < tileClientRect.bottom) {
-                    tilesToRemove.push(tiles[i]);
+                tilesToRemove.push(tiles[i]);
             } else if (rowToBeDeletedCoord > tileClientRect.top) {
                 tilesToFall.push(tiles[i]);
             }
@@ -102,7 +102,7 @@ class Gamebox {
         })
 
         return new Promise((resolve) => {
-            setTimeout(function() { //Wait once the animation is finished
+            setTimeout(function () { //Wait once the animation is finished
                 currentStatus.lastFrame += 350;
                 tilesToRemove.forEach(tile => {
                     //Change class of the tile
@@ -127,26 +127,27 @@ class Gamebox {
     }
 
     isCellsFree(cellsToCheck) {
-        return cellsToCheck.every(({row,col})=>!this.grid[row][col]);
+        return cellsToCheck.every(({ row, col }) => !this.grid[row][col]);
     }
 
+    //-------PREVIOUS IMPLEMENTATION
     //Avoid new tetromino overlapping with existing one when middle columns (3, 4, 5) are getting full
-    checkIfNewTetrominoOverlapping(newTetrominoNumber) {
-        if (newTetrominoNumber === 0) {         //If new tetromino is long one, return false
-            return false
-        } else if (this.grid[1][3] === null &&  //If row 1, columns 3, 4, 5 are free, return false
-            this.grid[1][4] === null &&
-            this.grid[1][5] === null) {
-                return false;
-        } else if (this.grid[1][3] === true &&  //If row 1, column 3 is occupied,
-            this.grid[1][4] === null &&         //but new tetromino is square
-            this.grid[1][5] === null &&         //or reverse "S", return false
-            (newTetrominoNumber === 1 ||
-            newTetrominoNumber === 6)) {         
-                return false;
-        }
-        return true;
-    }
+    // checkIfNewTetrominoOverlapping(newTetrominoNumber) {
+    //     if (newTetrominoNumber === 0) {         //If new tetromino is long one, return false
+    //         return false
+    //     } else if (this.grid[1][3] === null &&  //If row 1, columns 3, 4, 5 are free, return false
+    //         this.grid[1][4] === null &&
+    //         this.grid[1][5] === null) {
+    //             return false;
+    //     } else if (this.grid[1][3] === true &&  //If row 1, column 3 is occupied,
+    //         this.grid[1][4] === null &&         //but new tetromino is square
+    //         this.grid[1][5] === null &&         //or reverse "S", return false
+    //         (newTetrominoNumber === 1 ||
+    //         newTetrominoNumber === 6)) {         
+    //             return false;
+    //     }
+    //     return true;
+    // }
 }
 export const gamebox = new Gamebox;
 

@@ -62,7 +62,7 @@ export function restartGame() {
     currentStatus.score = 0;
     displayScore(0);
     currentStatus.startTime = performance.now();
-    window.dispatchEvent(new Event('runAnimation'));
+    //window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
 }
 
