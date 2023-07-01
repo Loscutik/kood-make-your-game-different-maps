@@ -55,42 +55,54 @@ let tetromino;
 
 class InputHandler {
     constructor() {
-        this.keys = [];
+        this.keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+            // " ": false,
+            // r: false,
+            // Enter: false,
+
+        };
         this.keysDownTimes = {}
         window.addEventListener('keydown', e => {
-            if ((e.key === "ArrowLeft" ||
-                e.key === "ArrowRight" ||
-                e.key === "ArrowDown" ||
-                e.key === "ArrowUp" ||
-                e.key === " " ||
-                e.key === "r" ||
-                e.key === "Enter") &&
-                !this.keys.includes(e.key)) {
-                this.keys.push(e.key);
-            }
-            if (this.keys.includes(" ") & !currentStatus.startScreen) {
-                pauseResumeToggle();
-            } else if (this.keys.includes("r") & !currentStatus.startScreen) {
-                renewGame();
-            } else if (this.keys.includes("Enter") & currentStatus.startScreen) {
-                document.getElementById("startBox").style.display = "none";
-                document.getElementById("startScreenOverlay").style.display = "none";
-                currentStatus.startScreen = false;
-                currentStatus.startTime = performance.now();
-                currentStatus.heartStartTime = performance.now();
-                tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-                animate();
+            switch (e.key) {
+                case "ArrowLeft":
+                case "ArrowRight":
+                case "ArrowDown":
+                case "ArrowUp":
+                    this.keys[e.key] = true;
+                    break;
+                case " ":
+                    if (!currentStatus.startScreen) pauseResumeToggle();
+                    break;
+                case "r":
+                case "R":
+                    if (!currentStatus.startScreen) renewGame();
+                    break;
+                case "Enter":
+                    if (currentStatus.startScreen) {
+                        document.getElementById("startBox").style.display = "none";
+                        document.getElementById("startScreenOverlay").style.display = "none";
+                        currentStatus.startScreen = false;
+                        currentStatus.startTime = performance.now();
+                        currentStatus.heartStartTime = performance.now();
+                        tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+                        animate();
+                    }
+
+                    break;
             }
         });
+
         window.addEventListener('keyup', e => {
             if (e.key === "ArrowLeft" ||
                 e.key === "ArrowRight" ||
                 e.key === "ArrowDown" ||
-                e.key === "ArrowUp" ||
-                e.key === " " ||
-                e.key === "r" ||
-                e.key === "Enter") {
-                this.keys.splice(this.keys.indexOf(e.key), 1);
+                e.key === "ArrowUp"
+            ) {
+                this.keys[e.key] = false;
             }
         });
     }
@@ -129,23 +141,23 @@ async function animate() {
 
 
     //Turn tetromino with Up Arrow key
-    if (input.keys.includes("ArrowUp")) {
+    if (input.keys.ArrowUp) {
         tetromino.rotate();
-        input.keys.splice(input.keys.indexOf("ArrowUp"), 1);
+        input.keys.ArrowUp = false;
     }
 
     //Move tile horizontally
-    if (input.keys.includes("ArrowRight")) {
+    if (input.keys.ArrowRight) {
         tetromino.moveRight();
-        input.keys.splice(input.keys.indexOf("ArrowRight"), 1);
+        input.keys.ArrowRight = false;
 
-    } else if (input.keys.includes("ArrowLeft")) {
+    } else if (input.keys.ArrowLeft) {
         tetromino.moveLeft();
-        input.keys.splice(input.keys.indexOf("ArrowLeft"), 1);
+        input.keys.ArrowLeft = false;
     }
 
     //Speed up downward movement with Down Arrow key
-    if (input.keys.includes("ArrowDown")) {
+    if (input.keys.ArrowDown) {
         verticalSpeed = 8;
     } else {
         verticalSpeed = 2;
@@ -165,9 +177,9 @@ async function animate() {
             removeHeartOrEndGame();
         } else {
             const heartStopperCollection = document.getElementsByClassName('heartStopper');
-            heartStopperCollection[currentStatus.livesLeft-1].textContent = heartTime;
+            heartStopperCollection[currentStatus.livesLeft - 1].textContent = heartTime;
         }
-        
+
         //Calculate the average frame rate over the last 60 frames
         let averageFPS = 60 / ((performance.now() - currentStatus.lastFrame) / 1000);
         document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
