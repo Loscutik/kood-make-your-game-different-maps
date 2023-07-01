@@ -1,4 +1,4 @@
-import { tetrominoesData, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
+import { tetrominoesData, HEART_TIME, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
 import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, removeHeartOrEndGame } from "./gameStatus.js"
@@ -177,8 +177,8 @@ async function animate(time) {
         document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
 
         //Update heart timer
-        let heartTime = 20 - ((performance.now() - currentStatus.heartStartTime - currentStatus.pauseDuration) / 1000).toFixed();
-        if (heartTime > 20) heartTime = 20;
+        let heartTime = HEART_TIME - ((performance.now() - currentStatus.heartStartTime - currentStatus.pauseDuration) / 1000).toFixed();
+        if (heartTime > HEART_TIME) heartTime = HEART_TIME;
 
         if (heartTime < 1) {
             removeHeartOrEndGame();
