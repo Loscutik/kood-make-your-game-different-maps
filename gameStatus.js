@@ -6,11 +6,13 @@ export let currentStatus = {
     startTime: performance.now(),
     pauseStartTime: undefined,
     pauseDuration: 0,
+    heartStartTime: performance.now(),
     frameCount: 0,
     lastFrame: performance.now(),
     isPaused: false,
     isOver: false,
     animationFrameId: 0,
+    livesLeft: 3,
     score: 0,
 }
 
@@ -40,7 +42,7 @@ export function pauseResumeToggle() {
 
 export function restartGame() {
     window.cancelAnimationFrame(currentStatus.animationFrameId);
-    document.getElementById('timer').textContent = "00:00";
+    document.getElementById('mainTimer').textContent = "00:00";
     currentStatus.frameCount = 0;
     const gameboxElement = document.getElementById("gamebox");
     const tetrominoes = gameboxElement.querySelectorAll('.tetromino');
@@ -107,4 +109,18 @@ function displayScore(newScore) {
     }
     scoreString += newScore;
     document.getElementById("score").innerHTML = scoreString;
+}
+
+//Remove heart if time has ran out
+export function removeHeartOrEndGame() {
+    currentStatus.livesLeft -= 1;
+    const heartToRemove = document.getElementsByClassName("heartWrapper")[currentStatus.livesLeft];
+    heartToRemove.style.opacity = 0;
+    if (currentStatus.livesLeft === 0) {
+        cancelAnimationFrame(currentStatus.animationFrameId);
+        toggleMessageBox("GAME OVER");
+        currentStatus.isOver = true;
+    }
+    document.getElementsByClassName("heartStopper")[currentStatus.livesLeft-1].innerHTML = 20;
+    currentStatus.heartStartTime = performance.now();
 }
