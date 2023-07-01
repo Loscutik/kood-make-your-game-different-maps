@@ -1,19 +1,28 @@
 import { tetrominoesData } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 
+const now = performance.now();
 export let currentStatus = {
     startScreen: true,
-    startTime: performance.now(),
+    startTime: now,
     pauseStartTime: undefined,
     pauseDuration: 0,
-    heartStartTime: performance.now(),
+    heartStartTime: now,
     frameCount: 0,
-    lastFrame: performance.now(),
+    lastFrame: now,
     isPaused: false,
     isOver: false,
     animationFrameId: 0,
     livesLeft: 3,
     score: 0,
+    prevAnimationTime: now,
+    freezeDelayTime: 0,
+
+    reset() {
+        this.frameCount = 0;
+        this.livesLeft = 3;
+        this.freezeDelayTime = 0;
+    }
 }
 
 export function pauseResumeToggle() {
@@ -43,7 +52,10 @@ export function pauseResumeToggle() {
 export function restartGame() {
     window.cancelAnimationFrame(currentStatus.animationFrameId);
     document.getElementById('mainTimer').textContent = "00:00";
-    currentStatus.frameCount = 0;
+    // currentStatus.frameCount = 0;
+    // currentStatus.livesLeft = 3;
+    // currentStatus.freezeDelayTime = 0;
+    currentStatus.reset();
     const gameboxElement = document.getElementById("gamebox");
     const tetrominoes = gameboxElement.querySelectorAll('.tetromino');
     tetrominoes.forEach(tetromino => {
@@ -55,7 +67,7 @@ export function restartGame() {
         pauseBtnText.textContent = "PAUSE";
         pauseBtn.classList.remove("pauseButtonGreen");
         pauseBtn.classList.add("pauseButtonRed");
-        currentStatus.isPaused = false;   
+        currentStatus.isPaused = false;
     }
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
@@ -121,6 +133,6 @@ export function removeHeartOrEndGame() {
         toggleMessageBox("GAME OVER");
         currentStatus.isOver = true;
     }
-    document.getElementsByClassName("heartStopper")[currentStatus.livesLeft-1].innerHTML = 20;
+    document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = 20;
     currentStatus.heartStartTime = performance.now();
 }

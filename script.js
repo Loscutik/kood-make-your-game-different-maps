@@ -8,7 +8,7 @@ import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMi
 // 2) gameStatus.js: currentStatus.startScreen = false;
 // 3) script.js: on the bottom decomment "tetromino = ..." & "animate()"
 
-let verticalSpeed = 2;
+let verticalSpeed = 1;
 
 window.addEventListener("DOMContentLoaded", function () {
     startButtonListener();
@@ -111,15 +111,14 @@ class InputHandler {
 const input = new InputHandler();
 let isMovedDown = true;
 
-async function animate() {
+async function animate(time) {
     if (currentStatus.isPaused === true || Object.keys(tetromino).length === 0) {
         return
     }
 
-    // moveDown moves the tetromino down if it is possible
-    // and returns true if the movement had done and false otherwise
-    isMovedDown = tetromino.moveDown(verticalSpeed);
-    if (!isMovedDown) {
+
+    if (!isMovedDown) currentStatus.freezeDelayTime+=time-currentStatus.prevAnimationTime;
+    if (currentStatus.freezeDelayTime>100) {
         gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
         await gamebox.checkForFinishedRows();
         const randomTetrominoNumber = Math.floor(Math.random() * 7);
@@ -131,21 +130,29 @@ async function animate() {
         // }
         tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
         //New tetromino fits fully to screen, but ends game
-        //console.log(tetromino.toString())
-        if (Object.keys(tetromino).length === 0) { // if the new tetromino is empty
+        //console.log(String(tetromino))
+        if (tetromino == 0) { // if the new tetromino is empty, toString will return ''
             toggleMessageBox("GAME OVER");
             currentStatus.isOver = true;
             return
         }
+        currentStatus.freezeDelayTime=0;
+        isMovedDown = true;
     }
-
-
+    
+    // moveDown moves the tetromino down if it is possible
+    // and returns true if the movement had done and false otherwise
+    isMovedDown = tetromino.moveDown(verticalSpeed);
+    //del if(!tetromino.model.offsetFromGridLine) console.log(isMovedDown);
+    
     //Turn tetromino with Up Arrow key
     if (input.keys.ArrowUp) {
         tetromino.rotate();
         input.keys.ArrowUp = false;
     }
 
+    //del if(input.keys.ArrowRight)
+    //del console.log(tetromino.shape,' - ',tetromino.model.offsetFromGridLine)
     //Move tile horizontally
     if (input.keys.ArrowRight) {
         tetromino.moveRight();
@@ -179,13 +186,14 @@ async function animate() {
             const heartStopperCollection = document.getElementsByClassName('heartStopper');
             heartStopperCollection[currentStatus.livesLeft - 1].textContent = heartTime;
         }
-
+        
         //Calculate the average frame rate over the last 60 frames
         let averageFPS = 60 / ((performance.now() - currentStatus.lastFrame) / 1000);
         document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
         currentStatus.lastFrame = performance.now();
     }
-
+    
+    currentStatus.prevAnimationTime = time;
     currentStatus.frameCount++;
 
     //Loop the animation

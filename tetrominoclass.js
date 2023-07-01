@@ -150,11 +150,20 @@ export class Tetromino {
             this.model.rows = 1;
             this.model.placement = [this.model.placement[1]];
             this.view.element = createTetrominoElm(BOX_WIDTH / 2 - Math.ceil(this.model.columns / 2) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
-            return {}
+            delete this.shape;
+            delete this.model;
+            delete this.view;
+            return
         }
 
         this.view.element = createTetrominoElm(BOX_WIDTH / 2 - Math.ceil(this.model.columns / 2) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
-        if (gamebox.hasObstacleUnderOf(this.model.getBottomEdgeCells())) return {}
+        if (gamebox.hasObstacleUnderOf(this.model.getBottomEdgeCells())) {
+            delete this.shape;
+            delete this.model;
+            delete this.view;
+            return;
+        }
+
     }
 
     /*----------------------------------------------------------------------------------------*/
@@ -169,7 +178,6 @@ export class Tetromino {
             y: ${this.view.translateOffsetX}
         rotation: ${this.view.rotationCounter}`
     }
-    
 
     /*----------------------------------------------------------------------------------------*/
     moveDown(speed) {
@@ -263,18 +271,6 @@ export class Tetromino {
 
         // add the cells ocupated by the new placement to cellsToBeFree
         cellsToBeFree.push(...tetrominoAfterRotate.model.getOccupiedCells());
-        // for (let row = 0; row < tetrominoAfterRotate.model.rows; row++) {
-        //     for (let col = 0; col < tetrominoAfterRotate.model.columns; col++) {
-        //         if (tetrominoAfterRotate.model.placement[row][col]) {
-        //             cellsToBeFree.push({ row: tetrominoAfterRotate.model.addressOnGrid.row + row, col: tetrominoAfterRotate.model.addressOnGrid.col + col });
-        //             if (tetrominoAfterRotate.model.offsetFromGridLine > 0) {
-        //                 cellsToBeFree.push({ row: tetrominoAfterRotate.model.addressOnGrid.row + row + 1, col: tetrominoAfterRotate.model.addressOnGrid.col + col });
-        //             }
-
-        //         }
-        //     }
-        // }
-
         if (!gamebox.isCellsFree(cellsToBeFree)) return false;
 
         // if there were no obstacles make rotation
