@@ -113,10 +113,8 @@ async function animate(time) {
         return
     }
 
-    console.log(currentStatus.freezeDelayTime);
     if (!isMovedDown) currentStatus.freezeDelayTime+=time-currentStatus.prevAnimationTime;
     if (currentStatus.freezeDelayTime>100) {
-        console.log("Here");
         gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
         await gamebox.checkForFinishedRows();
         // const randomTetrominoNumber = Math.floor(Math.random() * 7);
