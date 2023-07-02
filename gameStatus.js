@@ -17,6 +17,7 @@ export let currentStatus = {
     score: 0,
     prevAnimationTime: now,
     freezeDelayTime: 0,
+    nextTetromino: 0,
 
     reset() {
         this.frameCount = 0;
@@ -135,6 +136,7 @@ export function restartGame() {
     currentStatus.score = 0;
     displayScore(0);
     currentStatus.startTime = performance.now();
+    pickAndShowNextTetromino();
     //window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
 }
@@ -203,4 +205,11 @@ export function removeHeartOrEndGame() {
     setTimeout(function() {
         document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
     }, 500)
+}
+
+export function pickAndShowNextTetromino() {
+    const tetrominoPreviews = document.getElementsByClassName("nextTetromino");
+    tetrominoPreviews[currentStatus.nextTetromino].style.opacity = "0";
+    currentStatus.nextTetromino = Math.floor(Math.random() * 7);
+    tetrominoPreviews[currentStatus.nextTetromino].style.opacity = "1";
 }

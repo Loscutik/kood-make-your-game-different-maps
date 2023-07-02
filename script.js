@@ -1,7 +1,7 @@
 import { tetrominoesData, HEART_TIME, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
-import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeartOrEndGame } from "./gameStatus.js"
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeartOrEndGame, pickAndShowNextTetromino } from "./gameStatus.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
@@ -21,12 +21,7 @@ window.addEventListener("runAnimation", animate);
 function startButtonListener() {
     const startBtn = document.getElementById("startButton");
     startBtn.addEventListener("click", function () {
-        document.getElementById("startBox").style.display = "none";
-        document.getElementById("startScreenOverlay").style.display = "none";
-        currentStatus.startScreen = false;
-        currentStatus.startTime = performance.now();
-        tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-        animate();
+        startGame();
     })
 }
 
@@ -50,6 +45,16 @@ function renewGame() {
     animate();
 }
 
+function startGame() {
+    document.getElementById("startBox").style.display = "none";
+    document.getElementById("startScreenOverlay").style.display = "none";
+    currentStatus.startScreen = false;
+    currentStatus.startTime = performance.now();
+    currentStatus.heartStartTime = performance.now();
+    tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+    pickAndShowNextTetromino();
+    animate();
+}
 
 let tetromino;
 
@@ -82,15 +87,7 @@ class InputHandler {
                     if (!currentStatus.startScreen) renewGame();
                     break;
                 case "Enter":
-                    if (currentStatus.startScreen) {
-                        document.getElementById("startBox").style.display = "none";
-                        document.getElementById("startScreenOverlay").style.display = "none";
-                        currentStatus.startScreen = false;
-                        currentStatus.startTime = performance.now();
-                        currentStatus.heartStartTime = performance.now();
-                        tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-                        animate();
-                    }
+                    if (currentStatus.startScreen) startGame();
 
                     break;
             }
@@ -121,14 +118,15 @@ async function animate(time) {
     if (currentStatus.freezeDelayTime>100) {
         gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
         await gamebox.checkForFinishedRows();
-        const randomTetrominoNumber = Math.floor(Math.random() * 7);
+        // const randomTetrominoNumber = Math.floor(Math.random() * 7);
         // if (!gamebox.checkIfNewTetrominoOverlapping(randomTetrominoNumber)) {
         //     tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
         // } else {
         //     //Create bottom half of tetromino, as there's only space for that
         //     tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber], true);
         // }
-        tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
+        tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
+        pickAndShowNextTetromino();
         //New tetromino fits fully to screen, but ends game
         //console.log(String(tetromino))
         if (tetromino == 0) { // if the new tetromino is empty, toString will return ''
