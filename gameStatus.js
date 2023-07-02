@@ -113,6 +113,7 @@ export function restartGame() {
     // currentStatus.freezeDelayTime = 0;
 
     currentStatus.reset();
+    console.log("reseting:", currentStatus.freezeDelayTime)
     const gameboxElement = document.getElementById("gamebox");
     const tetrominoes = gameboxElement.querySelectorAll('.tetromino');
     tetrominoes.forEach(tetromino => {
