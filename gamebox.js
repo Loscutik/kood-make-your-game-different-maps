@@ -1,4 +1,4 @@
-import { BOX_ROWS, BOX_COLUMNS, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
+import { BOX_ROWS, BOX_COLUMNS, BOX_WIDTH, BOX_HEIGHT, HEART_TIME, TILE_SIZE } from "./data.js";
 import { currentStatus, updateScore } from "./gameStatus.js"
 
 class Gamebox {
@@ -61,6 +61,11 @@ class Gamebox {
             }
         }
         if (completedRows != 0) {
+            document.getElementsByClassName("heartStopper")[currentStatus.livesLeft-1].innerHTML = HEART_TIME;
+            const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.livesLeft-1];
+            heartWrapper.classList.remove("refillHeart");
+            void heartWrapper.offsetWidth; //Force a reflow to run animation again
+            heartWrapper.classList.add("refillHeart");
             updateScore(completedRows);
             currentStatus.heartStartTime = performance.now() + 1000;
         }

@@ -33,12 +33,14 @@ export function pauseResumeToggle() {
     };
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
+    const activeHeart = document.getElementsByClassName("heart")[currentStatus.livesLeft-1];
     if (currentStatus.isPaused === true) {
         currentStatus.pauseDuration += performance.now() - currentStatus.pauseStartTime;
         pauseBtnText.textContent = "PAUSE";
         pauseBtn.classList.remove("pauseButtonGreen");
         pauseBtn.classList.add("pauseButtonRed");
         toggleMessageBox();
+        activeHeart.style.animationPlayState = "running";
         currentStatus.isPaused = false;
         window.dispatchEvent(new Event('runAnimation'));
     } else {
@@ -47,46 +49,60 @@ export function pauseResumeToggle() {
         pauseBtn.classList.remove("pauseButtonRed");
         pauseBtn.classList.add("pauseButtonGreen");
         toggleMessageBox("PAUSED");
+        activeHeart.style.animationPlayState = "paused";
         currentStatus.isPaused = true;
     }
 }
 
-function createHeart() {
-    const divHeartWrapper = document.createElement('div');
-    divHeartWrapper.classList.add('heartWrapper');
+//PREVIOUS IMPLEMENTATION FOR RESETING HEARTS
+// function createHeart() {
+//     const divHeartWrapper = document.createElement('div');
+//     divHeartWrapper.classList.add('heartWrapper');
 
-    const spanHeartStopper = document.createElement('span');
-    spanHeartStopper.classList.add('heartStopper');
-    divHeartWrapper.appendChild(spanHeartStopper);
+//     const spanHeartStopper = document.createElement('span');
+//     spanHeartStopper.classList.add('heartStopper');
+//     divHeartWrapper.appendChild(spanHeartStopper);
 
-    const svgHeart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svgHeart.setAttribute('width', `41px`);
-    svgHeart.setAttribute('height', `40px`);
-    svgHeart.setAttribute('viewBox', `0 0 20 18`);
-    svgHeart.classList.add('heart');
-    divHeartWrapper.appendChild(svgHeart);
+//     const svgHeart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+//     svgHeart.setAttribute('width', `41px`);
+//     svgHeart.setAttribute('height', `40px`);
+//     svgHeart.setAttribute('viewBox', `0 0 20 18`);
+//     svgHeart.classList.add('heart');
+//     divHeartWrapper.appendChild(svgHeart);
 
-    const heart = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    heart.setAttributeNS(null, 'd', `M11 18H9v-1H8v-1H7v-1H6v-1H5v-1H4v-1H3v-1H2v-1H1V8H0V3h1V2h1V1h1V0h5v1h1v1h2V1h1V0h5v1h1v1h1v1h1v5h-1v2h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1`);
-    heart.setAttributeNS(null, 'style', 'fill:#d92327;fill-opacity:1');
-    svgHeart.appendChild(heart);
+//     const heart = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+//     heart.setAttributeNS(null, 'd', `M11 18H9v-1H8v-1H7v-1H6v-1H5v-1H4v-1H3v-1H2v-1H1V8H0V3h1V2h1V1h1V0h5v1h1v1h2V1h1V0h5v1h1v1h1v1h1v5h-1v2h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1`);
+//     heart.setAttributeNS(null, 'style', 'fill:#d92327;fill-opacity:1');
+//     svgHeart.appendChild(heart);
 
-    return divHeartWrapper;
+//     return divHeartWrapper;
+// }
+
+// function createHeartsSet() {
+//     const heartsContainer = document.getElementById('livesWrapper');
+//     while (heartsContainer.firstChild) {
+//         heartsContainer.removeChild(heartsContainer.firstChild);
+//     }
+
+//     heartsContainer.appendChild(createHeart());
+//     heartsContainer.appendChild(createHeart());
+//     const lastHeart = createHeart();
+//     lastHeart.querySelector('span').innerHTML = 'HEART_TIME';
+//     heartsContainer.appendChild(lastHeart);
+// }
+
+function resetHearts() {
+    const hearts = document.getElementsByClassName("heart");
+    [...hearts].forEach(heart => {
+        heart.classList.remove("removedHeart");
+        heart.style.opacity = "1";
+    });
+    const heartStopper = document.getElementsByClassName("heartStopper");
+    heartStopper[0].innerHTML = "";
+    heartStopper[1].innerHTML = "";
+    heartStopper[2].innerHTML = HEART_TIME;
 }
 
-function createHeartsSet() {
-    const heartsContainer = document.getElementById('livesWrapper');
-    while (heartsContainer.firstChild) {
-        heartsContainer.removeChild(heartsContainer.firstChild);
-    }
-
-    heartsContainer.appendChild(createHeart());
-    heartsContainer.appendChild(createHeart());
-    const lastHeart = createHeart();
-    lastHeart.querySelector('span').innerHTML = 'HEART_TIME';
-    heartsContainer.appendChild(lastHeart);
-
-}
 
 export function restartGame() {
     window.cancelAnimationFrame(currentStatus.animationFrameId);
@@ -102,7 +118,7 @@ export function restartGame() {
         tetromino.remove();
     });
 
-    createHeartsSet();
+    resetHearts();
 
     if (currentStatus.isPaused === true) {
         const pauseBtn = document.getElementById("pauseButton");
@@ -166,16 +182,25 @@ function displayScore(newScore) {
     document.getElementById("score").innerHTML = scoreString;
 }
 
+export function blinkHeart() {
+    const heartToBlink = document.getElementsByClassName("heart")[currentStatus.livesLeft-1];
+    heartToBlink.classList.add("heartBlinkLastSecs");
+}
+ 
 //Remove heart if time has ran out
 export function removeHeartOrEndGame() {
     currentStatus.livesLeft -= 1;
-    const heartToRemove = document.getElementsByClassName("heartWrapper")[currentStatus.livesLeft];
-    heartToRemove.style.opacity = 0;
+    document.getElementsByClassName("heartStopper")[currentStatus.livesLeft].innerHTML = "";
+    const heartToRemove = document.getElementsByClassName("heart")[currentStatus.livesLeft];
+    heartToRemove.classList.remove("heartBlinkLastSecs");
+    heartToRemove.classList.add("removedHeart");
     if (currentStatus.livesLeft === 0) {
         cancelAnimationFrame(currentStatus.animationFrameId);
         toggleMessageBox("GAME OVER");
         currentStatus.isOver = true;
     }
-    document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
     currentStatus.heartStartTime = performance.now();
+    setTimeout(function() {
+        document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
+    }, 500)
 }

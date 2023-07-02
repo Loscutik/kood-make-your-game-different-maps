@@ -7,6 +7,8 @@ export const BOX_WIDTH = BOX_COLUMNS*TILE_SIZE;
 export const BOX_HEIGHT = BOX_ROWS*TILE_SIZE;
 export const HEART_TIME = 20;
 
+;
+
 
 export const tetrominoesData = [
     // 1) The long one

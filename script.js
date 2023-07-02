@@ -1,7 +1,7 @@
 import { tetrominoesData, HEART_TIME, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
-import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, removeHeartOrEndGame } from "./gameStatus.js"
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeartOrEndGame } from "./gameStatus.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
@@ -185,6 +185,9 @@ async function animate(time) {
         } else {
             const heartStopperCollection = document.getElementsByClassName('heartStopper');
             heartStopperCollection[currentStatus.livesLeft - 1].textContent = heartTime;
+            if (heartTime === 3) {
+                blinkHeart();
+            }
         }
         
         //Calculate the average frame rate over the last 60 frames
