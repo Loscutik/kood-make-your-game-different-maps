@@ -58,43 +58,6 @@ export function pauseResumeToggle() {
     }
 }
 
-//PREVIOUS IMPLEMENTATION FOR RESETING HEARTS
-// function createHeart() {
-//     const divHeartWrapper = document.createElement('div');
-//     divHeartWrapper.classList.add('heartWrapper');
-
-//     const spanHeartStopper = document.createElement('span');
-//     spanHeartStopper.classList.add('heartStopper');
-//     divHeartWrapper.appendChild(spanHeartStopper);
-
-//     const svgHeart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-//     svgHeart.setAttribute('width', `41px`);
-//     svgHeart.setAttribute('height', `40px`);
-//     svgHeart.setAttribute('viewBox', `0 0 20 18`);
-//     svgHeart.classList.add('heart');
-//     divHeartWrapper.appendChild(svgHeart);
-
-//     const heart = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-//     heart.setAttributeNS(null, 'd', `M11 18H9v-1H8v-1H7v-1H6v-1H5v-1H4v-1H3v-1H2v-1H1V8H0V3h1V2h1V1h1V0h5v1h1v1h2V1h1V0h5v1h1v1h1v1h1v5h-1v2h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1h-1v1`);
-//     heart.setAttributeNS(null, 'style', 'fill:#d92327;fill-opacity:1');
-//     svgHeart.appendChild(heart);
-
-//     return divHeartWrapper;
-// }
-
-// function createHeartsSet() {
-//     const heartsContainer = document.getElementById('livesWrapper');
-//     while (heartsContainer.firstChild) {
-//         heartsContainer.removeChild(heartsContainer.firstChild);
-//     }
-
-//     heartsContainer.appendChild(createHeart());
-//     heartsContainer.appendChild(createHeart());
-//     const lastHeart = createHeart();
-//     lastHeart.querySelector('span').innerHTML = 'HEART_TIME';
-//     heartsContainer.appendChild(lastHeart);
-// }
-
 function resetHearts() {
     const hearts = document.getElementsByClassName("heart");
     [...hearts].forEach(heart => {
@@ -112,10 +75,6 @@ function resetHearts() {
 export function restartGame() {
     window.cancelAnimationFrame(currentStatus.animationFrameId);
     document.getElementById('mainTimer').textContent = "00:00";
-    // currentStatus.frameCount = 0;
-    // currentStatus.livesLeft = 3;
-    // currentStatus.freezeDelayTime = 0;
-
     currentStatus.reset();
     const gameboxElement = document.getElementById("gamebox");
     const tetrominoes = gameboxElement.querySelectorAll('.tetromino');

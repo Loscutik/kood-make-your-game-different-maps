@@ -11,32 +11,17 @@ import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMi
 let verticalSpeed = 1;
 
 window.addEventListener("DOMContentLoaded", function () {
-    startButtonListener();
-    pauseButtonListener();
-    restartButtonListener();
+    buttonListener("startButton", startGame);
+    buttonListener("pauseButton", pauseResumeToggle);
+    buttonListener("restartButton", renewGame);
 });
 
 window.addEventListener("runAnimation", animate);
 
-function startButtonListener() {
-    const startBtn = document.getElementById("startButton");
-    startBtn.addEventListener("click", function () {
-        startGame();
-    })
-}
-
-function pauseButtonListener() {
-    const pauseBtn = document.getElementById("pauseButton");
-    pauseBtn.addEventListener("click", function () {
-        pauseResumeToggle();
-    })
-}
-
-function restartButtonListener() {
-    const restartBtn = document.getElementById("restartButton");
-    restartBtn.addEventListener("click", function () {
-        renewGame();
-    })
+//Helper function to handle button clicks
+function buttonListener(buttonId, callback) {
+    const button = document.getElementById(buttonId);
+    button.addEventListener("click", callback);
 }
 
 function renewGame() {
@@ -65,10 +50,6 @@ class InputHandler {
             ArrowDown: false,
             ArrowLeft: false,
             ArrowRight: false,
-            // " ": false,
-            // r: false,
-            // Enter: false,
-
         };
         this.keysDownTimes = {}
         window.addEventListener('keydown', e => {
@@ -106,50 +87,40 @@ class InputHandler {
 }
 
 const input = new InputHandler();
-let isMovedDown = true;
+let isMovingDown = true;
 
 async function animate(time) {
     if (currentStatus.isPaused === true || Object.keys(tetromino).length === 0) {
         return
     }
 
-    if (!isMovedDown) currentStatus.freezeDelayTime+=time-currentStatus.prevAnimationTime;
+    if (!isMovingDown) currentStatus.freezeDelayTime+=time-currentStatus.prevAnimationTime;
     if (currentStatus.freezeDelayTime>100) {
         gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
         await gamebox.checkForFinishedRows();
-        // const randomTetrominoNumber = Math.floor(Math.random() * 7);
-        // if (!gamebox.checkIfNewTetrominoOverlapping(randomTetrominoNumber)) {
-        //     tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber]);
-        // } else {
-        //     //Create bottom half of tetromino, as there's only space for that
-        //     tetromino = new Tetromino(tetrominoesData[randomTetrominoNumber], true);
-        // }
         tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
         pickAndShowNextTetromino();
         //New tetromino fits fully to screen, but ends game
-        //console.log(String(tetromino))
-        if (tetromino == 0) { // if the new tetromino is empty, toString will return ''
+        if (tetromino === 0) { // if the new tetromino is empty, toString will return ''
             toggleMessageBox("GAME OVER");
             currentStatus.isOver = true;
-            return
+            cancelAnimationFrame(currentStatus.animationFrameId);
+            // return
         }
         currentStatus.freezeDelayTime=0;
-        isMovedDown = true;
+        isMovingDown = true;
     }
     
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
-    isMovedDown = tetromino.moveDown(verticalSpeed);
-    //del if(!tetromino.model.offsetFromGridLine) console.log(isMovedDown);
-    
+    isMovingDown = tetromino.moveDown(verticalSpeed);
+
     //Turn tetromino with Up Arrow key
     if (input.keys.ArrowUp) {
         tetromino.rotate();
         input.keys.ArrowUp = false;
     }
 
-    //del if(input.keys.ArrowRight)
-    //del console.log(tetromino.shape,' - ',tetromino.model.offsetFromGridLine)
     //Move tile horizontally
     if (input.keys.ArrowRight) {
         tetromino.moveRight();
