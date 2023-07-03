@@ -8,6 +8,7 @@ export let currentStatus = {
     pauseStartTime: undefined,
     pauseDuration: 0,
     heartStartTime: now,
+    heartPauseDuration: 0,
     frameCount: 0,
     lastFrame: now,
     isPaused: false,
@@ -36,7 +37,9 @@ export function pauseResumeToggle() {
     const pauseBtnText = document.getElementById("pauseButtonText");
     const activeHeart = document.getElementsByClassName("heart")[currentStatus.livesLeft-1];
     if (currentStatus.isPaused === true) {
-        currentStatus.pauseDuration += performance.now() - currentStatus.pauseStartTime;
+        const newPauseDuration = performance.now() - currentStatus.pauseStartTime;
+        currentStatus.pauseDuration += newPauseDuration;
+        currentStatus.heartPauseDuration += newPauseDuration;
         pauseBtnText.textContent = "PAUSE";
         pauseBtn.classList.remove("pauseButtonGreen");
         pauseBtn.classList.add("pauseButtonRed");
@@ -96,6 +99,7 @@ function resetHearts() {
     const hearts = document.getElementsByClassName("heart");
     [...hearts].forEach(heart => {
         heart.classList.remove("removedHeart");
+        heart.classList.remove("heartBlinkLastSecs");
         heart.style.opacity = "1";
     });
     const heartStopper = document.getElementsByClassName("heartStopper");
@@ -202,6 +206,7 @@ export function removeHeartOrEndGame() {
         currentStatus.isOver = true;
     }
     currentStatus.heartStartTime = performance.now();
+    currentStatus.heartPauseDuration = 0;
     setTimeout(function() {
         document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
     }, 500)

@@ -174,7 +174,7 @@ async function animate(time) {
         document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
 
         //Update heart timer
-        let heartTime = HEART_TIME - ((performance.now() - currentStatus.heartStartTime - currentStatus.pauseDuration) / 1000).toFixed();
+        let heartTime = HEART_TIME - ((performance.now() - currentStatus.heartStartTime - currentStatus.heartPauseDuration) / 1000).toFixed();
         if (heartTime > HEART_TIME) heartTime = HEART_TIME;
 
         if (heartTime < 1) {
