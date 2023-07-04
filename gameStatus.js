@@ -2,6 +2,7 @@ import { tetrominoesData, HEART_TIME } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 
 const now = performance.now();
+//TODO separate into inside objects corresponding to their objects (heart, pause, frame,...etc) 
 export let currentStatus = {
     startScreen: true,
     startTime: now,
@@ -18,14 +19,20 @@ export let currentStatus = {
     score: 0,
     prevAnimationTime: now,
     freezeDelayTime: 0,
-    nextTetromino: 0,
+    isMovingDown: true,
+    nextTetromino: Math.floor(Math.random() * 7),
 
     reset() {
+        const now = performance.now();
         this.frameCount = 0;
         this.livesLeft = 3;
         this.freezeDelayTime = 0;
-        this.startTime = performance.now();
-        this.heartStartTime = performance.now();
+        this.startTime = now;
+        this.heartStartTime = now;
+        this.isOver = false;
+        this.pauseDuration = 0;
+        this.score = 0;
+        this.isMovingDown=true;
     }
 }
 
@@ -35,7 +42,7 @@ export function pauseResumeToggle() {
     };
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
-    const activeHeart = document.getElementsByClassName("heart")[currentStatus.livesLeft-1];
+    const activeHeart = document.getElementsByClassName("heart")[currentStatus.livesLeft - 1];
     if (currentStatus.isPaused === true) {
         const newPauseDuration = performance.now() - currentStatus.pauseStartTime;
         currentStatus.pauseDuration += newPauseDuration;
@@ -92,13 +99,11 @@ export function restartGame() {
         pauseBtn.classList.add("pauseButtonRed");
         currentStatus.isPaused = false;
     }
+
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
-    currentStatus.isOver = false;
-    currentStatus.pauseDuration = 0;
-    currentStatus.score = 0;
+
     displayScore(0);
-    currentStatus.startTime = performance.now();
     pickAndShowNextTetromino();
     //window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
@@ -148,10 +153,10 @@ function displayScore(newScore) {
 }
 
 export function blinkHeart() {
-    const heartToBlink = document.getElementsByClassName("heart")[currentStatus.livesLeft-1];
+    const heartToBlink = document.getElementsByClassName("heart")[currentStatus.livesLeft - 1];
     heartToBlink.classList.add("heartBlinkLastSecs");
 }
- 
+
 //Remove heart if time has ran out
 export function removeHeartOrEndGame() {
     currentStatus.livesLeft -= 1;
@@ -166,7 +171,7 @@ export function removeHeartOrEndGame() {
     }
     currentStatus.heartStartTime = performance.now();
     currentStatus.heartPauseDuration = 0;
-    setTimeout(function() {
+    setTimeout(function () {
         document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
     }, 500)
 }

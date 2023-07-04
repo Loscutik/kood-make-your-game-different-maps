@@ -1,4 +1,7 @@
-import { tetrominoesData, HEART_TIME, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
+// TODO check for the possobility of movingafter move at side (case is fell on the line, moved ta the side which have a gap under)
+// TODO hearts musn't disappear when waiting at the start screen
+// TODO change the fixing of the restart-after-full-box bug (add time to the all runs of animate, init timers variables)
+import { tetrominoesData, HEART_TIME } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
 import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeartOrEndGame, pickAndShowNextTetromino } from "./gameStatus.js"
@@ -16,7 +19,7 @@ window.addEventListener("DOMContentLoaded", function () {
     buttonListener("restartButton", renewGame);
 });
 
-window.addEventListener("runAnimation", animate);
+window.addEventListener("runAnimation", (event)=>animate(event.timeStamp));
 
 //Helper function to handle button clicks
 function buttonListener(buttonId, callback) {
@@ -27,7 +30,7 @@ function buttonListener(buttonId, callback) {
 function renewGame() {
     gamebox.resetGrid();
     tetromino = restartGame();
-    animate();
+    animate(performance.now());
 }
 
 function startGame() {
@@ -36,9 +39,9 @@ function startGame() {
     currentStatus.startScreen = false;
     currentStatus.startTime = performance.now();
     currentStatus.heartStartTime = performance.now();
-    tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+    tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
     pickAndShowNextTetromino();
-    animate();
+    animate(performance.now());
 }
 
 let tetromino;
@@ -87,33 +90,36 @@ class InputHandler {
 }
 
 const input = new InputHandler();
-let isMovingDown = true;
 
 async function animate(time) {
-    if (currentStatus.isPaused === true || Object.keys(tetromino).length === 0) {
+    const now = performance.now();
+    
+    if (currentStatus.isPaused === true || tetromino == 0) {
         return
     }
 
-    if (!isMovingDown) currentStatus.freezeDelayTime+=time-currentStatus.prevAnimationTime;
-    if (currentStatus.freezeDelayTime>100) {
-        gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
-        await gamebox.checkForFinishedRows();
-        tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
-        pickAndShowNextTetromino();
-        //New tetromino fits fully to screen, but ends game
-        if (tetromino === 0) { // if the new tetromino is empty, toString will return ''
-            toggleMessageBox("GAME OVER");
-            currentStatus.isOver = true;
-            cancelAnimationFrame(currentStatus.animationFrameId);
-            // return
+    if (!currentStatus.isMovingDown) {
+        currentStatus.freezeDelayTime += time - currentStatus.prevAnimationTime;
+        if (currentStatus.freezeDelayTime > 100) {
+            gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
+            await gamebox.checkForFinishedRows();
+            tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
+            pickAndShowNextTetromino();
+            //New tetromino fits fully to screen, but ends game
+            if (tetromino == 0) { // if the new tetromino is empty, toString will return ''
+                toggleMessageBox("GAME OVER");
+                currentStatus.isOver = true;
+                //cancelAnimationFrame(currentStatus.animationFrameId);
+                 return
+            }
+            currentStatus.freezeDelayTime = 0;
+            currentStatus.isMovingDown = true;
         }
-        currentStatus.freezeDelayTime=0;
-        isMovingDown = true;
     }
-    
+
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
-    isMovingDown = tetromino.moveDown(verticalSpeed);
+    currentStatus.isMovingDown = tetromino.moveDown(verticalSpeed);
 
     //Turn tetromino with Up Arrow key
     if (input.keys.ArrowUp) {
@@ -141,11 +147,11 @@ async function animate(time) {
     //On every 60 frames:
     if (currentStatus.frameCount % 60 === 0) {
         //Update main timer
-        let playingTime = performance.now() - currentStatus.startTime - currentStatus.pauseDuration;
+        let playingTime = now - currentStatus.startTime - currentStatus.pauseDuration;
         document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
 
         //Update heart timer
-        let heartTime = HEART_TIME - ((performance.now() - currentStatus.heartStartTime - currentStatus.heartPauseDuration) / 1000).toFixed();
+        let heartTime = HEART_TIME - ((now - currentStatus.heartStartTime - currentStatus.heartPauseDuration) / 1000).toFixed();
         if (heartTime > HEART_TIME) heartTime = HEART_TIME;
 
         if (heartTime < 1) {
@@ -157,13 +163,13 @@ async function animate(time) {
                 blinkHeart();
             }
         }
-        
+
         //Calculate the average frame rate over the last 60 frames
-        let averageFPS = 60 / ((performance.now() - currentStatus.lastFrame) / 1000);
+        let averageFPS = 60 / ((now - currentStatus.lastFrame) / 1000);
         document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
-        currentStatus.lastFrame = performance.now();
+        currentStatus.lastFrame = now;
     }
-    
+
     currentStatus.prevAnimationTime = time;
     currentStatus.frameCount++;
 

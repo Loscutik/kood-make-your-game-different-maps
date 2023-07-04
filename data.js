@@ -3,8 +3,8 @@
 export const BOX_ROWS = 20;
 export const BOX_COLUMNS = 10;
 export const TILE_SIZE = 30;
-export const BOX_WIDTH = BOX_COLUMNS*TILE_SIZE;
-export const BOX_HEIGHT = BOX_ROWS*TILE_SIZE;
+// export const BOX_WIDTH = BOX_COLUMNS*TILE_SIZE;
+// export const BOX_HEIGHT = BOX_ROWS*TILE_SIZE;
 export const HEART_TIME = 20;
 
 export const tetrominoesData = [

@@ -1,4 +1,4 @@
-import { BOX_ROWS, BOX_COLUMNS, BOX_WIDTH, BOX_HEIGHT, HEART_TIME, TILE_SIZE } from "./data.js";
+import { BOX_ROWS, BOX_COLUMNS, HEART_TIME, TILE_SIZE } from "./data.js";
 import { currentStatus, updateScore } from "./gameStatus.js"
 
 class Gamebox {

@@ -1,5 +1,5 @@
 //TODO del console outputs
-import { BOX_ROWS, BOX_COLUMNS, BOX_WIDTH, BOX_HEIGHT, TILE_SIZE } from "./data.js";
+import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./data.js";
 import { gamebox } from "./gamebox.js";
 
 class TetrominoModel {
@@ -60,18 +60,6 @@ class TetrominoModel {
                 tilesOnEdge.push({ row: tilesOnEdge.at(i).row + 1, col: tilesOnEdge.at(i).col });
 
             }
-
-            //PREVIOUS IMPLEMENTATION
-            // add the cell under the bottom tile  
-            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // find the ledge (if any) and add the cell under it
-            // if (tilesOnEdge.at(-1).col < this.addressOnGrid.col+ this.columns - 1) {
-            //     for (let r = this.rows - 2; r >= 0; r--) {
-            //         if (this.placement[r][this.columns - 1]) {
-            //             tilesOnEdge.push({ row: this.addressOnGrid.row + r+1, col: this.addressOnGrid.col + this.columns - 1 });
-            //         }
-            //     }
-            // }
         }
         return tilesOnEdge;
     }
@@ -98,17 +86,6 @@ class TetrominoModel {
 
             }
 
-            //PREVIOUS IMPLEMENTATION
-            // // add the cell under the bottom tile  
-            // tilesOnEdge.push({ row: tilesOnEdge.at(-1).row + 1, col: tilesOnEdge.at(-1).col });
-            // // find the ledge (if any) and add the cell under it
-            // if (tilesOnEdge.at(-1).col > this.addressOnGrid.col) {
-            //     for (let r = this.rows - 2; r >= 0; r--) {
-            //         if (this.placement[r][0]) {
-            //             tilesOnEdge.push({ row: this.addressOnGrid.row + r + 1, col: this.addressOnGrid.col });
-            //         }
-            //     }
-            // }
         }
 
         return tilesOnEdge;
@@ -149,14 +126,14 @@ export class Tetromino {
         if (!gamebox.isCellsFree(this.model.getOccupiedCells())) {
             this.model.rows = 1;
             this.model.placement = [this.model.placement[1]];
-            this.view.element = createTetrominoElm(BOX_WIDTH / 2 - Math.ceil(this.model.columns / 2) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
+            this.view.element = createTetrominoElm((BOX_COLUMNS / 2 - Math.ceil(this.model.columns / 2)) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
             delete this.shape;
             delete this.model;
             delete this.view;
-            return
+            return;
         }
 
-        this.view.element = createTetrominoElm(BOX_WIDTH / 2 - Math.ceil(this.model.columns / 2) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
+        this.view.element = createTetrominoElm((BOX_COLUMNS / 2 - Math.ceil(this.model.columns / 2)) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
         if (gamebox.hasObstacleUnderOf(this.model.getBottomEdgeCells())) {
             delete this.shape;
             delete this.model;
