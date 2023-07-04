@@ -1,5 +1,3 @@
-// TODO check for the possobility of movingafter move at side (case is fell on the line, moved ta the side which have a gap under)
-// TODO hearts musn't disappear when waiting at the start screen
 import { tetrominoesData, HEART_TIME } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
@@ -33,14 +31,16 @@ function renewGame() {
 }
 
 function startGame() {
+
     document.getElementById("startBox").style.display = "none";
     document.getElementById("startScreenOverlay").style.display = "none";
+    const now = performance.now()
     currentStatus.startScreen = false;
-    currentStatus.startTime = performance.now();
-    currentStatus.heartStartTime = performance.now();
+    currentStatus.startTime = now;
+   currentStatus.heartStartTime = now;
     tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
     pickAndShowNextTetromino();
-    animate(performance.now());
+    animate(now);
 }
 
 let tetromino;
@@ -97,9 +97,13 @@ async function animate(time) {
         return
     }
 
+    // moveDown moves the tetromino down if it is possible
+    // and returns true if the movement had done and false otherwise
+    currentStatus.isMovingDown = tetromino.moveDown(verticalSpeed);
+
     if (!currentStatus.isMovingDown) {
         currentStatus.freezeDelayTime += time - currentStatus.prevAnimationTime;
-        if (currentStatus.freezeDelayTime > 100) {
+        if (currentStatus.freezeDelayTime > 150) {
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
             await gamebox.checkForFinishedRows();
             tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
@@ -115,10 +119,7 @@ async function animate(time) {
             currentStatus.isMovingDown = true;
         }
     }
-
-    // moveDown moves the tetromino down if it is possible
-    // and returns true if the movement had done and false otherwise
-    currentStatus.isMovingDown = tetromino.moveDown(verticalSpeed);
+    //currentStatus.isMovingDown = tetromino.moveDown(verticalSpeed);
 
     //Turn tetromino with Up Arrow key
     if (input.keys.ArrowUp) {
