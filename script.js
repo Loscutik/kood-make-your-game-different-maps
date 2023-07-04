@@ -1,6 +1,5 @@
 // TODO check for the possobility of movingafter move at side (case is fell on the line, moved ta the side which have a gap under)
 // TODO hearts musn't disappear when waiting at the start screen
-// TODO change the fixing of the restart-after-full-box bug (add time to the all runs of animate, init timers variables)
 import { tetrominoesData, HEART_TIME } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
@@ -19,7 +18,7 @@ window.addEventListener("DOMContentLoaded", function () {
     buttonListener("restartButton", renewGame);
 });
 
-window.addEventListener("runAnimation", (event)=>animate(event.timeStamp));
+window.addEventListener("runAnimation", (event) => animate(event.timeStamp));
 
 //Helper function to handle button clicks
 function buttonListener(buttonId, callback) {
@@ -93,7 +92,7 @@ const input = new InputHandler();
 
 async function animate(time) {
     const now = performance.now();
-    
+
     if (currentStatus.isPaused === true || tetromino == 0) {
         return
     }
@@ -110,7 +109,7 @@ async function animate(time) {
                 toggleMessageBox("GAME OVER");
                 currentStatus.isOver = true;
                 //cancelAnimationFrame(currentStatus.animationFrameId);
-                 return
+                return
             }
             currentStatus.freezeDelayTime = 0;
             currentStatus.isMovingDown = true;

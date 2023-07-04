@@ -17,23 +17,29 @@ export let currentStatus = {
     animationFrameId: 0,
     livesLeft: 3,
     score: 0,
-    prevAnimationTime: now,
+    prevAnimationTime: undefined,
     freezeDelayTime: 0,
     isMovingDown: true,
-    nextTetromino: Math.floor(Math.random() * 7),
+    nextTetromino: chooseTetrominoNumber(),
 
     reset() {
         const now = performance.now();
-        this.frameCount = 0;
-        this.livesLeft = 3;
-        this.freezeDelayTime = 0;
         this.startTime = now;
-        this.heartStartTime = now;
-        this.isOver = false;
         this.pauseDuration = 0;
+        this.heartStartTime = now;
+        this.heartPauseDuration = 0;
+        this.frameCount = 0;
+        this.isPaused = false;
+        this.isOver = false;
+        this.livesLeft = 3;
         this.score = 0;
+        this.freezeDelayTime = 0;
         this.isMovingDown=true;
     }
+}
+
+function chooseTetrominoNumber(){
+    return Math.floor(Math.random() * 7)
 }
 
 export function pauseResumeToggle() {
@@ -82,31 +88,30 @@ function resetHearts() {
 export function restartGame() {
     window.cancelAnimationFrame(currentStatus.animationFrameId);
     document.getElementById('mainTimer').textContent = "00:00";
-    currentStatus.reset();
     const gameboxElement = document.getElementById("gamebox");
     const tetrominoes = gameboxElement.querySelectorAll('.tetromino');
     tetrominoes.forEach(tetromino => {
         tetromino.remove();
     });
-
+    
     resetHearts();
-
+    
     if (currentStatus.isPaused === true) {
         const pauseBtn = document.getElementById("pauseButton");
         const pauseBtnText = document.getElementById("pauseButtonText");
         pauseBtnText.textContent = "PAUSE";
         pauseBtn.classList.remove("pauseButtonGreen");
         pauseBtn.classList.add("pauseButtonRed");
-        currentStatus.isPaused = false;
     }
-
+    
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
-
+    
+    currentStatus.reset();
     displayScore(0);
     pickAndShowNextTetromino();
     //window.dispatchEvent(new Event('runAnimation'));
-    return new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
+    return new Tetromino(tetrominoesData[chooseTetrominoNumber()]);
 }
 
 export function toggleMessageBox(message) {
@@ -179,6 +184,6 @@ export function removeHeartOrEndGame() {
 export function pickAndShowNextTetromino() {
     const tetrominoPreviews = document.getElementsByClassName("nextTetromino");
     tetrominoPreviews[currentStatus.nextTetromino].style.opacity = "0";
-    currentStatus.nextTetromino = Math.floor(Math.random() * 7);
+    currentStatus.nextTetromino = chooseTetrominoNumber();
     tetrominoPreviews[currentStatus.nextTetromino].style.opacity = "1";
 }

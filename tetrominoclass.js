@@ -274,7 +274,6 @@ export class Tetromino {
 function createTetrominoElm(left, height, width, placement, colorCodes) {
     const newTetromino = document.createElement("div");
     newTetromino.classList.add("tetromino");
-    //let tetrominoData = tetrominoesData[Math.floor(Math.random() * 7)];
     for (let position of placement.flat()) {
         if (position) {
             createNewTile(newTetromino, colorCodes)
