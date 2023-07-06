@@ -1,4 +1,4 @@
-import { tetrominoesData, HEART_TIME } from "./data.js";
+import { tetrominoesData, HEART_TIME, START_SPEED } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 
 const now = performance.now();
@@ -21,7 +21,7 @@ export let currentStatus = {
     freezeDelayTime: 0,
     isMovingDown: true,
     nextTetromino: chooseTetrominoNumber(),
-    verticalSpeed: 1,
+    verticalSpeed: START_SPEED,
     delayBeforeFreeze: 300,
     completedLines: 0,
     level: 1,
@@ -39,7 +39,7 @@ export let currentStatus = {
         this.score = 0;
         this.freezeDelayTime = 0;
         this.isMovingDown = true;
-        this.verticalSpeed = 1;
+        this.verticalSpeed = START_SPEED;
         this.completedLines = 0;
         this.level = 1;
     }
@@ -69,6 +69,8 @@ export function pauseResumeToggle() {
         window.dispatchEvent(new Event('runAnimation'));
     } else {
         currentStatus.pauseStartTime = performance.now();
+        console.log('pause at ', currentStatus.pauseStartTime, 'will cancel ', currentStatus.animationFrameId);
+        window.cancelAnimationFrame(currentStatus.animationFrameId);
         pauseBtnText.textContent = "RESUME";
         pauseBtn.classList.remove("pauseButtonRed");
         pauseBtn.classList.add("pauseButtonGreen");
@@ -161,10 +163,10 @@ export function updateLines(number) {
 }
 
 export function updateLevel() {
-    if (currentStatus.completedLines > 0 && currentStatus.completedLines / 10>=currentStatus.level) {
+    if (currentStatus.completedLines > 0 && currentStatus.completedLines / 10 >= currentStatus.level) {
         currentStatus.level++;
-        currentStatus.verticalSpeed+=1;
-        currentStatus.delayBeforeFreeze-=50;
+        currentStatus.verticalSpeed += 0.5*START_SPEED;
+        currentStatus.delayBeforeFreeze -= 50;
         displayLevel(currentStatus.level);
     }
 }
@@ -204,22 +206,19 @@ export function refillHeart(fireTime) {
 }
 
 //Remove heart if time has ran out
-export function removeHeartOrEndGame() {
+export function removeHeart() {
     currentStatus.livesLeft -= 1;
     document.getElementsByClassName("heartStopper")[currentStatus.livesLeft].innerHTML = "";
     const heartToRemove = document.getElementsByClassName("heart")[currentStatus.livesLeft];
     heartToRemove.classList.remove("heartBlinkLastSecs");
     heartToRemove.classList.add("removedHeart");
-    if (currentStatus.livesLeft === 0) {
-        cancelAnimationFrame(currentStatus.animationFrameId);
-        toggleMessageBox("GAME OVER");
-        currentStatus.isOver = true;
+    if (currentStatus.livesLeft !== 0) {
+        currentStatus.heartStartTime = performance.now();
+        currentStatus.heartPauseDuration = 0;
+        setTimeout(function () {
+            document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
+        }, 500)
     }
-    currentStatus.heartStartTime = performance.now();
-    currentStatus.heartPauseDuration = 0;
-    setTimeout(function () {
-        document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
-    }, 500)
 }
 
 export function pickAndShowNextTetromino() {

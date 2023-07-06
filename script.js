@@ -3,7 +3,7 @@
 import { tetrominoesData, HEART_TIME } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
-import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeartOrEndGame, pickAndShowNextTetromino, updateScore, refillHeart, updateLines, updateLevel } from "./gameStatus.js"
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeart, pickAndShowNextTetromino, updateScore, refillHeart, updateLines, updateLevel } from "./gameStatus.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
@@ -28,6 +28,7 @@ function renewGame() {
     gamebox.resetGrid();
     tetromino = restartGame();
     animate(performance.now());
+    // cancelAnimationFrame(currentStatus.animationFrameId)
 }
 
 function startGame() {
@@ -90,26 +91,34 @@ class InputHandler {
 
 const input = new InputHandler();
 
+let durationToMoveDown =1000/60;
 async function animate(time) {
-    const now = performance.now();
-
-    if (currentStatus.isPaused === true || tetromino == 0) {
+    //console.log('start ', currentStatus.animationFrameId);
+    if (/*currentStatus.isPaused === true ||*/ tetromino == 0) {
         return
     }
 
-    let speed = currentStatus.verticalSpeed;
+    const prevFrameDuration = time - currentStatus.prevAnimationTime;
+    console.log('prev duration: ' + prevFrameDuration);
+    //let speed = currentStatus.verticalSpeed;
+    let speed = roundIfClose(currentStatus.verticalSpeed * durationToMoveDown);
     //Speed up downward movement with Down Arrow key
     if (input.keys.ArrowDown) {
         speed = 8;
     }
 
 
-    // moveDown moves the tetromino down if it is possible
-    // and returns true if the movement had done and false otherwise
-    currentStatus.isMovingDown = tetromino.moveDown(speed);
+    if (Number.isInteger(speed)) {
+        // moveDown moves the tetromino down if it is possible
+        // and returns true if the movement had done and false otherwise
+        currentStatus.isMovingDown = tetromino.moveDown(speed);
+        durationToMoveDown=1000/60;
+    }else{
+        durationToMoveDown+=prevFrameDuration//-currentStatus.pauseDuration;
+    }
 
     if (!currentStatus.isMovingDown) {
-        currentStatus.freezeDelayTime += time - currentStatus.prevAnimationTime;
+        currentStatus.freezeDelayTime += prevFrameDuration;
         if (currentStatus.freezeDelayTime > currentStatus.delayBeforeFreeze) {
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
 
@@ -120,10 +129,10 @@ async function animate(time) {
                 // TODO:
                 // increaseLevelIfNeeded
                 await rowsToRemove.removeRows;
-                refillHeart(now);
+                refillHeart(time);
                 updateScore(rowsToRemove.numberOfCompletedRows);
                 updateLines(rowsToRemove.numberOfCompletedRows);
-                updateLevel();
+                updateLevel(prevFrameDuration);
             }
 
 
@@ -160,15 +169,19 @@ async function animate(time) {
     //On every 60 frames:
     if (currentStatus.frameCount % 60 === 0) {
         //Update main timer
-        let playingTime = now - currentStatus.startTime - currentStatus.pauseDuration;
+        let playingTime = time - currentStatus.startTime - currentStatus.pauseDuration;
         document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
 
         //Update heart timer
-        let heartTime = HEART_TIME - ((now - currentStatus.heartStartTime - currentStatus.heartPauseDuration) / 1000).toFixed();
+        let heartTime = HEART_TIME - ((time - currentStatus.heartStartTime - currentStatus.heartPauseDuration) / 1000).toFixed();
         if (heartTime > HEART_TIME) heartTime = HEART_TIME;
-
         if (heartTime < 1) {
-            removeHeartOrEndGame();
+            removeHeart();
+            if (currentStatus.livesLeft === 0) {
+                toggleMessageBox("GAME OVER");
+                currentStatus.isOver = true;
+                return;
+            }
         } else {
             const heartStopperCollection = document.getElementsByClassName('heartStopper');
             heartStopperCollection[currentStatus.livesLeft - 1].textContent = heartTime;
@@ -178,16 +191,25 @@ async function animate(time) {
         }
 
         //Calculate the average frame rate over the last 60 frames
-        let averageFPS = 60 / ((now - currentStatus.lastFrame) / 1000);
+        let averageFPS = 60 / ((time - currentStatus.lastFrame) / 1000);
         document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
-        currentStatus.lastFrame = now;
+        currentStatus.lastFrame = time;
     }
 
     currentStatus.prevAnimationTime = time;
     currentStatus.frameCount++;
 
     //Loop the animation
+   // console.log('finish ', currentStatus.animationFrameId);
+
     currentStatus.animationFrameId = requestAnimationFrame(animate);
+  //  console.log('run new ', currentStatus.animationFrameId, performance.now());
+}
+
+function roundIfClose(number) {
+    console.log(number);
+    if (Math.abs(number - Math.round(number)) < 0.4) { return Math.round(number); }
+    return number;
 }
 
 //Decomment for running without startScreen
