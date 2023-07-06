@@ -21,6 +21,10 @@ export let currentStatus = {
     freezeDelayTime: 0,
     isMovingDown: true,
     nextTetromino: chooseTetrominoNumber(),
+    verticalSpeed: 1,
+    delayBeforeFreeze: 300,
+    completedLines: 0,
+    level: 1,
 
     reset() {
         const now = performance.now();
@@ -34,11 +38,14 @@ export let currentStatus = {
         this.livesLeft = 3;
         this.score = 0;
         this.freezeDelayTime = 0;
-        this.isMovingDown=true;
+        this.isMovingDown = true;
+        this.verticalSpeed = 1;
+        this.completedLines = 0;
+        this.level = 1;
     }
 }
 
-function chooseTetrominoNumber(){
+function chooseTetrominoNumber() {
     return Math.floor(Math.random() * 7)
 }
 
@@ -93,9 +100,9 @@ export function restartGame() {
     tetrominoes.forEach(tetromino => {
         tetromino.remove();
     });
-    
+
     resetHearts();
-    
+
     if (currentStatus.isPaused === true) {
         const pauseBtn = document.getElementById("pauseButton");
         const pauseBtnText = document.getElementById("pauseButtonText");
@@ -103,12 +110,14 @@ export function restartGame() {
         pauseBtn.classList.remove("pauseButtonGreen");
         pauseBtn.classList.add("pauseButtonRed");
     }
-    
+
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
-    
+
     currentStatus.reset();
-    displayScore(0);
+    displayScore(currentStatus.score);
+    displayLines(currentStatus.completedLines);
+    displayLevel(currentStatus.level);
     pickAndShowNextTetromino();
     //window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[chooseTetrominoNumber()]);
@@ -146,20 +155,52 @@ export function updateScore(rowsCompleted) {
     displayScore(currentStatus.score);
 }
 
+export function updateLines(number) {
+    currentStatus.completedLines += number;
+    displayLines(currentStatus.completedLines);
+}
+
+export function updateLevel() {
+    if (currentStatus.completedLines > 0 && currentStatus.completedLines / 10>=currentStatus.level) {
+        currentStatus.level++;
+        currentStatus.verticalSpeed+=1;
+        currentStatus.delayBeforeFreeze-=50;
+        displayLevel(currentStatus.level);
+    }
+}
+
 //Add leading zeroes to score and display new score in DOM
 function displayScore(newScore) {
-    const leadingZeroes = 4 - String(newScore).length;
-    let scoreString = "";
-    for (let i = 0; i < leadingZeroes; i++) {
-        scoreString += "0"
-    }
-    scoreString += newScore;
-    document.getElementById("score").innerHTML = scoreString;
+    // const leadingZeroes = 4 - String(newScore).length;
+    // let scoreString = "";
+    // for (let i = 0; i < leadingZeroes; i++) {
+    //     scoreString += "0"
+    // }
+    // scoreString += newScore;
+    document.getElementById("score").innerHTML = String(newScore).padStart(4, '0');
+}
+
+
+function displayLines(newLines) {
+    document.getElementById("lines").innerHTML = newLines;
+}
+
+function displayLevel(newLevel) {
+    document.getElementById("level").innerHTML = newLevel;
 }
 
 export function blinkHeart() {
     const heartToBlink = document.getElementsByClassName("heart")[currentStatus.livesLeft - 1];
     heartToBlink.classList.add("heartBlinkLastSecs");
+}
+
+export function refillHeart(fireTime) {
+    document.getElementsByClassName("heartStopper")[currentStatus.livesLeft - 1].innerHTML = HEART_TIME;
+    const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.livesLeft - 1];
+    heartWrapper.classList.remove("refillHeart");
+    //void heartWrapper.offsetWidth; //Force a reflow to run animation again // when this function runs in the animate function we don't need this
+    heartWrapper.classList.add("refillHeart");
+    currentStatus.heartStartTime = fireTime + 1000;
 }
 
 //Remove heart if time has ran out

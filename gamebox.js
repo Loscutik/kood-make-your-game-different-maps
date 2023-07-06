@@ -51,25 +51,25 @@ class Gamebox {
 
     checkForFinishedRows() {
         const rowRemovalPromises = []; //Store promises of each line removal
-        let completedRows = 0;
-        for (let rowIndex in this.grid) {
+        let numberOfCompletedRows = 0;
+        for (let rowIndex = 0; rowIndex <BOX_ROWS; rowIndex++) { //CHNG this for is faster than for..in
             if (this.grid[rowIndex].every(value => value === true)) {
-                completedRows += 1;
+                numberOfCompletedRows += 1;
                 let rowRemovalPromise = this.removeRowOfTiles(rowIndex);
                 rowRemovalPromises.push(rowRemovalPromise);
                 this.updateGridAfterCompletingRow(rowIndex);
             }
         }
-        if (completedRows != 0) {
-            document.getElementsByClassName("heartStopper")[currentStatus.livesLeft-1].innerHTML = HEART_TIME;
-            const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.livesLeft-1];
-            heartWrapper.classList.remove("refillHeart");
-            void heartWrapper.offsetWidth; //Force a reflow to run animation again
-            heartWrapper.classList.add("refillHeart");
-            updateScore(completedRows);
-            currentStatus.heartStartTime = performance.now() + 1000;
-        }
-        return Promise.all(rowRemovalPromises);
+        // if (completedRows != 0) {
+        //     document.getElementsByClassName("heartStopper")[currentStatus.livesLeft-1].innerHTML = HEART_TIME;
+        //     const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.livesLeft-1];
+        //     heartWrapper.classList.remove("refillHeart");
+        //     void heartWrapper.offsetWidth; //Force a reflow to run animation again
+        //     heartWrapper.classList.add("refillHeart");
+        //     updateScore(completedRows);
+        //     currentStatus.heartStartTime = performance.now() + 1000;
+        // }
+        return {removeRows: Promise.all(rowRemovalPromises), numberOfCompletedRows};
     }
 
     updateGridAfterCompletingRow(rowIndex) {
@@ -109,7 +109,7 @@ class Gamebox {
 
         return new Promise((resolve) => {
             setTimeout(function () { //Wait once the animation is finished
-                currentStatus.lastFrame += 350;
+                //currentStatus.lastFrame += 350;
                 tilesToRemove.forEach(tile => {
                     //Change class of the tile
                     tile.classList.remove("tile");

@@ -1,14 +1,14 @@
+// TODO improve the implement level rising (speed & delay at the bottom) every 10 lines
+// TODO tidy this up
 import { tetrominoesData, HEART_TIME } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
-import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeartOrEndGame, pickAndShowNextTetromino } from "./gameStatus.js"
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeartOrEndGame, pickAndShowNextTetromino, updateScore, refillHeart, updateLines, updateLevel } from "./gameStatus.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
 // 2) gameStatus.js: currentStatus.startScreen = false;
 // 3) script.js: on the bottom decomment "tetromino = ..." & "animate()"
-
-let verticalSpeed = 1;
 
 window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
@@ -37,7 +37,7 @@ function startGame() {
     const now = performance.now()
     currentStatus.startScreen = false;
     currentStatus.startTime = now;
-   currentStatus.heartStartTime = now;
+    currentStatus.heartStartTime = now;
     tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
     pickAndShowNextTetromino();
     animate(now);
@@ -97,15 +97,36 @@ async function animate(time) {
         return
     }
 
+    let speed = currentStatus.verticalSpeed;
+    //Speed up downward movement with Down Arrow key
+    if (input.keys.ArrowDown) {
+        speed = 8;
+    }
+
+
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
-    currentStatus.isMovingDown = tetromino.moveDown(verticalSpeed);
+    currentStatus.isMovingDown = tetromino.moveDown(speed);
 
     if (!currentStatus.isMovingDown) {
         currentStatus.freezeDelayTime += time - currentStatus.prevAnimationTime;
-        if (currentStatus.freezeDelayTime > 150) {
+        if (currentStatus.freezeDelayTime > currentStatus.delayBeforeFreeze) {
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
-            await gamebox.checkForFinishedRows();
+
+            const rowsToRemove = gamebox.checkForFinishedRows();
+
+
+            if (rowsToRemove.numberOfCompletedRows != 0) {
+                // TODO:
+                // increaseLevelIfNeeded
+                await rowsToRemove.removeRows;
+                refillHeart(now);
+                updateScore(rowsToRemove.numberOfCompletedRows);
+                updateLines(rowsToRemove.numberOfCompletedRows);
+                updateLevel();
+            }
+
+
             tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
             pickAndShowNextTetromino();
             //New tetromino fits fully to screen, but ends game
@@ -119,7 +140,6 @@ async function animate(time) {
             currentStatus.isMovingDown = true;
         }
     }
-    //currentStatus.isMovingDown = tetromino.moveDown(verticalSpeed);
 
     //Turn tetromino with Up Arrow key
     if (input.keys.ArrowUp) {
@@ -135,13 +155,6 @@ async function animate(time) {
     } else if (input.keys.ArrowLeft) {
         tetromino.moveLeft();
         input.keys.ArrowLeft = false;
-    }
-
-    //Speed up downward movement with Down Arrow key
-    if (input.keys.ArrowDown) {
-        verticalSpeed = 8;
-    } else {
-        verticalSpeed = 2;
     }
 
     //On every 60 frames:
