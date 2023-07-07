@@ -36,9 +36,7 @@ function startGame() {
     document.getElementById("startBox").style.display = "none";
     document.getElementById("startScreenOverlay").style.display = "none";
     const now = performance.now()
-    currentStatus.startScreen = false;
-    currentStatus.startTime = now;
-    currentStatus.heartStartTime = now;
+    currentStatus.startInit();
     tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
     pickAndShowNextTetromino();
     animate(now);
@@ -91,34 +89,30 @@ class InputHandler {
 
 const input = new InputHandler();
 
-let durationToMoveDown =1000/60;
 async function animate(time) {
     //console.log('start ', currentStatus.animationFrameId);
     if (/*currentStatus.isPaused === true ||*/ tetromino == 0) {
         return
     }
 
-    const prevFrameDuration = time - currentStatus.prevAnimationTime;
-    console.log('prev duration: ' + prevFrameDuration);
+    const frameDuration = time - currentStatus.prevAnimationTime;
+    console.log('prev duration: ' + frameDuration);
     //let speed = currentStatus.verticalSpeed;
-    let speed = roundIfClose(currentStatus.verticalSpeed * durationToMoveDown);
+    let speed = Math.trunc(currentStatus.verticalSpeed * frameDuration + currentStatus.speedRest);
+    currentStatus.speedRest = currentStatus.verticalSpeed * frameDuration - speed;
     //Speed up downward movement with Down Arrow key
     if (input.keys.ArrowDown) {
         speed = 8;
     }
 
 
-    if (Number.isInteger(speed)) {
-        // moveDown moves the tetromino down if it is possible
-        // and returns true if the movement had done and false otherwise
-        currentStatus.isMovingDown = tetromino.moveDown(speed);
-        durationToMoveDown=1000/60;
-    }else{
-        durationToMoveDown+=prevFrameDuration//-currentStatus.pauseDuration;
-    }
+    // moveDown moves the tetromino down if it is possible
+    // and returns true if the movement had done and false otherwise
+    currentStatus.isMovingDown = tetromino.moveDown(speed);
+
 
     if (!currentStatus.isMovingDown) {
-        currentStatus.freezeDelayTime += prevFrameDuration;
+        currentStatus.freezeDelayTime += frameDuration;
         if (currentStatus.freezeDelayTime > currentStatus.delayBeforeFreeze) {
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
 
@@ -132,7 +126,7 @@ async function animate(time) {
                 refillHeart(time);
                 updateScore(rowsToRemove.numberOfCompletedRows);
                 updateLines(rowsToRemove.numberOfCompletedRows);
-                updateLevel(prevFrameDuration);
+                updateLevel(frameDuration);
             }
 
 
@@ -200,10 +194,10 @@ async function animate(time) {
     currentStatus.frameCount++;
 
     //Loop the animation
-   // console.log('finish ', currentStatus.animationFrameId);
+    // console.log('finish ', currentStatus.animationFrameId);
 
     currentStatus.animationFrameId = requestAnimationFrame(animate);
-  //  console.log('run new ', currentStatus.animationFrameId, performance.now());
+    //  console.log('run new ', currentStatus.animationFrameId, performance.now());
 }
 
 function roundIfClose(number) {

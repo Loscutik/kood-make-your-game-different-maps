@@ -1,17 +1,16 @@
 import { tetrominoesData, HEART_TIME, START_SPEED } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 
-const now = performance.now();
 //TODO separate into inside objects corresponding to their objects (heart, pause, frame,...etc) 
 export let currentStatus = {
     startScreen: true,
-    startTime: now,
+    startTime: undefined,
     pauseStartTime: undefined,
     pauseDuration: 0,
-    heartStartTime: now,
+    heartStartTime: undefined,
     heartPauseDuration: 0,
     frameCount: 0,
-    lastFrame: now,
+    lastFrame: undefined,
     isPaused: false,
     isOver: false,
     animationFrameId: 0,
@@ -25,6 +24,16 @@ export let currentStatus = {
     delayBeforeFreeze: 300,
     completedLines: 0,
     level: 1,
+    speedRest: 0,
+
+    startInit() {
+        const now = performance.now();
+        this.startScreen = false;
+        this.startTime = now;
+        this.heartStartTime = now;
+        this.lastFrame = now;
+        this.prevAnimationTime = now;
+    },
 
     reset() {
         const now = performance.now();
@@ -33,15 +42,18 @@ export let currentStatus = {
         this.heartStartTime = now;
         this.heartPauseDuration = 0;
         this.frameCount = 0;
+        this.lastFrame = now;
         this.isPaused = false;
         this.isOver = false;
         this.livesLeft = 3;
         this.score = 0;
+        this.prevAnimationTime = now;
         this.freezeDelayTime = 0;
         this.isMovingDown = true;
         this.verticalSpeed = START_SPEED;
         this.completedLines = 0;
         this.level = 1;
+        this.speedRest = 0;
     }
 }
 
@@ -165,7 +177,7 @@ export function updateLines(number) {
 export function updateLevel() {
     if (currentStatus.completedLines > 0 && currentStatus.completedLines / 10 >= currentStatus.level) {
         currentStatus.level++;
-        currentStatus.verticalSpeed += 0.5*START_SPEED;
+        currentStatus.verticalSpeed += 0.5 * START_SPEED;
         currentStatus.delayBeforeFreeze -= 50;
         displayLevel(currentStatus.level);
     }
