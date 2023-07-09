@@ -1,7 +1,6 @@
 import { tetrominoesData, HEART_TIME, START_SPEED } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 
-//TODO separate into inside objects corresponding to their objects (heart, pause, frame,...etc) 
 export let currentStatus = {
     startScreen: true,
     isOver: false,
