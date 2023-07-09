@@ -1,5 +1,4 @@
-import { BOX_ROWS, BOX_COLUMNS, HEART_TIME, TILE_SIZE } from "./data.js";
-import { currentStatus, updateScore } from "./gameStatus.js"
+import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./data.js";
 
 class Gamebox {
 
@@ -61,8 +60,8 @@ class Gamebox {
             }
         }
         // if (completedRows != 0) {
-        //     document.getElementsByClassName("heartStopper")[currentStatus.livesLeft-1].innerHTML = HEART_TIME;
-        //     const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.livesLeft-1];
+        //     document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft-1].innerHTML = HEART_TIME;
+        //     const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft-1];
         //     heartWrapper.classList.remove("refillHeart");
         //     void heartWrapper.offsetWidth; //Force a reflow to run animation again
         //     heartWrapper.classList.add("refillHeart");
@@ -109,7 +108,6 @@ class Gamebox {
 
         return new Promise((resolve) => {
             setTimeout(function () { //Wait once the animation is finished
-                //currentStatus.lastFrame += 350;
                 tilesToRemove.forEach(tile => {
                     //Change class of the tile
                     tile.classList.remove("tile");
