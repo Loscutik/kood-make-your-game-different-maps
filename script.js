@@ -91,13 +91,19 @@ async function animate(time) {
         return
     }
 
+    // If game was paused in the middle of row removal create new tetromino
+    if (tetromino === undefined) {
+        tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
+        pickAndShowNextTetromino();
+    }
+
     const frameDuration = time - currentStatus.prevAnimationTime;
     currentStatus.frame.count++;
     currentStatus.gameOneSecond += frameDuration;
 
     // move it at the beginning to take into account frames passed during animation of lines remove.
     if (currentStatus.gameOneSecond >= 1000) {
-        console.log("Current grid: ", JSON.parse(JSON.stringify(gamebox.grid)));
+        // console.log("Current grid: ", JSON.parse(JSON.stringify(gamebox.grid)));
         //Update main timer
         let playingTime = time - currentStatus.startTime - currentStatus.pause.duration;
         document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
@@ -158,6 +164,7 @@ async function animate(time) {
                 updateLines(rowsToRemove.numberOfCompletedRows);
                 updateLevel(frameDuration);
                 if (currentStatus.pause.is) { //Stop animation if pause was pressed during the row removal
+                    tetromino = undefined;
                     return
                 }
             }
