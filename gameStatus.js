@@ -98,7 +98,7 @@ export function pauseResumeToggle(event) {
     } else {
         console.log("Starting pause");
         currentStatus.pause.startTime = event.timeStamp;
-        window.cancelAnimationFrame(currentStatus.frame.animationId + 1);
+        window.cancelAnimationFrame(currentStatus.frame.animationId);
         togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonRed", "pauseButtonGreen")
         toggleMessageBox("PAUSED");
         activeHeart.style.animationPlayState = "paused";

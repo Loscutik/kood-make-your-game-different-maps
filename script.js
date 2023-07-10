@@ -97,6 +97,7 @@ async function animate(time) {
 
     // move it at the beginning to take into account frames passed during animation of lines remove.
     if (currentStatus.gameOneSecond >= 1000) {
+        console.log("Current grid: ", JSON.parse(JSON.stringify(gamebox.grid)));
         //Update main timer
         let playingTime = time - currentStatus.startTime - currentStatus.pause.duration;
         document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
@@ -160,7 +161,6 @@ async function animate(time) {
                     return
                 }
             }
-
 
             tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
             pickAndShowNextTetromino();

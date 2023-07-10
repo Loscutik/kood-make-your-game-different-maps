@@ -78,6 +78,7 @@ class Gamebox {
         for (let j = 0; j < BOX_COLUMNS; j++) {
             this.grid[0][j] = null;
         }
+        console.log("Updated grid: ", JSON.parse(JSON.stringify(this.grid)));
     }
 
     removeRowOfTiles(rowIndex) {
