@@ -89,26 +89,21 @@ export function pauseResumeToggle(event) {
         const newPauseDuration = performance.now() - currentStatus.pause.startTime;
         currentStatus.pause.duration += newPauseDuration;
         currentStatus.heart.pauseDuration += newPauseDuration;
-        // pauseBtnText.textContent = "PAUSE";
-        // pauseBtn.classList.remove("pauseButtonGreen");
-        // pauseBtn.classList.add("pauseButtonRed");
         togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonRed")
         toggleMessageBox();
         activeHeart.style.animationPlayState = "running";
         currentStatus.pause.is = false;
-        currentStatus.prevAnimationTime = event.timeStamp; //performance.now();
+        currentStatus.prevAnimationTime = event.timeStamp;
         window.dispatchEvent(new Event('runAnimation'));
     } else {
-        currentStatus.pause.startTime =  event.timeStamp; //performance.now();
-        //console.log('pause at ', currentStatus.pause.startTime, ' will cancel a frame ', currentStatus.frame.animationId);
-        window.cancelAnimationFrame(currentStatus.frame.animationId);
-        // pauseBtnText.textContent = "RESUME";
-        // pauseBtn.classList.remove("pauseButtonRed");
-        // pauseBtn.classList.add("pauseButtonGreen");
+        console.log("Starting pause");
+        currentStatus.pause.startTime = event.timeStamp;
+        window.cancelAnimationFrame(currentStatus.frame.animationId + 1);
         togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonRed", "pauseButtonGreen")
         toggleMessageBox("PAUSED");
         activeHeart.style.animationPlayState = "paused";
         currentStatus.pause.is = true;
+        console.log("currentStatus.pause:", currentStatus.pause);
     }
 }
 
@@ -130,9 +125,6 @@ export function restartGame(now) {
     resetHearts();
 
     if (currentStatus.pause.is === true) {
-        // pauseBtnText.textContent = "PAUSE";
-        // pauseBtn.classList.remove("pauseButtonGreen");
-        // pauseBtn.classList.add("pauseButtonRed");
         togglePauseButton(document.getElementById("pauseButton"), document.getElementById("pauseButtonText"), "PAUSE", "pauseButtonGreen", "pauseButtonRed")
     }
 
@@ -144,7 +136,6 @@ export function restartGame(now) {
     displayLines(currentStatus.statistic.completedLines);
     displayLevel(currentStatus.statistic.level);
     pickAndShowNextTetromino();
-    //window.dispatchEvent(new Event('runAnimation'));
     return new Tetromino(tetrominoesData[chooseTetrominoNumber()]);
 }
 
@@ -209,12 +200,6 @@ export function updateLevel() {
 
 //Add leading zeroes to score and display new score in DOM
 function displayScore(newScore) {
-    // const leadingZeroes = 4 - String(newScore).length;
-    // let scoreString = "";
-    // for (let i = 0; i < leadingZeroes; i++) {
-    //     scoreString += "0"
-    // }
-    // scoreString += newScore;
     document.getElementById("score").innerHTML = String(newScore).padStart(4, '0');
 }
 

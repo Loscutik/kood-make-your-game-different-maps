@@ -27,11 +27,9 @@ function renewGame(event) {
     gamebox.resetGrid();
     tetromino = restartGame(event.timeStamp);
     animate(event.timeStamp);
-    // cancelAnimationFrame(currentStatus.frame.animationId)
 }
 
 function startGame() {
-
     document.getElementById("startBox").style.display = "none";
     document.getElementById("startScreenOverlay").style.display = "none";
     const now = performance.now()
@@ -89,8 +87,7 @@ class InputHandler {
 const input = new InputHandler();
 
 async function animate(time) {
-    //console.log('start ', currentStatus.frame.animationId);
-    if (/*currentStatus.pause.is === true ||*/ tetromino == 0) {
+    if (tetromino == 0) {
         return
     }
 
@@ -124,7 +121,6 @@ async function animate(time) {
 
         //Calculate the average frame rate over the last 60 frames
         let averageFPS = (currentStatus.frame.count + currentStatus.frame.numbersDuringRowsRemove) / (currentStatus.gameOneSecond / 1000);
-        //console.log(averageFPS);
         currentStatus.frame.numbersDuringRowsRemove=0;
 
         document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
@@ -133,7 +129,6 @@ async function animate(time) {
         currentStatus.gameOneSecond = 0;
     }
 
-    //let speed = currentStatus.currentTetromino.speed.current;
     let speed = Math.trunc(currentStatus.currentTetromino.speed.current * frameDuration + currentStatus.currentTetromino.speed.fraction);
     currentStatus.currentTetromino.speed.fraction = currentStatus.currentTetromino.speed.current * frameDuration - speed;
     //Speed up downward movement with Down Arrow key
@@ -152,7 +147,7 @@ async function animate(time) {
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
 
             const rowsToRemove = gamebox.checkForFinishedRows();
-
+  
             if (rowsToRemove.numberOfCompletedRows != 0) {
                 const removeRowsStart = performance.now();
                 await rowsToRemove.removeRows;
@@ -161,6 +156,9 @@ async function animate(time) {
                 updateScore(rowsToRemove.numberOfCompletedRows);
                 updateLines(rowsToRemove.numberOfCompletedRows);
                 updateLevel(frameDuration);
+                if (currentStatus.pause.is) { //Stop animation if pause was pressed during the row removal
+                    return
+                }
             }
 
 
@@ -169,7 +167,6 @@ async function animate(time) {
             //New tetromino fits fully to screen, but ends game
             if (tetromino == 0) { // if the new tetromino is empty, toString will return ''
                 gameOver();
-                //cancelAnimationFrame(currentStatus.frame.animationId);
                 return
             }
             currentStatus.currentTetromino.freezeDelayTime = 0;
@@ -193,43 +190,10 @@ async function animate(time) {
         input.keys.ArrowLeft = false;
     }
 
-    //On every 60 frames:
-    // if (currentStatus.frame.count % 60 === 0) {
-    //     //Update main timer
-    //     let playingTime = time - currentStatus.startTime - currentStatus.pause.duration;
-    //     document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
-
-    //     //Update heart timer
-    //     let heartTime = HEART_TIME - ((time - currentStatus.heart.startTime - currentStatus.heart.pauseDuration) / 1000).toFixed();
-    //     if (heartTime > HEART_TIME) heartTime = HEART_TIME;
-    //     if (heartTime < 1) {
-    //         removeHeart();
-    //         if (currentStatus.statistic.livesLeft === 0) {
-    //             toggleMessageBox("GAME OVER");
-    //             currentStatus.isOver = true;
-    //             return;
-    //         }
-    //     } else {
-    //         const heartStopperCollection = document.getElementsByClassName('heartStopper');
-    //         heartStopperCollection[currentStatus.statistic.livesLeft - 1].textContent = heartTime;
-    //         if (heartTime === 3) {
-    //             blinkHeart();
-    //         }
-    //     }
-
-    //     //Calculate the average frame rate over the last 60 frames
-    //     let averageFPS = 60 / ((time - currentStatus.frame.last) / 1000);
-    //     document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
-    //     currentStatus.frame.last = time;
-    // }
-
     currentStatus.prevAnimationTime = time;
 
-    // console.log('finish ', currentStatus.frame.animationId);
-
-    //Loop the animation
+    //Loop the animation if not paused
     currentStatus.frame.animationId = requestAnimationFrame(animate);
-    //  console.log('run new ', currentStatus.frame.animationId, performance.now());
 }
 
 function gameOver() {
