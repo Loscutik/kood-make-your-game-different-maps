@@ -1,12 +1,12 @@
-import { tetrominoesData, HEART_TIME } from "./data.js";
-import { Tetromino } from "./tetrominoclass.js";
-import { gamebox } from "./gamebox.js"
+import { tetrominoesData, HEART_TIME } from "./initData.js";
+import { Tetromino } from "./tetrominoClass.js";
+import { gamebox } from "./gameBox.js"
 import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeart, pickAndShowNextTetromino, updateScore, refillHeart, updateLines, updateLevel } from "./gameStatus.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
 // 2) gameStatus.js: currentStatus.startScreen = false;
-// 3) script.js: on the bottom decomment "tetromino = ..." & "animate()"
+// 3) script.js: on the bottom decomment "tetromino = ..." & "gameLoop()"
 
 window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
@@ -14,7 +14,7 @@ window.addEventListener("DOMContentLoaded", function () {
     buttonListener("restartButton", renewGame);
 });
 
-window.addEventListener("runAnimation", (event) => animate(event.timeStamp));
+window.addEventListener("runAnimation", (event) => gameLoop(event.timeStamp));
 
 //Helper function to handle button clicks
 function buttonListener(buttonId, callback) {
@@ -25,7 +25,7 @@ function buttonListener(buttonId, callback) {
 function renewGame(event) {
     gamebox.resetGrid();
     tetromino = restartGame(event.timeStamp);
-    animate(event.timeStamp);
+    gameLoop(event.timeStamp);
 }
 
 function startGame() {
@@ -35,7 +35,7 @@ function startGame() {
     currentStatus.startInit(now);
     tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
     pickAndShowNextTetromino();
-    animate(now);
+    gameLoop(now);
 }
 
 let tetromino;
@@ -88,7 +88,7 @@ const mainTimer = document.getElementById('mainTimer');
 const heartStopperCollection = document.getElementsByClassName('heartStopper');
 const fpsDisplay = document.getElementById("fpsDisplay");
 
-function animate(time) {
+function gameLoop(time) {
     if (tetromino == 0) {
         return
     }
@@ -108,6 +108,7 @@ function animate(time) {
         if (heartTime > HEART_TIME) heartTime = HEART_TIME;
 
         if (heartTime < 1) {
+            console.log("Removing heart");
             removeHeart();
             if (currentStatus.statistic.livesLeft === 0) {
                 gameOver();
@@ -189,7 +190,7 @@ function animate(time) {
     currentStatus.prevAnimationTime = time;
 
     //Loop the animation if not paused
-    currentStatus.frame.animationId = requestAnimationFrame(animate);
+    currentStatus.frame.animationId = requestAnimationFrame(gameLoop);
 }
 
 function gameOver() {

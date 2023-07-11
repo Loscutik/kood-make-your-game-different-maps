@@ -1,11 +1,9 @@
-import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./data.js";
-import { currentStatus } from "./gameStatus.js";
+import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./initData.js";
 
 class Gamebox {
 
     constructor(element) {
         this.element = document.getElementById("gamebox");
-
 
         this.grid = Array(BOX_ROWS);
         for (let r = 0; r < BOX_ROWS; r++) {

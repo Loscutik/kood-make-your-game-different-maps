@@ -1,5 +1,5 @@
-import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./data.js";
-import { Tetromino } from "./tetrominoclass.js";
+import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./initData.js";
+import { Tetromino } from "./tetrominoClass.js";
 
 export let currentStatus = {
     startScreen: true,
@@ -211,15 +211,14 @@ function displayLevel(newLevel) {
 }
 
 export function blinkHeart() {
-    console.log("Blinking");
     const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
-    heartToBlink.classList.remove("heartBlinkLastSecs");
-    void heartToBlink.offsetWidth;
     heartToBlink.classList.add("heartBlinkLastSecs");
 }
 
 export function refillHeart(fireTime) {
     document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1].innerHTML = HEART_TIME;
+    const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
+    heartToBlink.classList.remove("heartBlinkLastSecs");
     const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
     heartWrapper.classList.remove("refillHeart");
     void heartWrapper.offsetWidth; //Force a reflow to run animation again // when this function runs in the animate function we don't need this

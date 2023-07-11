@@ -1,6 +1,6 @@
 //TODO del console outputs
-import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./data.js";
-import { gamebox } from "./gamebox.js";
+import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./initData.js";
+import { gamebox } from "./gameBox.js";
 
 class TetrominoModel {
     constructor(initialData) {
