@@ -88,15 +88,9 @@ const mainTimer = document.getElementById('mainTimer');
 const heartStopperCollection = document.getElementsByClassName('heartStopper');
 const fpsDisplay = document.getElementById("fpsDisplay");
 
-async function animate(time) {
+function animate(time) {
     if (tetromino == 0) {
         return
-    }
-
-    // If game was paused in the middle of row removal and now continued, create new tetromino
-    if (tetromino === undefined) {
-        tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
-        pickAndShowNextTetromino();
     }
 
     const frameDuration = time - currentStatus.prevAnimationTime;
@@ -163,10 +157,6 @@ async function animate(time) {
                 updateScore(rowsToRemove.length);
                 updateLines(rowsToRemove.length);
                 updateLevel(frameDuration);
-                if (currentStatus.pause.is) { //Stop animation if pause was pressed during the row removal
-                    tetromino = undefined;
-                    return
-                }
             }
 
             tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);

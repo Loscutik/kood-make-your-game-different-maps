@@ -1,4 +1,5 @@
 import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./data.js";
+import { currentStatus } from "./gameStatus.js";
 
 class Gamebox {
 
@@ -132,8 +133,8 @@ class Gamebox {
     }
 
     removeRowsAndUpdateGrid(completedRowIndexes) {
-        this.removeCompletedRowsAndShiftRemaining(completedRowIndexes);
         this.updateGridAfterRemovingRows(completedRowIndexes);
+        this.removeCompletedRowsAndShiftRemaining(completedRowIndexes);
     }
 
     updateGridAfterRemovingRows(completedRowIndexes) {
@@ -146,15 +147,6 @@ class Gamebox {
             this.grid.unshift(new Array(BOX_COLUMNS).fill(null));
         }
     }
-
-    // updateGridAfterCompletingRow(rowIndex) {
-    //     for (let i = rowIndex; i > 0; i--) {
-    //         this.grid[i] = [...this.grid[i - 1]];
-    //     }
-    //     for (let j = 0; j < BOX_COLUMNS; j++) {
-    //         this.grid[0][j] = null;
-    //     }
-    // }
 
     removeCompletedRowsAndShiftRemaining(completedRowIndexes) {
         const boxClientRect = this.element.getBoundingClientRect();
