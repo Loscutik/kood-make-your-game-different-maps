@@ -50,7 +50,7 @@ body {
 }
 
 .tileMiddleBrighten {
-    animation: brightenMiddle 0.5s forwards;
+    animation: brightenMiddle 0.3s forwards;
 }
 
 @keyframes brightenLeft {
@@ -60,7 +60,7 @@ body {
 }
 
 .tileLeftBrighten {
-    animation: brightenLeft 0.5s forwards;
+    animation: brightenLeft 0.3s forwards;
 }
 
 @keyframes brightenRight {
@@ -70,7 +70,7 @@ body {
 }
 
 .tileRightBrighten {
-    animation: brightenRight 0.5s forwards;
+    animation: brightenRight 0.3s forwards;
 }
 
 @keyframes brightenCorners {
@@ -80,7 +80,7 @@ body {
 }
 
 .tileCornersBrighten {
-    animation: brightenCorners 0.5s forwards;
+    animation: brightenCorners 0.3s forwards;
 }
 
 /* ------------------------------ START SCREEN ------------------------------*/

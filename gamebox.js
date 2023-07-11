@@ -202,7 +202,7 @@ class Gamebox {
                 const shiftInPixels = tilesToShift[i].shift * 30;
                 tilesToShift[i].tile.style.transform = currentTransform + " translateY(" + shiftInPixels + "px)";
             }
-        }, 350);
+        }, 200);
     }
 
     isCellsFree(cellsToCheck) {
