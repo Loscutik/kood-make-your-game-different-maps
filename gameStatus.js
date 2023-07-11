@@ -1,4 +1,4 @@
-import { tetrominoesData, HEART_TIME, START_SPEED } from "./data.js";
+import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 
 export let currentStatus = {
@@ -190,7 +190,7 @@ export function updateLines(number) {
 export function updateLevel() {
     if (currentStatus.statistic.completedLines > 0 && currentStatus.statistic.completedLines / 10 >= currentStatus.statistic.level) {
         currentStatus.statistic.level++;
-        currentStatus.currentTetromino.speed.current += 0.5 * START_SPEED;
+        currentStatus.currentTetromino.speed.current += RISE_SPEED_COEFF * START_SPEED;
         currentStatus.currentTetromino.delayBeforeFreeze -= 50;
         displayLevel(currentStatus.statistic.level);
     }
