@@ -5,7 +5,7 @@ export const BOX_COLUMNS = 10;
 export const TILE_SIZE = 30;
 export const HEART_TIME = 25;
 export const START_SPEED = 1/(1000/60);
-export const RISE_SPEED_COEFF =0.25;
+export const RISE_SPEED_COEFF = 0.25;
 
 export const tetrominoesData = [
     // 1) The long one

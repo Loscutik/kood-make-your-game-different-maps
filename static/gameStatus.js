@@ -211,7 +211,10 @@ function displayLevel(newLevel) {
 }
 
 export function blinkHeart() {
+    console.log("Blinking");
     const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
+    heartToBlink.classList.remove("heartBlinkLastSecs");
+    void heartToBlink.offsetWidth;
     heartToBlink.classList.add("heartBlinkLastSecs");
 }
 

@@ -168,7 +168,7 @@ class Gamebox {
         //Sort tiles by which have to be removed and which have to move down
         for (let i = tiles.length - 1; i >= 0; i--) {
             let tileClientRect = tiles[i].getBoundingClientRect();
-            const tileRow = (tileClientRect.top - boxTop) / 30; // Find in which row current tile is
+            const tileRow = Math.round((tileClientRect.top - boxTop) / 30); // Find in which row current tile is
             if (rowShifts[tileRow] === 0) {
                 tilesToRemove.push(tiles[i]);
             } else if (rowShifts[tileRow] !== undefined) {
