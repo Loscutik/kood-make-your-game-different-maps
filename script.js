@@ -155,13 +155,13 @@ async function animate(time) {
 
             const rowsToRemove = gamebox.checkForFinishedRows();
   
-            if (rowsToRemove.numberOfCompletedRows != 0) {
+            if (rowsToRemove.length != 0) {
                 const removeRowsStart = performance.now();
-                await rowsToRemove.removeRows;
-                currentStatus.frame.numbersDuringRowsRemove = Math.round((performance.now() - removeRowsStart) * (currentStatus.frame.count / (currentStatus.gameOneSecond)))
+                currentStatus.frame.numbersDuringRowsRemove = Math.round((performance.now() - removeRowsStart) * (currentStatus.frame.count / (currentStatus.gameOneSecond)));
+                gamebox.removeRowsAndUpdateGrid(rowsToRemove);
                 refillHeart(time);
-                updateScore(rowsToRemove.numberOfCompletedRows);
-                updateLines(rowsToRemove.numberOfCompletedRows);
+                updateScore(rowsToRemove.length);
+                updateLines(rowsToRemove.length);
                 updateLevel(frameDuration);
                 if (currentStatus.pause.is) { //Stop animation if pause was pressed during the row removal
                     tetromino = undefined;
