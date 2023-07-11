@@ -21,7 +21,7 @@ export let currentStatus = {
     },
 
     currentTetromino: {
-        isMovingDown: true,
+        isBeingMovedDown: true,
         freezeDelayTime: 0,
         delayBeforeFreeze: 300,
         speed: {
@@ -62,7 +62,7 @@ export let currentStatus = {
         this.heart.startTime = now;
         this.heart.pauseDuration = 0;
         this.currentTetromino.freezeDelayTime = 0;
-        this.currentTetromino.isMovingDown = true;
+        this.currentTetromino.isBeingMovedDown = true;
         this.currentTetromino.speed.current = START_SPEED;
         this.currentTetromino.speed.fraction = 0;
         this.frame.count = 0;

@@ -1,4 +1,3 @@
-// TODO fix bug: when the pause is pressed at the moment of animation removing of lines, a tetromino continue to fall
 import { tetrominoesData, HEART_TIME } from "./data.js";
 import { Tetromino } from "./tetrominoclass.js";
 import { gamebox } from "./gamebox.js"
@@ -85,13 +84,16 @@ class InputHandler {
 }
 
 const input = new InputHandler();
+const mainTimer = document.getElementById('mainTimer');
+const heartStopperCollection = document.getElementsByClassName('heartStopper');
+const fpsDisplay = document.getElementById("fpsDisplay");
 
 async function animate(time) {
     if (tetromino == 0) {
         return
     }
 
-    // If game was paused in the middle of row removal create new tetromino
+    // If game was paused in the middle of row removal and now continued, create new tetromino
     if (tetromino === undefined) {
         tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
         pickAndShowNextTetromino();
@@ -106,7 +108,7 @@ async function animate(time) {
         // console.log("Current grid: ", JSON.parse(JSON.stringify(gamebox.grid)));
         //Update main timer
         let playingTime = time - currentStatus.startTime - currentStatus.pause.duration;
-        document.getElementById('mainTimer').textContent = msToMinutesSecondsString(playingTime);
+        mainTimer.textContent = msToMinutesSecondsString(playingTime);
 
         //Update heart timer
         let heartTime = HEART_TIME - ((time - currentStatus.heart.startTime - currentStatus.heart.pauseDuration) / 1000).toFixed();
@@ -119,7 +121,6 @@ async function animate(time) {
                 return;
             }
         } else {
-            const heartStopperCollection = document.getElementsByClassName('heartStopper');
             heartStopperCollection[currentStatus.statistic.livesLeft - 1].textContent = heartTime;
             if (heartTime === 3) {
                 blinkHeart();
@@ -130,7 +131,7 @@ async function animate(time) {
         let averageFPS = (currentStatus.frame.count + currentStatus.frame.numbersDuringRowsRemove) / (currentStatus.gameOneSecond / 1000);
         currentStatus.frame.numbersDuringRowsRemove=0;
 
-        document.getElementById("fpsDisplay").innerHTML = averageFPS.toFixed(2);
+        fpsDisplay.innerHTML = averageFPS.toFixed(2);
 
         currentStatus.frame.count = 0;
         currentStatus.gameOneSecond = 0;
@@ -143,12 +144,11 @@ async function animate(time) {
         speed = 8;
     }
 
-
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
-    currentStatus.currentTetromino.isMovingDown = tetromino.moveDown(speed);
+    currentStatus.currentTetromino.isBeingMovedDown = tetromino.moveDown(speed);
 
-    if (!currentStatus.currentTetromino.isMovingDown) {
+    if (!currentStatus.currentTetromino.isBeingMovedDown) {
         currentStatus.currentTetromino.freezeDelayTime += frameDuration;
         if (currentStatus.currentTetromino.freezeDelayTime > currentStatus.currentTetromino.delayBeforeFreeze) {
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
@@ -177,7 +177,7 @@ async function animate(time) {
                 return
             }
             currentStatus.currentTetromino.freezeDelayTime = 0;
-            currentStatus.currentTetromino.isMovingDown = true;
+            currentStatus.currentTetromino.isBeingMovedDown = true;
         }
     }
 
