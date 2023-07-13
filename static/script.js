@@ -130,8 +130,11 @@ function animate(time) {
         currentStatus.gameOneSecond = 0;
     }
 
-    let speed = Math.trunc(currentStatus.currentTetromino.speed.current * frameDuration + currentStatus.currentTetromino.speed.fraction);
-    currentStatus.currentTetromino.speed.fraction = currentStatus.currentTetromino.speed.current * frameDuration - speed;
+    //^CHNG!
+    const totalSpeed = currentStatus.currentTetromino.speed.current * frameDuration + currentStatus.currentTetromino.speed.fraction
+    let speed = Math.trunc(totalSpeed);
+    currentStatus.currentTetromino.speed.fraction = totalSpeed - speed;
+    //$CHNG
     //Speed up downward movement with Down Arrow key
     if (input.keys.ArrowDown) {
         speed = 8;
