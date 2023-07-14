@@ -166,7 +166,7 @@ class Gamebox {
         //Sort tiles by which have to be removed and which have to move down
         for (let i = tiles.length - 1; i >= 0; i--) {
             let tileClientRect = tiles[i].getBoundingClientRect();
-            const tileRow = Math.round((tileClientRect.top - boxTop) / 30); // Find in which row current tile is
+            const tileRow = Math.round((tileClientRect.top - boxTop) / TILE_SIZE); // Find in which row current tile is
             if (rowShifts[tileRow] === 0) {
                 tilesToRemove.push(tiles[i]);
             } else if (rowShifts[tileRow] !== undefined) {
@@ -197,7 +197,7 @@ class Gamebox {
             for (let i = 0; i < tilesToShift.length; i++) {
                 tilesToShift[i].tile.classList.add("tileFall"); //Add transition class if tile doesn't have it yet
                 const currentTransform = tilesToShift[i].tile.style.transform;
-                const shiftInPixels = tilesToShift[i].shift * 30;
+                const shiftInPixels = tilesToShift[i].shift * TILE_SIZE;
                 tilesToShift[i].tile.style.transform = currentTransform + " translateY(" + shiftInPixels + "px)";
             }
         }, 200);
