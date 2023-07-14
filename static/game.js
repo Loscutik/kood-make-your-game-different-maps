@@ -157,8 +157,6 @@ function gameLoop(time) {
         if (gameStatus.currentTetromino.freezeDelayTime > gameStatus.currentTetromino.delayBeforeFreeze) {
 
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
-            gameStatus.currentTetromino.freezeDelayTime = 0; //?? move to freezeTilesInBox
-            gameStatus.currentTetromino.isBeingMovedDown = true; //?? move to freezeTilesInBox
 
             const rowsToRemove = gamebox.checkForFinishedRows();
             if (rowsToRemove.length != 0) {

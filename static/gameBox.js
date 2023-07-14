@@ -1,5 +1,5 @@
 import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./initData.js";
-
+import { gameStatus} from "./gameStatusHandler.js";
 class Gamebox {
 
     constructor(element) {
@@ -45,6 +45,8 @@ class Gamebox {
 
     freezeTilesInBox(cells) {
         cells.forEach(({ row, col }) => this.grid[row][col] = true);
+        gameStatus.currentTetromino.freezeDelayTime = 0; 
+        gameStatus.currentTetromino.isBeingMovedDown = true; 
     }
 
     // checkForFinishedRows() {
@@ -156,7 +158,7 @@ class Gamebox {
         let rowShifts = {};
 
         //Add to rowShifts object info about each row - does it have to be deleted or how much to be moved down
-        for (let i = completedRowIndexes.length-1; i >= 0; i--) {
+        for (let i = completedRowIndexes.length - 1; i >= 0; i--) {
             rowShifts[completedRowIndexes[i]] = 0; //Row which has to be deleted has value of 0
             for (let j = 0; j < completedRowIndexes[i]; j++) {
                 rowShifts[j] = (j in rowShifts) ? rowShifts[j] + 1 : 1; //For each deleted row add +1 to a shift value to each row above
