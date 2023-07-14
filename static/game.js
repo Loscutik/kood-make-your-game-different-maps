@@ -1,7 +1,7 @@
 import { tetrominoesData, HEART_TIME } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, blinkHeart, removeHeart, pickAndShowNextTetromino, updateScore, refillHeart, updateLines, updateLevel } from "./gameStatus.js"
+import { currentStatus, pauseResumeToggle, restartGame, toggleMessageBox, msToMinutesSecondsString, removeHeart, pickAndShowNextTetromino, updateScore, refillHeart, updateLines, updateLevel } from "./gameStatus.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
@@ -85,7 +85,7 @@ class InputHandler {
 
 const input = new InputHandler();
 const mainTimer = document.getElementById('mainTimer');
-const heartStopperCollection = document.getElementsByClassName('heartStopper');
+// const heartStopperCollection = document.getElementsByClassName('heartStopper');
 const fpsDisplay = document.getElementById("fpsDisplay");
 
 function gameLoop(time) {
@@ -108,16 +108,18 @@ function gameLoop(time) {
         if (heartTime > HEART_TIME) heartTime = HEART_TIME;
 
         if (heartTime < 1) {
-            console.log("Removing heart");
             removeHeart();
             if (currentStatus.statistic.livesLeft === 0) {
                 gameOver();
                 return;
             }
         } else {
-            heartStopperCollection[currentStatus.statistic.livesLeft - 1].textContent = heartTime;
+            // heartStopperCollection[currentStatus.statistic.livesLeft - 1].textContent = heartTime;
+            currentStatus.heart.activeHeartStopperEl.textContent = heartTime;
             if (heartTime === 3) {
-                blinkHeart();
+                //Removed blinkHeart function as it is only one line of code now
+                // blinkHeart();
+                currentStatus.heart.activeHeartSymbolEl.classList.add("heartBlinkLastSecs");
             }
         }
 

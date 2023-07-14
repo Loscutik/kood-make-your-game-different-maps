@@ -1,3 +1,4 @@
+//TO DO: Delete commented lines of previous heart DOM queries
 import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 
@@ -18,6 +19,9 @@ export let currentStatus = {
     heart: {
         startTime: undefined,
         pauseDuration: 0,
+        activeHeartWrapperEl: document.getElementsByClassName("heartWrapper")[2],
+        activeHeartSymbolEl: document.getElementsByClassName("heart")[2],
+        activeHeartStopperEl: document.getElementsByClassName("heartStopper")[2],
     },
 
     currentTetromino: {
@@ -61,6 +65,9 @@ export let currentStatus = {
         this.pause.is = false;
         this.heart.startTime = now;
         this.heart.pauseDuration = 0;
+        this.heart.activeHeartWrapperEl = document.getElementsByClassName("heartWrapper")[2];
+        this.heart.activeHeartSymbolEl = document.getElementsByClassName("heart")[2];
+        this.heart.activeHeartStopperEl = document.getElementsByClassName("heartStopper")[2];
         this.currentTetromino.freezeDelayTime = 0;
         this.currentTetromino.isBeingMovedDown = true;
         this.currentTetromino.speed.current = START_SPEED;
@@ -84,14 +91,15 @@ export function pauseResumeToggle(event) {
     };
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
-    const activeHeart = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
+    // const activeHeart = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
     if (currentStatus.pause.is === true) {
         const newPauseDuration = performance.now() - currentStatus.pause.startTime;
         currentStatus.pause.duration += newPauseDuration;
         currentStatus.heart.pauseDuration += newPauseDuration;
         togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonRed")
         toggleMessageBox();
-        activeHeart.style.animationPlayState = "running";
+        // activeHeart.style.animationPlayState = "running";
+        currentStatus.heart.activeHeartSymbolEl.style.animationPlayState = "running";
         currentStatus.pause.is = false;
         currentStatus.prevAnimationTime = event.timeStamp;
         window.dispatchEvent(new Event('runAnimation'));
@@ -100,7 +108,8 @@ export function pauseResumeToggle(event) {
         window.cancelAnimationFrame(currentStatus.frame.animationId);
         togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonRed", "pauseButtonGreen")
         toggleMessageBox("PAUSED");
-        activeHeart.style.animationPlayState = "paused";
+        // activeHeart.style.animationPlayState = "paused";
+        currentStatus.heart.activeHeartSymbolEl.style.animationPlayState = "paused";
         currentStatus.pause.is = true;
     }
 }
@@ -210,19 +219,25 @@ function displayLevel(newLevel) {
     document.getElementById("level").innerHTML = newLevel;
 }
 
-export function blinkHeart() {
-    const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
-    heartToBlink.classList.add("heartBlinkLastSecs");
-}
+//Removed blinkHeart function as it is only one line of code now
+// export function blinkHeart() {
+//     const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
+//     heartToBlink.classList.add("heartBlinkLastSecs");
+// }
 
 export function refillHeart(fireTime) {
-    document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1].innerHTML = HEART_TIME;
-    const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
-    heartToBlink.classList.remove("heartBlinkLastSecs");
-    const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
-    heartWrapper.classList.remove("refillHeart");
-    void heartWrapper.offsetWidth; //Force a reflow to run animation again // when this function runs in the animate function we don't need this
-    heartWrapper.classList.add("refillHeart");
+    // document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1].innerHTML = HEART_TIME;
+    currentStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
+    // const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
+    // heartToBlink.classList.remove("heartBlinkLastSecs");
+    currentStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
+    // const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
+    // heartWrapper.classList.remove("refillHeart");
+    // void heartWrapper.offsetWidth; //Force a reflow to run animation again // when this function runs in the animate function we don't need this
+    // heartWrapper.classList.add("refillHeart");
+    currentStatus.heart.activeHeartWrapperEl.classList.remove("refillHeart");
+    void currentStatus.heart.activeHeartWrapperEl.offsetWidth; //Do we need to force a reflow here?
+    currentStatus.heart.activeHeartWrapperEl.classList.add("refillHeart");
     currentStatus.heart.startTime = fireTime + 1000;
     currentStatus.heart.pauseDuration = 0;
 }
@@ -230,15 +245,28 @@ export function refillHeart(fireTime) {
 //Remove heart if time has ran out
 export function removeHeart() {
     currentStatus.statistic.livesLeft -= 1;
-    document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft].innerHTML = "";
-    const heartToRemove = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft];
-    heartToRemove.classList.remove("heartBlinkLastSecs");
-    heartToRemove.classList.add("removedHeart");
+    // document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft].innerHTML = "";
+    currentStatus.heart.activeHeartStopperEl.innerHTML = "";
+    // const heartToRemove = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft];
+    // heartToRemove.classList.remove("heartBlinkLastSecs");
+    // heartToRemove.classList.add("removedHeart");
+    currentStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
+    currentStatus.heart.activeHeartSymbolEl.classList.add("removedHeart");
+
     if (currentStatus.statistic.livesLeft !== 0) {
+        //Initialize new heart stopper values
         currentStatus.heart.startTime = performance.now();
         currentStatus.heart.pauseDuration = 0;
+
+        //Update DOM element variables with new active heart elements
+        currentStatus.heart.activeHeartWrapperEl = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
+        currentStatus.heart.activeHeartSymbolEl = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
+        currentStatus.heart.activeHeartStopperEl = document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1];
+
+        //Wait for previous hearts dissapearing animation to finish, then show seconds on next active heart
         setTimeout(function () {
-            document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1].innerHTML = HEART_TIME;
+            // document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1].innerHTML = HEART_TIME;
+            currentStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
         }, 500)
     }
 }
