@@ -26,7 +26,9 @@ one heart. Losing all hearts ends the game.
 
 Player gets points by the amount of lines cleared at once and the current level:
 
-Single - 100 x Level  
-Double - 300 x Level  
-Triple - 500 x Level  
-Tetris - 800 x Level  
+|Completed lines|Points|
+|:---:|:---:|
+|1|100 x Level|
+|2|300 x Level|
+|3|500 x Level|
+|4|800 x Level|

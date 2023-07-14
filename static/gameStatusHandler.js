@@ -195,13 +195,10 @@ function refillHeart(fireTime) {
 //Updated score by how many rows were completed at once
 function updateScore(rowsCompleted) {
     const pointsPerRows = {
-        1: 100,
-        2: 300,
-        3: 500,
-        4: 800,
-    }
-    if (rowsCompleted > 4) {
-        rowsCompleted = 4;
+        1: (100 * gameStatus.statistic.level),
+        2: (300 * gameStatus.statistic.level),
+        3: (500 * gameStatus.statistic.level),
+        4: (800 * gameStatus.statistic.level),
     }
     gameStatus.statistic.score += pointsPerRows[rowsCompleted];
     displayScore(gameStatus.statistic.score);
