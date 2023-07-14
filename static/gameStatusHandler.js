@@ -122,7 +122,8 @@ function togglePauseButton(pauseBtn, pauseBtnText, text, classToRemove, classToA
 
 export function restartGame(now) {
     window.cancelAnimationFrame(gameStatus.frame.animationId);
-    document.getElementById('mainTimer').textContent = "00:00";
+    // document.getElementById('mainTimer').textContent = "00:00";
+    constantElements.mainTimer.textContent = "00:00";
 
     const gameboxElement = document.getElementById("gamebox");
     const tetrominoes = gameboxElement.querySelectorAll('.tetromino');
@@ -158,9 +159,9 @@ function resetHearts() {
     });
 
     const heartStopper = document.getElementsByClassName("heartStopper");
-    heartStopper[0].innerHTML = "";
-    heartStopper[1].innerHTML = "";
-    heartStopper[2].innerHTML = HEART_TIME;
+    heartStopper[0].textContent = "";
+    heartStopper[1].textContent = "";
+    heartStopper[2].textContent = HEART_TIME;
 }
 
 function toggleMessageBox(message) {
@@ -182,7 +183,7 @@ export function updateGameStatistic(fireTime, removedRows) {
 }
 
 function refillHeart(fireTime) {
-    gameStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
+    gameStatus.heart.activeHeartStopperEl.textContent = HEART_TIME;
     gameStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
     gameStatus.heart.activeHeartWrapperEl.classList.remove("refillHeart");
     void gameStatus.heart.activeHeartWrapperEl.offsetWidth;
@@ -221,15 +222,15 @@ function updateLevel() {
 }
 
 function displayScore(newScore) {
-    document.getElementById("score").innerHTML = String(newScore).padStart(4, '0');
+    document.getElementById("score").textContent = String(newScore).padStart(4, '0');
 }
 
 function displayLines(newLines) {
-    document.getElementById("lines").innerHTML = newLines;
+    document.getElementById("lines").textContent = newLines;
 }
 
 function displayLevel(newLevel) {
-    document.getElementById("level").innerHTML = newLevel;
+    document.getElementById("level").textContent = newLevel;
 }
 
 export function pickAndShowNextTetromino() {
@@ -261,7 +262,7 @@ export function updateHearts(time) {
 //Remove heart if time has ran out
 function removeHeart(time) {
     gameStatus.statistic.livesLeft -= 1;
-    gameStatus.heart.activeHeartStopperEl.innerHTML = "";
+    gameStatus.heart.activeHeartStopperEl.textContent = "";
     gameStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
     gameStatus.heart.activeHeartSymbolEl.classList.add("removedHeart");
 
@@ -276,7 +277,7 @@ function removeHeart(time) {
 
         //Wait for previous hearts dissapearing animation to finish, then show seconds on next active heart
         setTimeout(function () {
-            gameStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
+            gameStatus.heart.activeHeartStopperEl.textContent = HEART_TIME;
         }, 500)
     }
 }
@@ -284,7 +285,7 @@ function removeHeart(time) {
 export function calculateFPS() {
     let averageFPS = (gameStatus.frame.count) / (gameStatus.gameOneSecond / 1000);
 
-    constantElements.fpsDisplay.innerHTML = averageFPS.toFixed(2);
+    constantElements.fpsDisplay.textContent = averageFPS.toFixed(2);
 
     gameStatus.frame.count = 0;
     gameStatus.gameOneSecond = 0;
