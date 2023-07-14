@@ -81,6 +81,41 @@ class InputHandler {
             }
         });
     }
+
+    /*----------------------------------------------------------------*/
+
+    handleRotate(tetromino) {
+        if (this.keys.ArrowUp) {
+            tetromino.rotate();
+            this.keys.ArrowUp = false;
+        }
+    }
+
+    /*----------------------------------------------------------------*/
+
+    handleSideMoving(tetromino) {
+
+        if (this.keys.ArrowRight) {
+            tetromino.moveRight();
+            this.keys.ArrowRight = false;
+
+        } else if (this.keys.ArrowLeft) {
+            tetromino.moveLeft();
+            this.keys.ArrowLeft = false;
+        }
+    }
+
+    /*----------------------------------------------------------------*/
+
+    handleSpeedUp() {
+
+        if (this.keys.ArrowDown) { 
+            return true;
+        }
+
+        return false;
+    }
+
 }
 
 const input = new InputHandler();
@@ -109,10 +144,8 @@ function gameLoop(time) {
     const totalSpeed = gameStatus.currentTetromino.speed.current * frameDuration + gameStatus.currentTetromino.speed.fraction
     let speed = Math.trunc(totalSpeed);
     gameStatus.currentTetromino.speed.fraction = totalSpeed - speed;
-    //Speed up downward movement with Down Arrow key
-    if (input.keys.ArrowDown) { //?? move to InputHandler class into method like handleSpeedUp which can return the speed 
-        speed = 8;
-    }
+    
+    if (input.handleSpeedUp()) speed=8; 
 
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
@@ -122,7 +155,7 @@ function gameLoop(time) {
 
         gameStatus.currentTetromino.freezeDelayTime += frameDuration;
         if (gameStatus.currentTetromino.freezeDelayTime > gameStatus.currentTetromino.delayBeforeFreeze) {
-            
+
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
             gameStatus.currentTetromino.freezeDelayTime = 0; //?? move to freezeTilesInBox
             gameStatus.currentTetromino.isBeingMovedDown = true; //?? move to freezeTilesInBox
@@ -144,21 +177,8 @@ function gameLoop(time) {
         }
     }
 
-    //Turn tetromino with Up Arrow key
-    if (input.keys.ArrowUp) { //?? move to InputHandler class into method like handleRotate(tetromino)  
-        tetromino.rotate();
-        input.keys.ArrowUp = false;
-    }
-
-    //Move tile horizontally
-    if (input.keys.ArrowRight) { //?? move to InputHandler class into method like handleSideMoving(tetromino) 
-        tetromino.moveRight();
-        input.keys.ArrowRight = false;
-
-    } else if (input.keys.ArrowLeft) {
-        tetromino.moveLeft();
-        input.keys.ArrowLeft = false;
-    }
+    input.handleRotate(tetromino);
+    input.handleSideMoving(tetromino);
 
     gameStatus.prevAnimationTime = time;
 
