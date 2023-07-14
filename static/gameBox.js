@@ -149,7 +149,7 @@ class Gamebox {
     removeCompletedRowsAndShiftRemaining(completedRowIndexes) {
         const boxClientRect = this.element.getBoundingClientRect();
         const boxTop = boxClientRect.top + 3; //Box border width = 3
-        const tiles = this.element.getElementsByClassName("tile");
+        const tiles = Array.from(this.element.getElementsByClassName("tile"));
         const tetrominoDivs = Array.from(this.element.getElementsByClassName("tetromino"));
         const tilesToRemove = [];
         const tilesToShift = [];
