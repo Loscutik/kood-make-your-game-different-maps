@@ -182,16 +182,20 @@ export function updateGameStatistic(fireTime, removedRows) {
 }
 
 function refillHeart(fireTime) {
-    const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
-    heartWrapper.getElementsByClassName("heartStopper")[0].innerHTML = HEART_TIME; //CHNG : not to search through the whole document
+    // const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
+    // heartWrapper.getElementsByClassName("heartStopper")[0].innerHTML = HEART_TIME; //CHNG : not to search through the whole document
+    currentStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
 
-   const heartToBlink = heartWrapper.getElementsByClassName("heart")[0]; //CHNG : not to search through the whole document
+    // const heartToBlink = heartWrapper.getElementsByClassName("heart")[0]; //CHNG : not to search through the whole document
+    // heartToBlink.classList.remove("heartBlinkLastSecs");
+   currentStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
 
-   heartToBlink.classList.remove("heartBlinkLastSecs");
-
-   heartWrapper.classList.remove("refillHeart");
-   void heartWrapper.offsetWidth; //Force a reflow to run animation again // when this function runs in the animate function we don't need this
-   heartWrapper.classList.add("refillHeart");
+    // heartWrapper.classList.remove("refillHeart");
+    // void heartWrapper.offsetWidth; //Force a reflow to run animation again // when this function runs in the animate function we don't need this
+    // heartWrapper.classList.add("refillHeart");
+   currentStatus.heart.activeHeartWrapperEl.classList.remove("refillHeart");
+   void currentStatus.heart.activeHeartWrapperEl.offsetWidth;
+   currentStatus.heart.activeHeartWrapperEl.classList.add("refillHeart");
 
    currentStatus.heart.startTime = fireTime + 1000;
    currentStatus.heart.pauseDuration = 0;
@@ -263,9 +267,10 @@ export function updateHearts(time) {
     if (heartTime < 0.5) { //CHNG
         removeHeart(time);
     } else {
-        document.getElementsByClassName('heartStopper')[currentStatus.statistic.livesLeft - 1].textContent = heartTime.toFixed(); //CHNG moved .toFixed here
+        // document.getElementsByClassName('heartStopper')[currentStatus.statistic.livesLeft - 1].textContent = heartTime.toFixed(); //CHNG moved .toFixed here
+        currentStatus.heart.activeHeartStopperEl.textContent = heartTime.toFixed(); 
         if (heartTime <= 3) { //CHNG
-            blinkHeart();
+            currentStatus.heart.activeHeartSymbolEl.classList.add("heartBlinkLastSecs");
         }
     }
 }
