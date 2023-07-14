@@ -1,8 +1,12 @@
-//TO DO: Delete commented lines of previous heart DOM queries
 import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 
-export let currentStatus = {
+const constantElements = {
+    fpsDisplay: document.getElementById("fpsDisplay"),
+    mainTimer: document.getElementById('mainTimer'),
+}
+
+export let gameStatus = {
     startScreen: true,
     isOver: false,
     startTime: undefined,
@@ -36,7 +40,6 @@ export let currentStatus = {
 
     frame: {
         count: 0,
-       // numbersDuringRowsRemove: 0,
         last: undefined,
         animationId: 0,
     },
@@ -86,31 +89,28 @@ function chooseTetrominoNumber() {
 }
 
 export function pauseResumeToggle(event) {
-    if (currentStatus.isOver === true) {
+    if (gameStatus.isOver === true) {
         return
     };
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
-    // const activeHeart = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
-    if (currentStatus.pause.is === true) {
-        const newPauseDuration = performance.now() - currentStatus.pause.startTime;
-        currentStatus.pause.duration += newPauseDuration;
-        currentStatus.heart.pauseDuration += newPauseDuration;
+    if (gameStatus.pause.is === true) {
+        const newPauseDuration = performance.now() - gameStatus.pause.startTime;
+        gameStatus.pause.duration += newPauseDuration;
+        gameStatus.heart.pauseDuration += newPauseDuration;
         togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonRed")
         toggleMessageBox();
-        // activeHeart.style.animationPlayState = "running";
-        currentStatus.heart.activeHeartSymbolEl.style.animationPlayState = "running";
-        currentStatus.pause.is = false;
-        currentStatus.prevAnimationTime = event.timeStamp;
+        gameStatus.heart.activeHeartSymbolEl.style.animationPlayState = "running";
+        gameStatus.pause.is = false;
+        gameStatus.prevAnimationTime = event.timeStamp;
         window.dispatchEvent(new Event('runAnimation'));
     } else {
-        currentStatus.pause.startTime = event.timeStamp;
-        window.cancelAnimationFrame(currentStatus.frame.animationId);
+        gameStatus.pause.startTime = event.timeStamp;
+        window.cancelAnimationFrame(gameStatus.frame.animationId);
         togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonRed", "pauseButtonGreen")
         toggleMessageBox("PAUSED");
-        // activeHeart.style.animationPlayState = "paused";
-        currentStatus.heart.activeHeartSymbolEl.style.animationPlayState = "paused";
-        currentStatus.pause.is = true;
+        gameStatus.heart.activeHeartSymbolEl.style.animationPlayState = "paused";
+        gameStatus.pause.is = true;
     }
 }
 
@@ -121,7 +121,7 @@ function togglePauseButton(pauseBtn, pauseBtnText, text, classToRemove, classToA
 }
 
 export function restartGame(now) {
-    window.cancelAnimationFrame(currentStatus.frame.animationId);
+    window.cancelAnimationFrame(gameStatus.frame.animationId);
     document.getElementById('mainTimer').textContent = "00:00";
 
     const gameboxElement = document.getElementById("gamebox");
@@ -132,18 +132,18 @@ export function restartGame(now) {
 
     resetHearts();
 
-    if (currentStatus.pause.is === true) {
+    if (gameStatus.pause.is === true) {
         togglePauseButton(document.getElementById("pauseButton"), document.getElementById("pauseButtonText"), "PAUSE", "pauseButtonGreen", "pauseButtonRed")
     }
 
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
 
-    currentStatus.reset(now);
+    gameStatus.reset(now);
 
-    displayScore(currentStatus.statistic.score);
-    displayLines(currentStatus.statistic.completedLines);
-    displayLevel(currentStatus.statistic.level);
+    displayScore(gameStatus.statistic.score);
+    displayLines(gameStatus.statistic.completedLines);
+    displayLevel(gameStatus.statistic.level);
 
     pickAndShowNextTetromino();
     return new Tetromino(tetrominoesData[chooseTetrominoNumber()]);
@@ -182,27 +182,17 @@ export function updateGameStatistic(fireTime, removedRows) {
 }
 
 function refillHeart(fireTime) {
-    // const heartWrapper = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
-    // heartWrapper.getElementsByClassName("heartStopper")[0].innerHTML = HEART_TIME; //CHNG : not to search through the whole document
-    currentStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
-
-    // const heartToBlink = heartWrapper.getElementsByClassName("heart")[0]; //CHNG : not to search through the whole document
-    // heartToBlink.classList.remove("heartBlinkLastSecs");
-   currentStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
-
-    // heartWrapper.classList.remove("refillHeart");
-    // void heartWrapper.offsetWidth; //Force a reflow to run animation again // when this function runs in the animate function we don't need this
-    // heartWrapper.classList.add("refillHeart");
-   currentStatus.heart.activeHeartWrapperEl.classList.remove("refillHeart");
-   void currentStatus.heart.activeHeartWrapperEl.offsetWidth;
-   currentStatus.heart.activeHeartWrapperEl.classList.add("refillHeart");
-
-   currentStatus.heart.startTime = fireTime + 1000;
-   currentStatus.heart.pauseDuration = 0;
+    gameStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
+    gameStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
+    gameStatus.heart.activeHeartWrapperEl.classList.remove("refillHeart");
+    void gameStatus.heart.activeHeartWrapperEl.offsetWidth;
+    gameStatus.heart.activeHeartWrapperEl.classList.add("refillHeart");
+    gameStatus.heart.startTime = fireTime + 1000;
+    gameStatus.heart.pauseDuration = 0;
 }
 
 //Updated score by how many rows were completed at once
- function updateScore(rowsCompleted) {
+function updateScore(rowsCompleted) {
     const pointsPerRows = {
         1: 100,
         2: 300,
@@ -212,21 +202,21 @@ function refillHeart(fireTime) {
     if (rowsCompleted > 4) {
         rowsCompleted = 4;
     }
-    currentStatus.statistic.score += pointsPerRows[rowsCompleted];
-    displayScore(currentStatus.statistic.score);
+    gameStatus.statistic.score += pointsPerRows[rowsCompleted];
+    displayScore(gameStatus.statistic.score);
 }
 
- function updateLines(number) {
-    currentStatus.statistic.completedLines += number;
-    displayLines(currentStatus.statistic.completedLines);
+function updateLines(number) {
+    gameStatus.statistic.completedLines += number;
+    displayLines(gameStatus.statistic.completedLines);
 }
 
- function updateLevel() {
-    if (currentStatus.statistic.completedLines > 0 && currentStatus.statistic.completedLines / 10 >= currentStatus.statistic.level) {
-        currentStatus.statistic.level++;
-        currentStatus.currentTetromino.speed.current += RISE_SPEED_COEFF * START_SPEED;
-        currentStatus.currentTetromino.delayBeforeFreeze -= 50;
-        displayLevel(currentStatus.statistic.level);
+function updateLevel() {
+    if (gameStatus.statistic.completedLines > 0 && gameStatus.statistic.completedLines / 10 >= gameStatus.statistic.level) {
+        gameStatus.statistic.level++;
+        gameStatus.currentTetromino.speed.current += RISE_SPEED_COEFF * START_SPEED;
+        gameStatus.currentTetromino.delayBeforeFreeze -= 50;
+        displayLevel(gameStatus.statistic.level);
     }
 }
 
@@ -242,82 +232,67 @@ function displayLevel(newLevel) {
     document.getElementById("level").innerHTML = newLevel;
 }
 
-//Removed blinkHeart function as it is only one line of code now
-// export function blinkHeart() {
-//     const heartToBlink = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
-//     heartToBlink.classList.add("heartBlinkLastSecs");
-// }
-
 export function pickAndShowNextTetromino() {
     const tetrominoPreviews = document.getElementsByClassName("nextTetromino");
-    tetrominoPreviews[currentStatus.nextTetromino].style.opacity = "0";
-    currentStatus.nextTetromino = chooseTetrominoNumber();
-    tetrominoPreviews[currentStatus.nextTetromino].style.opacity = "1";
+    tetrominoPreviews[gameStatus.nextTetromino].style.opacity = "0";
+    gameStatus.nextTetromino = chooseTetrominoNumber();
+    tetrominoPreviews[gameStatus.nextTetromino].style.opacity = "1";
 }
 
 export function gameOver() {
     toggleMessageBox("GAME OVER");
-    currentStatus.isOver = true;
+    gameStatus.isOver = true;
 }
 
 export function updateHearts(time) {
-    let heartTime = HEART_TIME - ((time - currentStatus.heart.startTime - currentStatus.heart.pauseDuration) / 1000);
+    let heartTime = HEART_TIME - ((time - gameStatus.heart.startTime - gameStatus.heart.pauseDuration) / 1000);
     if (heartTime > HEART_TIME) heartTime = HEART_TIME;
 
-    if (heartTime < 0.5) { //CHNG
+    if (heartTime < 0.5) {
         removeHeart(time);
     } else {
-        // document.getElementsByClassName('heartStopper')[currentStatus.statistic.livesLeft - 1].textContent = heartTime.toFixed(); //CHNG moved .toFixed here
-        currentStatus.heart.activeHeartStopperEl.textContent = heartTime.toFixed(); 
-        if (heartTime <= 3) { //CHNG
-            currentStatus.heart.activeHeartSymbolEl.classList.add("heartBlinkLastSecs");
+        gameStatus.heart.activeHeartStopperEl.textContent = heartTime.toFixed(); 
+        if (heartTime <= 3 && heartTime >= 2) {
+            gameStatus.heart.activeHeartSymbolEl.classList.add("heartBlinkLastSecs");
         }
     }
 }
 
 //Remove heart if time has ran out
 function removeHeart(time) {
-    currentStatus.statistic.livesLeft -= 1;
-    // document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft].innerHTML = "";
-    currentStatus.heart.activeHeartStopperEl.innerHTML = "";
-    // const heartToRemove = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft];
-    // heartToRemove.classList.remove("heartBlinkLastSecs");
-    // heartToRemove.classList.add("removedHeart");
-    currentStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
-    currentStatus.heart.activeHeartSymbolEl.classList.add("removedHeart");
+    gameStatus.statistic.livesLeft -= 1;
+    gameStatus.heart.activeHeartStopperEl.innerHTML = "";
+    gameStatus.heart.activeHeartSymbolEl.classList.remove("heartBlinkLastSecs");
+    gameStatus.heart.activeHeartSymbolEl.classList.add("removedHeart");
 
-    if (currentStatus.statistic.livesLeft !== 0) {
-        currentStatus.heart.startTime = time;
-        currentStatus.heart.pauseDuration = 0;
+    if (gameStatus.statistic.livesLeft !== 0) {
+        gameStatus.heart.startTime = time;
+        gameStatus.heart.pauseDuration = 0;
 
         //Update DOM element variables with new active heart elements
-        currentStatus.heart.activeHeartWrapperEl = document.getElementsByClassName("heartWrapper")[currentStatus.statistic.livesLeft - 1];
-        currentStatus.heart.activeHeartSymbolEl = document.getElementsByClassName("heart")[currentStatus.statistic.livesLeft - 1];
-        currentStatus.heart.activeHeartStopperEl = document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1];
+        gameStatus.heart.activeHeartWrapperEl = document.getElementsByClassName("heartWrapper")[gameStatus.statistic.livesLeft - 1];
+        gameStatus.heart.activeHeartSymbolEl = document.getElementsByClassName("heart")[gameStatus.statistic.livesLeft - 1];
+        gameStatus.heart.activeHeartStopperEl = document.getElementsByClassName("heartStopper")[gameStatus.statistic.livesLeft - 1];
 
         //Wait for previous hearts dissapearing animation to finish, then show seconds on next active heart
         setTimeout(function () {
-            // document.getElementsByClassName("heartStopper")[currentStatus.statistic.livesLeft - 1].innerHTML = HEART_TIME;
-            currentStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
+            gameStatus.heart.activeHeartStopperEl.innerHTML = HEART_TIME;
         }, 500)
     }
 }
 
 export function calculateFPS() {
-    const fpsDisplay = document.getElementById("fpsDisplay");
-    let averageFPS = (currentStatus.frame.count /*+ currentStatus.frame.numbersDuringRowsRemove*/) / (currentStatus.gameOneSecond / 1000);
-    //currentStatus.frame.numbersDuringRowsRemove = 0;
+    let averageFPS = (gameStatus.frame.count) / (gameStatus.gameOneSecond / 1000);
 
-    fpsDisplay.innerHTML = averageFPS.toFixed(2);
+    constantElements.fpsDisplay.innerHTML = averageFPS.toFixed(2);
 
-    currentStatus.frame.count = 0;
-    currentStatus.gameOneSecond = 0;
+    gameStatus.frame.count = 0;
+    gameStatus.gameOneSecond = 0;
 }
 
 export function updateMainTimer(time) {
-    const mainTimer = document.getElementById('mainTimer');
-    let playingTime = time - currentStatus.startTime - currentStatus.pause.duration;
-    mainTimer.textContent = msToMinutesSecondsString(playingTime);
+    let playingTime = time - gameStatus.startTime - gameStatus.pause.duration;
+    constantElements.mainTimer.textContent = msToMinutesSecondsString(playingTime);
 }
 
 function msToMinutesSecondsString(ms) {

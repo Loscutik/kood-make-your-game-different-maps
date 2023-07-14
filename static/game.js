@@ -1,11 +1,11 @@
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { currentStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, updateGameStatistic,  updateHearts, calculateFPS } from "./gameStatus.js"
+import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, updateGameStatistic, updateHearts, calculateFPS } from "./gameStatusHandler.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
-// 2) gameStatus.js: currentStatus.startScreen = false;
+// 2) gameStatus.js: gameStatus.startScreen = false;
 // 3) script.js: on the bottom decomment "tetromino = ..." & "gameLoop()"
 
 window.addEventListener("DOMContentLoaded", function () {
@@ -32,8 +32,8 @@ function startGame() {
     document.getElementById("startBox").style.display = "none";
     document.getElementById("startScreenOverlay").style.display = "none";
     const now = performance.now()
-    currentStatus.startInit(now);
-    tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
+    gameStatus.startInit(now);
+    tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
     pickAndShowNextTetromino();
     gameLoop(now);
 }
@@ -58,14 +58,14 @@ class InputHandler {
                     this.keys[e.key] = true;
                     break;
                 case " ":
-                    if (!currentStatus.startScreen) pauseResumeToggle(e);
+                    if (!gameStatus.startScreen) pauseResumeToggle(e);
                     break;
                 case "r":
                 case "R":
-                    if (!currentStatus.startScreen) renewGame(e);
+                    if (!gameStatus.startScreen) renewGame(e);
                     break;
                 case "Enter":
-                    if (currentStatus.startScreen) startGame();
+                    if (gameStatus.startScreen) startGame();
 
                     break;
             }
@@ -90,15 +90,15 @@ function gameLoop(time) {
         return
     }
 
-    const frameDuration = time - currentStatus.prevAnimationTime;
-    currentStatus.frame.count++;
-    currentStatus.gameOneSecond += frameDuration;
+    const frameDuration = time - gameStatus.prevAnimationTime;
+    gameStatus.frame.count++;
+    gameStatus.gameOneSecond += frameDuration;
 
-    if (currentStatus.gameOneSecond >= 1000) {
+    if (gameStatus.gameOneSecond >= 1000) {
         updateMainTimer(time);
 
         updateHearts(time);
-        if (currentStatus.statistic.livesLeft === 0) {
+        if (gameStatus.statistic.livesLeft === 0) {
             gameOver();
             return;
         }
@@ -106,9 +106,9 @@ function gameLoop(time) {
         calculateFPS();
     }
 
-    const totalSpeed = currentStatus.currentTetromino.speed.current * frameDuration + currentStatus.currentTetromino.speed.fraction
+    const totalSpeed = gameStatus.currentTetromino.speed.current * frameDuration + gameStatus.currentTetromino.speed.fraction
     let speed = Math.trunc(totalSpeed);
-    currentStatus.currentTetromino.speed.fraction = totalSpeed - speed;
+    gameStatus.currentTetromino.speed.fraction = totalSpeed - speed;
     //Speed up downward movement with Down Arrow key
     if (input.keys.ArrowDown) { //?? move to InputHandler class into method like handleSpeedUp which can return the speed 
         speed = 8;
@@ -116,26 +116,24 @@ function gameLoop(time) {
 
     // moveDown moves the tetromino down if it is possible
     // and returns true if the movement had done and false otherwise
-    currentStatus.currentTetromino.isBeingMovedDown = tetromino.moveDown(speed);
+    gameStatus.currentTetromino.isBeingMovedDown = tetromino.moveDown(speed);
 
-    if (!currentStatus.currentTetromino.isBeingMovedDown) {
+    if (!gameStatus.currentTetromino.isBeingMovedDown) {
 
-        currentStatus.currentTetromino.freezeDelayTime += frameDuration;
-        if (currentStatus.currentTetromino.freezeDelayTime > currentStatus.currentTetromino.delayBeforeFreeze) {
+        gameStatus.currentTetromino.freezeDelayTime += frameDuration;
+        if (gameStatus.currentTetromino.freezeDelayTime > gameStatus.currentTetromino.delayBeforeFreeze) {
             
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
-            currentStatus.currentTetromino.freezeDelayTime = 0; //?? move to freezeTilesInBox
-            currentStatus.currentTetromino.isBeingMovedDown = true; //?? move to freezeTilesInBox
+            gameStatus.currentTetromino.freezeDelayTime = 0; //?? move to freezeTilesInBox
+            gameStatus.currentTetromino.isBeingMovedDown = true; //?? move to freezeTilesInBox
 
             const rowsToRemove = gamebox.checkForFinishedRows();
             if (rowsToRemove.length != 0) {
-                //  const removeRowsStart = performance.now();
                 gamebox.removeRowsAndUpdateGrid(rowsToRemove);
-                //  currentStatus.frame.numbersDuringRowsRemove = Math.round((performance.now() - removeRowsStart) * (currentStatus.frame.count / (currentStatus.gameOneSecond)));
                 updateGameStatistic(time, rowsToRemove.length)
             }
 
-            tetromino = new Tetromino(tetrominoesData[currentStatus.nextTetromino]);
+            tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
             //New tetromino fits fully to screen, but ends game
             if (tetromino == 0) { // if the new tetromino is empty, toString will return ''
                 gameOver();
@@ -162,10 +160,10 @@ function gameLoop(time) {
         input.keys.ArrowLeft = false;
     }
 
-    currentStatus.prevAnimationTime = time;
+    gameStatus.prevAnimationTime = time;
 
     //Loop the animation if not paused
-    currentStatus.frame.animationId = requestAnimationFrame(gameLoop);
+    gameStatus.frame.animationId = requestAnimationFrame(gameLoop);
 }
 
 
