@@ -1,18 +1,17 @@
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, updateGameStatisticsAfterRowComplete, updateHearts, calculateFPS } from "./gameStatusHandler.js"
+import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, updateHearts, calculateFPS } from "./gameStatusHandler.js"
 
-//Option to disable start screen for development:
-// 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
-// 2) gameStatus.js: gameStatus.startScreen = false;
-// 3) script.js: on the bottom decomment "tetromino = ..." & "gameLoop()"
+ /*----------------------------------------------------------------*/
 
 window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
     buttonListener("pauseButton", pauseResumeToggle); //?? move pauseResumeToggle() into game.js and remove "runAnimation" event
     buttonListener("restartButton", renewGame);
 });
+
+ /*----------------------------------------------------------------*/
 
 window.addEventListener("runAnimation", (event) => gameLoop(event.timeStamp));
 
@@ -22,11 +21,15 @@ function buttonListener(buttonId, callback) {
     button.addEventListener("click", callback);
 }
 
+ /*----------------------------------------------------------------*/
+
 function renewGame(event) {
     gamebox.resetGrid();
     tetromino = restartGame(event.timeStamp);
     gameLoop(event.timeStamp);
 }
+
+ /*----------------------------------------------------------------*/
 
 function startGame() {
     document.getElementById("startBox").style.display = "none";
@@ -38,7 +41,7 @@ function startGame() {
     gameLoop(now);
 }
 
-let tetromino;
+ /*----------------------------------------------------------------*/
 
 class InputHandler {
     constructor() {
@@ -82,7 +85,7 @@ class InputHandler {
         });
     }
 
-    /*----------------------------------------------------------------*/
+    /*------------------*/
 
     handleRotate(tetromino) {
         if (this.keys.ArrowUp) {
@@ -91,7 +94,7 @@ class InputHandler {
         }
     }
 
-    /*----------------------------------------------------------------*/
+    /*--------------------*/
 
     handleSideMoving(tetromino) {
 
@@ -105,7 +108,7 @@ class InputHandler {
         }
     }
 
-    /*----------------------------------------------------------------*/
+    /*--------------------*/
 
     handleSpeedUp() {
 
@@ -118,7 +121,12 @@ class InputHandler {
 
 }
 
+ /*----------------------------------------------------------------*/
+
+let tetromino;
 const input = new InputHandler();
+
+ /*----------------------------------------------------------------*/
 
 function gameLoop(time) {
     if (tetromino == 0) {
@@ -147,8 +155,6 @@ function gameLoop(time) {
     
     if (input.handleSpeedUp()) speed=8; 
 
-    // moveDown moves the tetromino down if it is possible
-    // and returns true if the movement had done and false otherwise
     gameStatus.currentTetromino.isBeingMovedDown = tetromino.moveDown(speed);
 
     if (!gameStatus.currentTetromino.isBeingMovedDown) {
@@ -161,12 +167,12 @@ function gameLoop(time) {
             const rowsToRemove = gamebox.checkForFinishedRows();
             if (rowsToRemove.length != 0) {
                 gamebox.removeRows(rowsToRemove);
-                updateGameStatisticsAfterRowComplete(time, rowsToRemove.length)
+                gameStatus.updateAfterRowComplete(time, rowsToRemove.length)
             }
 
             tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
             //New tetromino fits fully to screen, but ends game
-            if (tetromino == 0) { // if the new tetromino is empty, toString will return ''
+            if (tetromino == 0) { 
                 gameOver();
                 return
             }
@@ -179,13 +185,10 @@ function gameLoop(time) {
     input.handleSideMoving(tetromino);
 
     gameStatus.prevAnimationTime = time;
-
     //Loop the animation if not paused
     gameStatus.frame.animationId = requestAnimationFrame(gameLoop);
 }
 
 
-
 //Decomment for running without startScreen
-// tetromino = new Tetromino(tetrominoesData[Math.floor(Math.random() * 7)]);
-// animate();
+//startGame();

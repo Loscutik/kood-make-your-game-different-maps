@@ -13,6 +13,7 @@ class Gamebox {
             }
         }
     }
+    /*--------------------*/
 
     resetGrid() {
         for (let r = 0; r < BOX_ROWS; r++) {
@@ -22,6 +23,8 @@ class Gamebox {
         }
     }
 
+    /*--------------------*/
+
     hasObstacleRightOf(cellsToCheck) {
         return cellsToCheck.some(({ row, col }) => {
             let colToRight = col + 1;
@@ -29,12 +32,17 @@ class Gamebox {
         });
 
     }
+
+    /*--------------------*/
+
     hasObstacleLeftOf(cellsToCheck) {
         return cellsToCheck.some(({ row, col }) => {
             let colToLeft = col - 1;
             return colToLeft < 0 || this.grid[row][colToLeft] !== null;
         });
     }
+
+    /*--------------------*/
 
     hasObstacleUnderOf(cellsToCheck) {
         return cellsToCheck.some(({ row, col }) => {
@@ -43,84 +51,15 @@ class Gamebox {
         });
     }
 
+    /*--------------------*/
+
     freezeTilesInBox(cells) {
         cells.forEach(({ row, col }) => this.grid[row][col] = true);
         gameStatus.currentTetromino.freezeDelayTime = 0;
         gameStatus.currentTetromino.isBeingMovedDown = true;
     }
 
-    // checkForFinishedRows() {
-    //     const rowRemovalPromises = []; //Store promises of each line removal
-    //     let numberOfCompletedRows = 0;
-    //     for (let rowIndex = 0; rowIndex <BOX_ROWS; rowIndex++) { //CHNG this for is faster than for..in
-    //         if (this.grid[rowIndex].every(value => value === true)) {
-    //             numberOfCompletedRows += 1;
-    //             let rowRemovalPromise = this.removeRowOfTiles(rowIndex);
-    //             rowRemovalPromises.push(rowRemovalPromise);
-    //             this.updateGridAfterCompletingRow(rowIndex);
-    //         }
-    //     }
-    //     return {removeRows: Promise.all(rowRemovalPromises), numberOfCompletedRows};
-    // }
-
-    // updateGridAfterCompletingRow(rowIndex) {
-    //     for (let i = rowIndex; i > 0; i--) {
-    //         this.grid[i] = [...this.grid[i - 1]];
-    //     }
-    //     for (let j = 0; j < BOX_COLUMNS; j++) {
-    //         this.grid[0][j] = null;
-    //     }
-    // }
-
-    // removeRowOfTiles(rowIndex) {
-    //     const boxClientRect = this.element.getBoundingClientRect();
-    //     const boxTop = boxClientRect.top + 3; //Box border width = 3
-    //     const rowToBeDeletedCoord = TILE_SIZE * rowIndex + (TILE_SIZE / 2) + boxTop;
-    //     const tiles = this.element.getElementsByClassName("tile");
-    //     const tilesToRemove = [];
-    //     const tilesToFall = [];
-
-    //     //Get tiles by coordinates which are in given row or above
-    //     for (let i = tiles.length - 1; i >= 0; i--) {
-    //         let tileClientRect = tiles[i].getBoundingClientRect();
-    //         if (rowToBeDeletedCoord > tileClientRect.top &&
-    //             rowToBeDeletedCoord < tileClientRect.bottom) {
-    //             tilesToRemove.push(tiles[i]);
-    //         } else if (rowToBeDeletedCoord > tileClientRect.top) {
-    //             tilesToFall.push(tiles[i]);
-    //         }
-    //     }
-    //     //Add classes to tile parts to add animation to them (first they go white, then fade away)
-    //     tilesToRemove.forEach(tile => {
-    //         tile.getElementsByClassName("tileMiddle")[0].classList.add("tileMiddleBrighten");
-    //         tile.getElementsByClassName("tileLeft")[0].classList.add("tileLeftBrighten");
-    //         tile.getElementsByClassName("tileRight")[0].classList.add("tileRightBrighten");
-    //         tile.getElementsByClassName("tileCorners")[0].classList.add("tileCornersBrighten");
-    //     })
-
-    //     return new Promise((resolve) => {
-    //         setTimeout(function () { //Wait once the animation is finished
-    //             tilesToRemove.forEach(tile => {
-    //                 //Change class of the tile
-    //                 tile.classList.remove("tile");
-    //                 tile.classList.add("emptyTile");
-    //                 //Remove tetromino div if it's now empty
-    //                 let tetrominoTiles = Array.from(tile.parentNode.children);
-    //                 if (tetrominoTiles.every(child => child.classList.contains("emptyTile"))) {
-    //                     tile.parentNode.remove();
-    //                 };
-    //             });
-    //             //Move tiles above downwards to fill the gap from removed row
-    //             tilesToFall.forEach(tile => {
-    //                 tile.classList.add("tileFall");
-    //                 const currentTransform = tile.style.transform;
-    //                 tile.style.transform = currentTransform + " translateY(30px)";
-    //             });
-
-    //             resolve();
-    //         }, 350);
-    //     })
-    // }
+    /*--------------------*/
 
     checkForFinishedRows() {
         let completedRowIndexes = [];
@@ -132,9 +71,13 @@ class Gamebox {
         return completedRowIndexes;
     }
 
+    /*--------------------*/
+
     isCellsFree(cellsToCheck) {
         return cellsToCheck.every(({ row, col }) => !this.grid[row][col]);
     }
+
+    /*--------------------*/
 
     removeRows(completedRowIndexes) {
         this.updateGridAfterRemovingRows(completedRowIndexes);
@@ -144,8 +87,9 @@ class Gamebox {
         setTimeout(() => //Wait once the animation is finished
             this.shiftTiles(sortedTiles.tilesToShift)
             , 200);
-            console.log('done')
     }
+
+    /*--------------------*/
 
     updateGridAfterRemovingRows(completedRowIndexes) {
         //Remove completed rows from grid
@@ -160,6 +104,8 @@ class Gamebox {
         }
         this.grid.unshift(...newEmptyRows);
     }
+
+    /*--------------------*/
 
     findTilesToRemoveAndShift(completedRowIndexes) {
         const boxClientRect = this.element.getBoundingClientRect();
@@ -191,6 +137,8 @@ class Gamebox {
         return { tilesToRemove, tilesToShift };
     }
 
+    /*--------------------*/
+
     removeTiles(tilesToRemove) {
         //Remove tiles by adding classes to them to start animation (first they go white, then fade away)
         tilesToRemove.forEach(tile => {
@@ -202,6 +150,8 @@ class Gamebox {
             tile.getElementsByClassName("tileCorners")[0].classList.add("tileCornersBrighten");
         })
     }
+
+    /*--------------------*/
 
     shiftTiles(tilesToShift) {
         const tetrominoDivs = this.element.getElementsByClassName("tetromino");
@@ -222,6 +172,9 @@ class Gamebox {
     }
 
 }
+
+/*------------------------------------------------------*/
+
 export const gamebox = new Gamebox;
 
 
