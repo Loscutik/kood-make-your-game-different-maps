@@ -19,7 +19,7 @@ export let gameStatus = {
     nextTetromino: chooseTetrominoNumber(),
 
     /*----------------*/
-    
+
     pause: {
         startTime: undefined,
         duration: 0,
@@ -27,7 +27,7 @@ export let gameStatus = {
     },
 
     /*----------------*/
-    
+
     activeHeart: {
         startTime: undefined,
         pauseDuration: 0,
@@ -48,7 +48,7 @@ export let gameStatus = {
     },
 
     /*----------------*/
-    
+
     currentTetromino: {
         isBeingMovedDown: true,
         freezeDelayTime: 0,
@@ -59,8 +59,8 @@ export let gameStatus = {
         },
     },
 
-/*----------------*/
-    
+    /*----------------*/
+
     frame: {
         count: 0,
         last: undefined,
@@ -88,9 +88,9 @@ export let gameStatus = {
         },
 
     },
-    
+
     /*----------------*/
-    
+
     //Updated score by how many rows were completed at once
     updateScore(rowsCompleted) {
         const pointsPerRows = {
@@ -104,14 +104,14 @@ export let gameStatus = {
     },
 
     /*----------------*/
-    
+
     updateLines(number) {
         this.statistic.completedLines += number;
         this.statistic.displayLines();
     },
 
     /*----------------*/
-    
+
     levelUp() {
         if (this.statistic.completedLines > 0 && this.statistic.completedLines / 10 >= this.statistic.level) {
             this.statistic.level++;
@@ -122,12 +122,53 @@ export let gameStatus = {
     },
 
     /*----------------*/
-    
+
     updateAfterRowComplete(fireTime, removedRows) {
         this.activeHeart.refill(fireTime);
         this.updateScore(removedRows);
         this.updateLines(removedRows);
         this.levelUp();
+    },
+
+    /*--------------------*/
+
+    updateHearts(time) {
+        let heartTime = HEART_TIME - ((time - this.activeHeart.startTime - this.activeHeart.pauseDuration) / 1000);
+        if (heartTime > HEART_TIME) heartTime = HEART_TIME;
+
+        if (heartTime < 0.5) {
+            this.removeHeart(time);
+        } else {
+            this.activeHeart.activeStopperEl.textContent = heartTime.toFixed();
+            if (heartTime <= 3 && heartTime >= 2) {
+                this.activeHeart.activeSymbolEl.classList.add("heartBlinkLastSecs");
+            }
+        }
+    },
+
+    /*--------------------*/
+
+    //Remove heart if time has ran out
+    removeHeart(time) {
+        this.statistic.livesLeft -= 1;
+        this.activeHeart.activeStopperEl.textContent = "";
+        this.activeHeart.activeSymbolEl.classList.remove("heartBlinkLastSecs");
+        this.activeHeart.activeSymbolEl.classList.add("removedHeart");
+
+        if (this.statistic.livesLeft !== 0) {
+            this.activeHeart.startTime = time;
+            this.activeHeart.pauseDuration = 0;
+
+            //Update DOM element variables with new active heart elements
+            this.activeHeart.activeWrapperEl = document.getElementsByClassName("heartWrapper")[this.statistic.livesLeft - 1];
+            this.activeHeart.activeSymbolEl = document.getElementsByClassName("heart")[this.statistic.livesLeft - 1];
+            this.activeHeart.activeStopperEl = document.getElementsByClassName("heartStopper")[this.statistic.livesLeft - 1];
+
+            //Wait for previous hearts dissapearing animation to finish, then show seconds on next active heart
+            setTimeout( () => {
+                this.activeHeart.activeStopperEl.textContent = HEART_TIME;
+            }, 500)
+        }
     },
 
     /*--------------------*/
@@ -286,47 +327,6 @@ export function pickAndShowNextTetromino() {
 export function gameOver() {
     toggleMessageBox("GAME OVER");
     gameStatus.isOver = true;
-}
-
-/*-----------------------------------------------*/
-
-export function updateHearts(time) {
-    let heartTime = HEART_TIME - ((time - gameStatus.activeHeart.startTime - gameStatus.activeHeart.pauseDuration) / 1000);
-    if (heartTime > HEART_TIME) heartTime = HEART_TIME;
-
-    if (heartTime < 0.5) {
-        removeHeart(time);
-    } else {
-        gameStatus.activeHeart.activeStopperEl.textContent = heartTime.toFixed();
-        if (heartTime <= 3 && heartTime >= 2) {
-            gameStatus.activeHeart.activeSymbolEl.classList.add("heartBlinkLastSecs");
-        }
-    }
-}
-
-/*-----------------------------------------------*/
-
-//Remove heart if time has ran out
-function removeHeart(time) {
-    gameStatus.statistic.livesLeft -= 1;
-    gameStatus.activeHeart.activeStopperEl.textContent = "";
-    gameStatus.activeHeart.activeSymbolEl.classList.remove("heartBlinkLastSecs");
-    gameStatus.activeHeart.activeSymbolEl.classList.add("removedHeart");
-
-    if (gameStatus.statistic.livesLeft !== 0) {
-        gameStatus.activeHeart.startTime = time;
-        gameStatus.activeHeart.pauseDuration = 0;
-
-        //Update DOM element variables with new active heart elements
-        gameStatus.activeHeart.activeWrapperEl = document.getElementsByClassName("heartWrapper")[gameStatus.statistic.livesLeft - 1];
-        gameStatus.activeHeart.activeSymbolEl = document.getElementsByClassName("heart")[gameStatus.statistic.livesLeft - 1];
-        gameStatus.activeHeart.activeStopperEl = document.getElementsByClassName("heartStopper")[gameStatus.statistic.livesLeft - 1];
-
-        //Wait for previous hearts dissapearing animation to finish, then show seconds on next active heart
-        setTimeout(function () {
-            gameStatus.activeHeart.activeStopperEl.textContent = HEART_TIME;
-        }, 500)
-    }
 }
 
 /*-----------------------------------------------*/

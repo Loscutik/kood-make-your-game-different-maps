@@ -1,7 +1,7 @@
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, updateHearts, calculateFPS } from "./gameStatusHandler.js"
+import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS } from "./gameStatusHandler.js"
 
  /*----------------------------------------------------------------*/
 
@@ -140,7 +140,7 @@ function gameLoop(time) {
     if (gameStatus.gameOneSecond >= 1000) {
         updateMainTimer(time);
 
-        updateHearts(time);
+        gameStatus.updateHearts(time);
         if (gameStatus.statistic.livesLeft === 0) {
             gameOver();
             return;
