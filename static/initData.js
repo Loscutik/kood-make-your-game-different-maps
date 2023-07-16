@@ -43,7 +43,7 @@ export const tetrominoesData = [
         placement: [
             [false, true, false],
             [true, true, true]
-        ], //0=empty, 1=tile
+        ],
         rows: 2,
         columns: 3,
         height: "60px",
@@ -58,7 +58,7 @@ export const tetrominoesData = [
         placement: [
             [false, false, true],
             [true, true, true]
-        ], //0=empty, 1=tile
+        ],
         rows: 2,
         columns: 3,
         height: "60px",
@@ -73,7 +73,7 @@ export const tetrominoesData = [
         placement: [
             [true, false, false],
             [true, true, true]
-        ], //0=empty, 1=tile
+        ],
         rows: 2,
         columns: 3,
         height: "60px",
@@ -88,7 +88,7 @@ export const tetrominoesData = [
         placement: [
             [false, true, true],
             [true, true, false]
-        ], //0=empty, 1=tile
+        ],
         rows: 2,
         columns: 3,
         height: "60px",
@@ -103,7 +103,7 @@ export const tetrominoesData = [
         placement: [
             [true, true, false],
             [false, true, true]
-        ], //0=empty, 1=tile
+        ],
         rows: 2,
         columns: 3,
         height: "60px",

@@ -122,7 +122,6 @@ function togglePauseButton(pauseBtn, pauseBtnText, text, classToRemove, classToA
 
 export function restartGame(now) {
     window.cancelAnimationFrame(gameStatus.frame.animationId);
-    // document.getElementById('mainTimer').textContent = "00:00";
     constantElements.mainTimer.textContent = "00:00";
 
     const gameboxElement = document.getElementById("gamebox");
