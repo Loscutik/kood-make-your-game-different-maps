@@ -144,10 +144,7 @@ class Gamebox {
         tilesToRemove.forEach(tile => {
             tile.classList.remove("tile");
             tile.classList.add("emptyTile");
-            tile.getElementsByClassName("tileMiddle")[0].classList.add("tileMiddleBrighten");
-            tile.getElementsByClassName("tileLeft")[0].classList.add("tileLeftBrighten");
-            tile.getElementsByClassName("tileRight")[0].classList.add("tileRightBrighten");
-            tile.getElementsByClassName("tileCorners")[0].classList.add("tileCornersBrighten");
+            tile.classList.add("dissapearingTile");
         })
     }
 
