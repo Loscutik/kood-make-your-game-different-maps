@@ -1,5 +1,5 @@
 import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./initData.js";
-import { gameStatus} from "./gameStatusHandler.js";
+import { gameStatus } from "./gameStatusHandler.js";
 class Gamebox {
 
     constructor(element) {
@@ -45,8 +45,8 @@ class Gamebox {
 
     freezeTilesInBox(cells) {
         cells.forEach(({ row, col }) => this.grid[row][col] = true);
-        gameStatus.currentTetromino.freezeDelayTime = 0; 
-        gameStatus.currentTetromino.isBeingMovedDown = true; 
+        gameStatus.currentTetromino.freezeDelayTime = 0;
+        gameStatus.currentTetromino.isBeingMovedDown = true;
     }
 
     checkForFinishedRows() {
@@ -59,9 +59,19 @@ class Gamebox {
         return completedRowIndexes;
     }
 
-    removeRowsAndUpdateGrid(completedRowIndexes) {
+    isCellsFree(cellsToCheck) {
+        return cellsToCheck.every(({ row, col }) => !this.grid[row][col]);
+    }
+
+    removeRows(completedRowIndexes) {
         this.updateGridAfterRemovingRows(completedRowIndexes);
-        this.removeCompletedRowsAndShiftRemaining(completedRowIndexes);
+        const sortedTiles = this.findTilesToRemoveAndShift(completedRowIndexes);
+        this.removeTiles(sortedTiles.tilesToRemove);
+        //After animation has run remove empty tetromino div's and shift remaining tiles below
+        setTimeout(() => //Wait once the animation is finished
+            this.shiftTiles(sortedTiles.tilesToShift)
+            , 200);
+            console.log('done')
     }
 
     updateGridAfterRemovingRows(completedRowIndexes) {
@@ -69,17 +79,19 @@ class Gamebox {
         for (let i = completedRowIndexes.length - 1; i >= 0; i--) {
             this.grid.splice(completedRowIndexes[i], 1);
         }
+
         //Add empty rows to the top of the grid
+        let newEmptyRows = [];
         for (let i = 0; i < completedRowIndexes.length; i++) {
-            this.grid.unshift(new Array(BOX_COLUMNS).fill(null));
+            newEmptyRows.push(new Array(BOX_COLUMNS).fill(null));
         }
+        this.grid.unshift(...newEmptyRows);
     }
 
-    removeCompletedRowsAndShiftRemaining(completedRowIndexes) {
+    findTilesToRemoveAndShift(completedRowIndexes) {
         const boxClientRect = this.element.getBoundingClientRect();
         const boxTop = boxClientRect.top + 3; //Box border width = 3
-        const tiles = Array.from(this.element.getElementsByClassName("tile"));
-        const tetrominoDivs = Array.from(this.element.getElementsByClassName("tetromino"));
+        const tiles = this.element.getElementsByClassName("tile");
         const tilesToRemove = [];
         const tilesToShift = [];
         let rowShifts = {};
@@ -103,6 +115,10 @@ class Gamebox {
             }
         }
 
+        return { tilesToRemove, tilesToShift };
+    }
+
+    removeTiles(tilesToRemove) {
         //Remove tiles by adding classes to them to start animation (first they go white, then fade away)
         tilesToRemove.forEach(tile => {
             tile.classList.remove("tile");
@@ -112,29 +128,26 @@ class Gamebox {
             tile.getElementsByClassName("tileRight")[0].classList.add("tileRightBrighten");
             tile.getElementsByClassName("tileCorners")[0].classList.add("tileCornersBrighten");
         })
-
-        //After animation has run remove empty tetromino div's and shift remaining tiles below
-        setTimeout(function () { //Wait once the animation is finished
-            //Go over each tetromino div and delete it if all it's children are emptyTile
-            for (let i = tetrominoDivs.length - 1; i >= 0; i--) {
-                const tetrominoTiles = Array.from(tetrominoDivs[i].children)
-                if (tetrominoTiles.every(tile => tile.classList.contains("emptyTile"))) {
-                    tetrominoDivs[i].remove();
-                }
-            }
-            //Shift tiles by corresponding distance
-            for (let i = 0; i < tilesToShift.length; i++) {
-                tilesToShift[i].tile.classList.add("tileFall"); //Add transition class if tile doesn't have it yet
-                const currentTransform = tilesToShift[i].tile.style.transform;
-                const shiftInPixels = tilesToShift[i].shift * TILE_SIZE;
-                tilesToShift[i].tile.style.transform = currentTransform + " translateY(" + shiftInPixels + "px)";
-            }
-        }, 200);
     }
 
-    isCellsFree(cellsToCheck) {
-        return cellsToCheck.every(({ row, col }) => !this.grid[row][col]);
+    shiftTiles(tilesToShift) {
+        const tetrominoDivs = this.element.getElementsByClassName("tetromino");
+        //Go over each tetromino div and delete it if all it's children are emptyTile
+        for (let i = tetrominoDivs.length - 1; i >= 0; i--) {
+            const tetrominoTiles = Array.from(tetrominoDivs[i].children)
+            if (tetrominoTiles.every(tile => tile.classList.contains("emptyTile"))) {
+                tetrominoDivs[i].remove();
+            }
+        }
+        //Shift tiles by corresponding distance
+        for (let i = 0; i < tilesToShift.length; i++) {
+            tilesToShift[i].tile.classList.add("tileFall"); //Add transition class if tile doesn't have it yet
+            const shiftInPixels = tilesToShift[i].shift * TILE_SIZE;
+            tilesToShift[i].tile.style.transform += " translateY(" + shiftInPixels + "px)";
+        }
+
     }
+
 }
 export const gamebox = new Gamebox;
 

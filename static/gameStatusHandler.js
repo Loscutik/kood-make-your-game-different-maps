@@ -174,7 +174,7 @@ function toggleMessageBox(message) {
     }
 }
 
-export function updateGameStatistic(fireTime, removedRows) {
+export function updateGameStatisticsAfterRowComplete(fireTime, removedRows) {
     refillHeart(fireTime);
     updateScore(removedRows);
     updateLines(removedRows);

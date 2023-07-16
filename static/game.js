@@ -1,7 +1,7 @@
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, updateGameStatistic, updateHearts, calculateFPS } from "./gameStatusHandler.js"
+import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, updateGameStatisticsAfterRowComplete, updateHearts, calculateFPS } from "./gameStatusHandler.js"
 
 //Option to disable start screen for development:
 // 1) style.css: #startBox -> display: none; & #startScreenOverlay -> display: none;
@@ -160,8 +160,8 @@ function gameLoop(time) {
 
             const rowsToRemove = gamebox.checkForFinishedRows();
             if (rowsToRemove.length != 0) {
-                gamebox.removeRowsAndUpdateGrid(rowsToRemove);
-                updateGameStatistic(time, rowsToRemove.length)
+                gamebox.removeRows(rowsToRemove);
+                updateGameStatisticsAfterRowComplete(time, rowsToRemove.length)
             }
 
             tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
