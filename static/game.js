@@ -161,19 +161,24 @@ function gameLoop(time) {
 
     gameStatus.currentTetromino.isBeingMovedDown = tetromino.moveDown(speed);
 
+    //If tetromino can't move down anymore, wait for 300ms, so player can still move it right/left
     if (!gameStatus.currentTetromino.isBeingMovedDown) {
 
         gameStatus.currentTetromino.freezeDelayTime += frameDuration;
+
+        //If waiting time for moving right/left is finished, save tetromino to game grid
         if (gameStatus.currentTetromino.freezeDelayTime > gameStatus.currentTetromino.delayBeforeFreeze) {
 
             gamebox.freezeTilesInBox(tetromino.getOccupiedCells());
 
+            //Check if any row got finished and if yes, remove it/them and shift above rows
             const rowsToRemove = gamebox.checkForFinishedRows();
             if (rowsToRemove.length != 0) {
                 gamebox.removeRows(rowsToRemove);
                 gameStatus.updateAfterRowComplete(time, rowsToRemove.length)
             }
 
+            //Create new tetromino
             tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
             //New tetromino fits fully to screen, but ends game
             if (tetromino == 0) {
@@ -185,6 +190,7 @@ function gameLoop(time) {
         }
     }
 
+    //Handle tetromino movement by player input
     input.handleRotate(tetromino);
     input.handleSideMoving(tetromino);
 
