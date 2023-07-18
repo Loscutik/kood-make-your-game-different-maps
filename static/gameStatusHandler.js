@@ -234,7 +234,6 @@ export function pauseResumeToggle(event) {
         gameStatus.activeHeart.activeSymbolEl.style.animationPlayState = "running";
         gameStatus.pause.is = false;
         gameStatus.prevAnimationTime = event.timeStamp;
-        window.dispatchEvent(new Event('runGameLoop'));
     } else {
         gameStatus.pause.startTime = event.timeStamp;
         window.cancelAnimationFrame(gameStatus.frame.animationId);

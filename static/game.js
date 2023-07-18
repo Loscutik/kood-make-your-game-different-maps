@@ -7,15 +7,9 @@ import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, 
 
 window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
-    // buttonListener("pauseButton", pauseGame);
-    buttonListener("pauseButton", pauseResumeToggle);
+    buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
 });
-
-/*----------------------------------------------------------------*/
-
-//Helper listener to run game after pausing
-window.addEventListener("runGameLoop", (event) => gameLoop(event.timeStamp));
 
 /*----------------------------------------------------------------*/
 
@@ -48,8 +42,8 @@ function startGame() {
 /*----------------------------------------------------------------*/
 
 function pauseGame(event) {
-    pauseResumeToggle(event.timeStamp);
-    if (gameStatus.pause.is = false) gameLoop(event.timeStamp);
+    pauseResumeToggle(event);
+    if (gameStatus.pause.is === false) gameLoop(event.timeStamp);
 }
 
 /*----------------------------------------------------------------*/
@@ -71,7 +65,7 @@ class InputHandler {
                     this.keys[e.key] = true;
                     break;
                 case " ":
-                    if (!gameStatus.startScreen) pauseResumeToggle(e);
+                    if (!gameStatus.startScreen) pauseGame(e);
                     break;
                 case "r":
                 case "R":
