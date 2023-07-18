@@ -55,7 +55,6 @@ class InputHandler {
             ArrowLeft: false,
             ArrowRight: false,
         };
-        // this.keysDownTimes = {}
         window.addEventListener('keydown', e => {
             switch (e.key) {
                 case "ArrowLeft":
@@ -145,7 +144,7 @@ function gameLoop(time) {
         updateMainTimer(time);
 
         gameStatus.updateHearts(time);
-        if (gameStatus.statistic.livesLeft === 0) {
+        if (gameStatus.statistic.heartsLeft === 0) {
             gameOver();
             return;
         }

@@ -73,7 +73,7 @@ export let gameStatus = {
     /*----------------*/
 
     statistic: {
-        livesLeft: 3,
+        heartsLeft: 3,
         score: 0,
         completedLines: 0,
         level: 1,
@@ -153,19 +153,19 @@ export let gameStatus = {
 
     //Remove heart if time has ran out
     removeHeart(time) {
-        this.statistic.livesLeft -= 1;
+        this.statistic.heartsLeft -= 1;
         this.activeHeart.activeStopperEl.textContent = "";
         this.activeHeart.activeSymbolEl.classList.remove("heartBlinkLastSecs");
         this.activeHeart.activeSymbolEl.classList.add("removedHeart");
 
-        if (this.statistic.livesLeft !== 0) {
+        if (this.statistic.heartsLeft !== 0) {
             this.activeHeart.startTime = time;
             this.activeHeart.pauseDuration = 0;
 
             //Update DOM element variables with new active heart elements
-            this.activeHeart.activeWrapperEl = document.getElementsByClassName("heartWrapper")[this.statistic.livesLeft - 1];
-            this.activeHeart.activeSymbolEl = document.getElementsByClassName("heart")[this.statistic.livesLeft - 1];
-            this.activeHeart.activeStopperEl = document.getElementsByClassName("heartStopper")[this.statistic.livesLeft - 1];
+            this.activeHeart.activeWrapperEl = document.getElementsByClassName("heartWrapper")[this.statistic.heartsLeft - 1];
+            this.activeHeart.activeSymbolEl = document.getElementsByClassName("heart")[this.statistic.heartsLeft - 1];
+            this.activeHeart.activeStopperEl = document.getElementsByClassName("heartStopper")[this.statistic.heartsLeft - 1];
 
             //Wait for previous hearts dissapearing animation to finish, then show seconds on next active heart
             setTimeout( () => {
@@ -204,7 +204,7 @@ export let gameStatus = {
         this.currentTetromino.speed.fraction = 0;
         this.frame.count = 0;
         this.frame.last = now;
-        this.statistic.livesLeft = 3;
+        this.statistic.heartsLeft = 3;
         this.statistic.score = 0;
         this.statistic.completedLines = 0;
         this.statistic.level = 1;
