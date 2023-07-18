@@ -219,23 +219,23 @@ function chooseTetrominoNumber() {
 
 /*-----------------------------------------------*/
 
-export function pauseResumeToggle(event) {
+export function pauseResumeToggle(timeStamp) {
     if (gameStatus.isOver === true) {
         return
     };
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
     if (gameStatus.pause.is === true) {
-        const newPauseDuration = performance.now() - gameStatus.pause.startTime;
+        const newPauseDuration =timeStamp - gameStatus.pause.startTime;
         gameStatus.pause.duration += newPauseDuration;
         gameStatus.activeHeart.pauseDuration += newPauseDuration;
         togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonRed")
         toggleMessageBox();
         gameStatus.activeHeart.activeSymbolEl.style.animationPlayState = "running";
         gameStatus.pause.is = false;
-        gameStatus.prevAnimationTime = event.timeStamp;
+        gameStatus.prevAnimationTime = timeStamp;
     } else {
-        gameStatus.pause.startTime = event.timeStamp;
+        gameStatus.pause.startTime = timeStamp;
         window.cancelAnimationFrame(gameStatus.frame.animationId);
         togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonRed", "pauseButtonGreen")
         toggleMessageBox("PAUSED");

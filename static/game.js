@@ -42,7 +42,7 @@ function startGame() {
 /*----------------------------------------------------------------*/
 
 function pauseGame(event) {
-    pauseResumeToggle(event);
+    pauseResumeToggle(event.timeStamp);
     if (gameStatus.pause.is === false) gameLoop(event.timeStamp);
 }
 
