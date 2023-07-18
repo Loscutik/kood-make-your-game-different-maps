@@ -7,7 +7,8 @@ import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, 
 
 window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
-    buttonListener("pauseButton", pauseGame);
+    // buttonListener("pauseButton", pauseGame);
+    buttonListener("pauseButton", pauseResumeToggle);
     buttonListener("restartButton", renewGame);
 });
 
@@ -60,7 +61,7 @@ class InputHandler {
             ArrowLeft: false,
             ArrowRight: false,
         };
-        this.keysDownTimes = {}
+        // this.keysDownTimes = {}
         window.addEventListener('keydown', e => {
             switch (e.key) {
                 case "ArrowLeft":
