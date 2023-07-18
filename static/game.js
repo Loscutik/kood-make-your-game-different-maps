@@ -3,15 +3,15 @@ import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
 import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS } from "./gameStatusHandler.js"
 
- /*----------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 
 window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
-    buttonListener("pauseButton", pauseResumeToggle); //?? move pauseResumeToggle() into game.js and remove "runAnimation" event
+    buttonListener("pauseButton", pauseGame); //?? move pauseResumeToggle() into game.js and remove "runAnimation" event
     buttonListener("restartButton", renewGame);
 });
 
- /*----------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 
 window.addEventListener("runAnimation", (event) => gameLoop(event.timeStamp));
 
@@ -21,7 +21,7 @@ function buttonListener(buttonId, callback) {
     button.addEventListener("click", callback);
 }
 
- /*----------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 
 function renewGame(event) {
     gamebox.resetGrid();
@@ -29,7 +29,7 @@ function renewGame(event) {
     gameLoop(event.timeStamp);
 }
 
- /*----------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 
 function startGame() {
     document.getElementById("startBox").style.display = "none";
@@ -41,8 +41,14 @@ function startGame() {
     gameLoop(now);
 }
 
- /*----------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 
+function pauseGame(event) {
+    pauseResumeToggle(event.timeStamp);
+    if (gameStatus.pause.is = false) gameLoop(event.timeStamp);
+}
+
+/*----------------------------------------------------------------*/
 class InputHandler {
     constructor() {
         this.keys = {
@@ -112,7 +118,7 @@ class InputHandler {
 
     handleSpeedUp() {
 
-        if (this.keys.ArrowDown) { 
+        if (this.keys.ArrowDown) {
             return true;
         }
 
@@ -121,12 +127,12 @@ class InputHandler {
 
 }
 
- /*----------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 
 let tetromino;
 const input = new InputHandler();
 
- /*----------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 
 function gameLoop(time) {
     if (tetromino == 0) {
@@ -152,8 +158,8 @@ function gameLoop(time) {
     const totalSpeed = gameStatus.currentTetromino.speed.current * frameDuration + gameStatus.currentTetromino.speed.fraction
     let speed = Math.trunc(totalSpeed);
     gameStatus.currentTetromino.speed.fraction = totalSpeed - speed;
-    
-    if (input.handleSpeedUp()) speed=8; 
+
+    if (input.handleSpeedUp()) speed = 8;
 
     gameStatus.currentTetromino.isBeingMovedDown = tetromino.moveDown(speed);
 
@@ -172,7 +178,7 @@ function gameLoop(time) {
 
             tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
             //New tetromino fits fully to screen, but ends game
-            if (tetromino == 0) { 
+            if (tetromino == 0) {
                 gameOver();
                 return
             }
