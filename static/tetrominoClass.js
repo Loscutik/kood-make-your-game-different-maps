@@ -1,4 +1,3 @@
-//TODO del console outputs
 import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./initData.js";
 import { gamebox } from "./gameBox.js";
 
@@ -243,9 +242,6 @@ export class Tetromino {
         // check if there are any obstacles
         const cellsToBeFree = [];
 
-        //we don't need this, the next checking is enough 
-        // getCellsOnRotationWay(this, tetrominoAfterRotate,cellsToBeFree)
-
         // add the cells ocupated by the new placement to cellsToBeFree
         cellsToBeFree.push(...tetrominoAfterRotate.model.getOccupiedCells());
         if (!gamebox.isCellsFree(cellsToBeFree)) return false;
@@ -293,10 +289,6 @@ function createTetrominoElm(left, height, width, placement, colorCodes) {
 /*----------------------------------------------------------------------------------------*/
 function createNewTile(tetromino, colorCodes) {
     const svgNode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    // svgNode.setAttributeNS(null, 'width', `${TILE_SIZE}px`);
-    // svgNode.setAttributeNS(null, 'height', `${TILE_SIZE}px`);
-    // svgNode.setAttributeNS(null, 'viewBox', '0 0 ${TILE_SIZE} ${TILE_SIZE}');
-    //! it's enaught to use setAttribute, not setAttributeNS
     svgNode.setAttribute('width', `${TILE_SIZE}px`);
     svgNode.setAttribute('height', `${TILE_SIZE}px`);
     svgNode.setAttribute('viewBox', `0 0 ${TILE_SIZE} ${TILE_SIZE}`);
@@ -417,48 +409,9 @@ function correctPositionOnTopEdgeOfGamebox() {
 
 /*----------------------------------------------------------------------------------------*/
 function correctPositionOnBottomEdgeOfGamebox() {
-    const bottomAllowdEdgeForAddress = BOX_ROWS - this.model.rows - (this.model.offsetFromGridLine !== 0 ? 1 : 0); //  rows after rotation = columns before rotation
+    const bottomAllowdEdgeForAddress = BOX_ROWS - this.model.rows - (this.model.offsetFromGridLine !== 0 ? 1 : 0); // rows after rotation = columns before rotation
     if (this.model.addressOnGrid.row > bottomAllowdEdgeForAddress) {
         this.view.translateOffsetY -= (this.model.addressOnGrid.row - bottomAllowdEdgeForAddress) * TILE_SIZE;
         this.model.addressOnGrid.row = bottomAllowdEdgeForAddress;
     }
-}
-
-/*it can work without this, cannot notice overlaps*/
-function getCellsOnRotationWay(tetromino, tetrominoAfterRotate, cellsToBeFree) {
-    if (tetromino.model.columns - tetromino.model.rows < 0) {
-        const rotationContainer = {
-            rows: tetromino.model.rows + (tetromino.model.offsetFromGridLine !== 0 ? 1 : 0),
-            cols: tetromino.model.rows,
-        }
-
-        for (let r = tetromino.model.addressOnGrid.row; r < tetrominoAfterRotate.model.addressOnGrid.row; r++) {
-            for (let c = tetromino.model.addressOnGrid.col + 1; c < tetrominoAfterRotate.model.addressOnGrid.col + rotationContainer.cols; c++) {
-                cellsToBeFree.push({ row: r, col: c });
-            }
-        }
-        for (let r = tetrominoAfterRotate.model.addressOnGrid.row + 1; r < tetromino.model.addressOnGrid.row + rotationContainer.rows; r++) {
-            for (let c = tetrominoAfterRotate.model.addressOnGrid.col; c < tetromino.model.addressOnGrid.col; c++) {
-                cellsToBeFree.push({ row: r, col: c });
-            }
-        }
-    } else {
-        const rotationContainer = {
-            rows: tetromino.model.cols + (tetrominoAfterRotate.model.offsetFromGridLine !== 0 ? 1 : 0),
-            cols: tetromino.model.cols,
-        }
-
-        for (let r = tetrominoAfterRotate.model.addressOnGrid.row; r < tetromino.model.addressOnGrid.row; r++) {
-            for (let c = tetromino.model.addressOnGrid.col; c < tetrominoAfterRotate.model.addressOnGrid.col; c++) {
-                cellsToBeFree.push({ row: r, col: c });
-            }
-        }
-        for (let r = tetromino.model.addressOnGrid.row + 1; r < tetrominoAfterRotate.model.addressOnGrid.row + rotationContainer.rows; r++) {
-            for (let c = tetrominoAfterRotate.model.addressOnGrid.col + 1; c < tetromino.model.addressOnGrid.col + rotationContainer.cols; c++) {
-                cellsToBeFree.push({ row: r, col: c });
-            }
-        }
-    }
-
-
 }

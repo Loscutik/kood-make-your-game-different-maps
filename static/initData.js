@@ -11,7 +11,7 @@ export const tetrominoesData = [
     // 1) The long one
     {
         shape: 'I',
-        color: "red", //Color name string is actually not used, but kept it here atm as these color codes don't say much
+        color: "red",
         colorCodes: ["#d92327", "#ff4245", "#a61b1e", "#9c191c"],
         placement: [[true, true, true, true]],
         rows: 1,

@@ -7,13 +7,16 @@ import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, 
 
 window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
-    buttonListener("pauseButton", pauseGame); //?? move pauseResumeToggle() into game.js and remove "runAnimation" event
+    buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
 });
 
 /*----------------------------------------------------------------*/
 
-window.addEventListener("runAnimation", (event) => gameLoop(event.timeStamp));
+//Helper listener to run game after pausing
+window.addEventListener("runGameLoop", (event) => gameLoop(event.timeStamp));
+
+/*----------------------------------------------------------------*/
 
 //Helper function to handle button clicks
 function buttonListener(buttonId, callback) {
@@ -194,7 +197,3 @@ function gameLoop(time) {
     //Loop the animation if not paused
     gameStatus.frame.animationId = requestAnimationFrame(gameLoop);
 }
-
-
-//Decomment for running without startScreen
-//startGame();

@@ -6,6 +6,9 @@ import { Tetromino } from "./tetrominoClass.js";
 const constantElements = {
     fpsDisplay: document.getElementById("fpsDisplay"),
     mainTimer: document.getElementById('mainTimer'),
+    scoreSpan: document.getElementById("score"),
+    linesSpan: document.getElementById("lines"),
+    levelSpan: document.getElementById("level"),
 }
 
 /*-----------------------------------------------*/
@@ -76,15 +79,15 @@ export let gameStatus = {
         level: 1,
 
         displayScore() {
-            document.getElementById("score").textContent = String(this.score).padStart(4, '0');
+            constantElements.scoreSpan.textContent = String(this.score).padStart(4, '0');
         },
 
         displayLines() {
-            document.getElementById("lines").textContent = this.completedLines;
+            constantElements.linesSpan.textContent = this.completedLines;
         },
 
         displayLevel() {
-            document.getElementById("level").textContent = this.level;
+            constantElements.levelSpan.textContent = this.level;
         },
 
     },
@@ -231,7 +234,7 @@ export function pauseResumeToggle(event) {
         gameStatus.activeHeart.activeSymbolEl.style.animationPlayState = "running";
         gameStatus.pause.is = false;
         gameStatus.prevAnimationTime = event.timeStamp;
-       // window.dispatchEvent(new Event('runAnimation'));
+        window.dispatchEvent(new Event('runGameLoop'));
     } else {
         gameStatus.pause.startTime = event.timeStamp;
         window.cancelAnimationFrame(gameStatus.frame.animationId);
@@ -311,8 +314,6 @@ function toggleMessageBox(message) {
 }
 
 /*-----------------------------------------------*/
-
-
 
 export function pickAndShowNextTetromino() {
     const tetrominoPreviews = document.getElementsByClassName("nextTetromino");
