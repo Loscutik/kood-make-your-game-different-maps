@@ -116,7 +116,7 @@ export let gameStatus = {
     /*----------------*/
 
     levelUp() {
-        if (this.statistic.completedLines > 0 && this.statistic.completedLines / 10 >= this.statistic.level) {
+        if ( this.statistic.completedLines / 10 >= this.statistic.level) {
             this.statistic.level++;
             this.currentTetromino.speed.current += RISE_SPEED_COEFF * START_SPEED;
             this.currentTetromino.delayBeforeFreeze -= 50;
@@ -198,8 +198,9 @@ export let gameStatus = {
         this.activeHeart.activeWrapperEl = document.getElementsByClassName("heartWrapper")[2];
         this.activeHeart.activeSymbolEl = document.getElementsByClassName("heart")[2];
         this.activeHeart.activeStopperEl = document.getElementsByClassName("heartStopper")[2];
-        this.currentTetromino.freezeDelayTime = 0;
         this.currentTetromino.isBeingMovedDown = true;
+        this.currentTetromino.freezeDelayTime = 0;
+        this.currentTetromino.delayBeforeFreeze = 300;
         this.currentTetromino.speed.current = START_SPEED;
         this.currentTetromino.speed.fraction = 0;
         this.frame.count = 0;
