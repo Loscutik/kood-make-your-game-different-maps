@@ -42,9 +42,10 @@ export let gameStatus = {
         refill(fireTime) {
             this.activeStopperEl.textContent = HEART_TIME;
             this.activeSymbolEl.classList.remove("heartBlinkLastSecs");
-            this.activeWrapperEl.classList.remove("refillHeart");
+            //this.activeWrapperEl.classList.remove("refillHeart");
             void this.activeWrapperEl.offsetWidth;
             this.activeWrapperEl.classList.add("refillHeart");
+            setTimeout(()=>this.activeWrapperEl.classList.remove("refillHeart"),620)
             this.startTime = fireTime + 1000;
             this.pauseDuration = 0;
         }
@@ -116,7 +117,7 @@ export let gameStatus = {
     /*----------------*/
 
     levelUp() {
-        if (this.statistic.completedLines > 0 && this.statistic.completedLines / 10 >= this.statistic.level) {
+        if ( this.statistic.completedLines / 10 >= this.statistic.level) {
             this.statistic.level++;
             this.currentTetromino.speed.current += RISE_SPEED_COEFF * START_SPEED;
             this.currentTetromino.delayBeforeFreeze -= 50;
@@ -198,8 +199,9 @@ export let gameStatus = {
         this.activeHeart.activeWrapperEl = document.getElementsByClassName("heartWrapper")[2];
         this.activeHeart.activeSymbolEl = document.getElementsByClassName("heart")[2];
         this.activeHeart.activeStopperEl = document.getElementsByClassName("heartStopper")[2];
-        this.currentTetromino.freezeDelayTime = 0;
         this.currentTetromino.isBeingMovedDown = true;
+        this.currentTetromino.freezeDelayTime = 0;
+        this.currentTetromino.delayBeforeFreeze = 300;
         this.currentTetromino.speed.current = START_SPEED;
         this.currentTetromino.speed.fraction = 0;
         this.frame.count = 0;
@@ -219,23 +221,23 @@ function chooseTetrominoNumber() {
 
 /*-----------------------------------------------*/
 
-export function pauseResumeToggle(event) {
+export function pauseResumeToggle(timeStamp) {
     if (gameStatus.isOver === true) {
         return
     };
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
     if (gameStatus.pause.is === true) {
-        const newPauseDuration = performance.now() - gameStatus.pause.startTime;
+        const newPauseDuration =timeStamp - gameStatus.pause.startTime;
         gameStatus.pause.duration += newPauseDuration;
         gameStatus.activeHeart.pauseDuration += newPauseDuration;
         togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonRed")
         toggleMessageBox();
         gameStatus.activeHeart.activeSymbolEl.style.animationPlayState = "running";
+        gameStatus.prevAnimationTime = timeStamp;
         gameStatus.pause.is = false;
-        gameStatus.prevAnimationTime = event.timeStamp;
     } else {
-        gameStatus.pause.startTime = event.timeStamp;
+        gameStatus.pause.startTime = timeStamp;
         window.cancelAnimationFrame(gameStatus.frame.animationId);
         togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonRed", "pauseButtonGreen")
         toggleMessageBox("PAUSED");
@@ -349,7 +351,7 @@ export function updateMainTimer(time) {
 /*-----------------------------------------------*/
 
 function msToMinutesSecondsString(ms) {
-    var minutes = Math.floor(ms / 60000);
+    var minutes = String(Math.floor(ms / 60000));
     var seconds = ((ms % 60000) / 1000).toFixed(0);
-    return (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    return minutes.padStart(2,'0') + ":" + seconds.padStart(2,'0');
 }

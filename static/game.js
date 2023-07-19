@@ -42,7 +42,7 @@ function startGame() {
 /*----------------------------------------------------------------*/
 
 function pauseGame(event) {
-    pauseResumeToggle(event);
+    pauseResumeToggle(event.timeStamp);
     if (gameStatus.pause.is === false) gameLoop(event.timeStamp);
 }
 
@@ -132,7 +132,7 @@ const input = new InputHandler();
 /*----------------------------------------------------------------*/
 
 function gameLoop(time) {
-    if (tetromino == 0) {
+    if (tetromino.isFinal()) {
         return
     }
 
@@ -180,7 +180,7 @@ function gameLoop(time) {
             //Create new tetromino
             tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
             //New tetromino fits fully to screen, but ends game
-            if (tetromino == 0) {
+            if (tetromino.isFinal()) {
                 gameOver();
                 return
             }
