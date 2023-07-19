@@ -42,8 +42,6 @@ export let gameStatus = {
         refill(fireTime) {
             this.activeStopperEl.textContent = HEART_TIME;
             this.activeSymbolEl.classList.remove("heartBlinkLastSecs");
-            //this.activeWrapperEl.classList.remove("refillHeart");
-            //void this.activeWrapperEl.offsetWidth;
             this.activeWrapperEl.classList.add("refillHeart");
             setTimeout(()=>this.activeWrapperEl.classList.remove("refillHeart"),620)
             this.startTime = fireTime + 1000;

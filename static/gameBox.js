@@ -116,13 +116,6 @@ class Gamebox {
         const tilesToShift = [];
         let rowShifts = {};
 
-        //Add to rowShifts object info about each row - does it have to be deleted or how much to be moved down
-        // for (let i = completedRowIndexes.length - 1; i >= 0; i--) {
-        //     rowShifts[completedRowIndexes[i]] = 0; //Row which has to be deleted has value of 0
-        //     for (let j = 0; j < completedRowIndexes[i]; j++) {
-        //         rowShifts[j] = (j in rowShifts) ? rowShifts[j] + 1 : 1; //For each deleted row add +1 to a shift value to each row above
-        //     }
-        // }
         for (let i = 0; i < completedRowIndexes.length; i++) rowShifts[completedRowIndexes[i]] = 0;
         for (let i = 0; i < completedRowIndexes[0]; i++) rowShifts[i] = completedRowIndexes.length;
         for (let i = 0; i < completedRowIndexes.length-1; i++){
