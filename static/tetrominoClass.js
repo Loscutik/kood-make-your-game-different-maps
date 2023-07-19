@@ -143,6 +143,9 @@ export class Tetromino {
     }
 
     /*----------------------------------------------------------------------------------------*/
+    isFinal() { return this.shape == undefined; }
+
+    /*----------------------------------------------------------------------------------------*/
     toString() {
         if (Object.keys(this).length === 0) return '';
         return `shape: ${this.shape} 
