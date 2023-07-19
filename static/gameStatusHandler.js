@@ -42,9 +42,10 @@ export let gameStatus = {
         refill(fireTime) {
             this.activeStopperEl.textContent = HEART_TIME;
             this.activeSymbolEl.classList.remove("heartBlinkLastSecs");
-            this.activeWrapperEl.classList.remove("refillHeart");
+            //this.activeWrapperEl.classList.remove("refillHeart");
             void this.activeWrapperEl.offsetWidth;
             this.activeWrapperEl.classList.add("refillHeart");
+            setTimeout(()=>this.activeWrapperEl.classList.remove("refillHeart"),620)
             this.startTime = fireTime + 1000;
             this.pauseDuration = 0;
         }
@@ -233,8 +234,8 @@ export function pauseResumeToggle(timeStamp) {
         togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonRed")
         toggleMessageBox();
         gameStatus.activeHeart.activeSymbolEl.style.animationPlayState = "running";
-        gameStatus.pause.is = false;
         gameStatus.prevAnimationTime = timeStamp;
+        gameStatus.pause.is = false;
     } else {
         gameStatus.pause.startTime = timeStamp;
         window.cancelAnimationFrame(gameStatus.frame.animationId);
@@ -350,7 +351,7 @@ export function updateMainTimer(time) {
 /*-----------------------------------------------*/
 
 function msToMinutesSecondsString(ms) {
-    var minutes = Math.floor(ms / 60000);
+    var minutes = String(Math.floor(ms / 60000));
     var seconds = ((ms % 60000) / 1000).toFixed(0);
-    return (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    return minutes.padStart(2,'0') + ":" + seconds.padStart(2,'0');
 }
