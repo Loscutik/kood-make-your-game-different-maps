@@ -222,9 +222,6 @@ function chooseTetrominoNumber() {
 /*-----------------------------------------------*/
 
 export function pauseResumeToggle(timeStamp) {
-    if (gameStatus.isOver === true) {
-        return
-    };
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
     if (gameStatus.pause.is === true) {

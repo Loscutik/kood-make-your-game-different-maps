@@ -42,6 +42,9 @@ function startGame() {
 /*----------------------------------------------------------------*/
 
 function pauseGame(event) {
+    if (gameStatus.isOver === true) {
+        return
+    }
     pauseResumeToggle(event.timeStamp);
     if (gameStatus.pause.is === false) gameLoop(event.timeStamp);
 }
@@ -163,6 +166,10 @@ function gameLoop(time) {
     //If tetromino can't move down anymore, wait for 300ms, so player can still move it right/left
     if (!gameStatus.currentTetromino.isBeingMovedDown) {
 
+        if (tetromino.model.addressOnGrid.row===0) {
+            gameOver();
+            return;
+        }
         gameStatus.currentTetromino.freezeDelayTime += frameDuration;
 
         //If waiting time for moving right/left is finished, save tetromino to game grid
@@ -182,7 +189,7 @@ function gameLoop(time) {
             //New tetromino fits fully to screen, but ends game
             if (tetromino.isFinal()) {
                 gameOver();
-                return
+                return;
             }
 
             pickAndShowNextTetromino();
