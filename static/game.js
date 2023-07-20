@@ -166,7 +166,7 @@ function gameLoop(time) {
     //If tetromino can't move down anymore, wait for 300ms, so player can still move it right/left
     if (!gameStatus.currentTetromino.isBeingMovedDown) {
 
-        if (tetromino.model.addressOnGrid.row===0) {
+        if (tetromino.isOnTop()) {
             gameOver();
             return;
         }

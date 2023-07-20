@@ -133,17 +133,13 @@ export class Tetromino {
         }
 
         this.view.element = createTetrominoElm((BOX_COLUMNS / 2 - Math.ceil(this.model.columns / 2)) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
-        if (gamebox.hasObstacleUnderOf(this.model.getBottomEdgeCells())) {
-            delete this.shape;
-            delete this.model;
-            delete this.view;
-            return;
-        }
-
     }
 
     /*----------------------------------------------------------------------------------------*/
     isFinal() { return this.shape == undefined; }
+    
+    /*----------------------------------------------------------------------------------------*/
+    isOnTop() { return this.model.addressOnGrid.row===0; }
 
     /*----------------------------------------------------------------------------------------*/
     toString() {
@@ -237,6 +233,10 @@ export class Tetromino {
     rotate() {
 
         if (this.shape === 'O') return;
+
+        if (this.model.offsetFromGridLine === 0 && gamebox.hasObstacleUnderOf(this.model.getBottomEdgeCells())) {
+            return;
+        }
 
         const tetrominoAfterRotate = {};
         calculateTetrominoContainerAfterRotate(this, tetrominoAfterRotate);
