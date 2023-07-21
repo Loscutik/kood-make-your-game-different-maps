@@ -1,5 +1,6 @@
 import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
+import { showGameOverScreen } from "./scoreboardHandler.js";
 
 /*-----------------------------------------------*/
 
@@ -15,6 +16,8 @@ const constantElements = {
 
 export let gameStatus = {
     startScreen: true,
+    gameOverScreen: false,
+    readyToSubmitName: false,
     isOver: false,
     startTime: undefined,
     prevAnimationTime: undefined,
@@ -226,7 +229,7 @@ export function pauseResumeToggle(timeStamp) {
         const newPauseDuration =timeStamp - gameStatus.pause.startTime;
         gameStatus.pause.duration += newPauseDuration;
         gameStatus.activeHeart.pauseDuration += newPauseDuration;
-        togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonRed")
+        togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonBlue")
         toggleMessageBox();
         gameStatus.activeHeart.activeSymbolEl.style.animationPlayState = "running";
         gameStatus.prevAnimationTime = timeStamp;
@@ -234,7 +237,7 @@ export function pauseResumeToggle(timeStamp) {
     } else {
         gameStatus.pause.startTime = timeStamp;
         window.cancelAnimationFrame(gameStatus.frame.animationId);
-        togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonRed", "pauseButtonGreen")
+        togglePauseButton(pauseBtn, pauseBtnText, "RESUME", "pauseButtonBlue", "pauseButtonGreen")
         toggleMessageBox("PAUSED");
         gameStatus.activeHeart.activeSymbolEl.style.animationPlayState = "paused";
         gameStatus.pause.is = true;
@@ -263,7 +266,7 @@ export function restartGame(now) {
 
 
     if (gameStatus.pause.is === true) {
-        togglePauseButton(document.getElementById("pauseButton"), document.getElementById("pauseButtonText"), "PAUSE", "pauseButtonGreen", "pauseButtonRed")
+        togglePauseButton(document.getElementById("pauseButton"), document.getElementById("pauseButtonText"), "PAUSE", "pauseButtonGreen", "pauseButtonBlue")
     }
 
     const messageBox = document.getElementById("gameMessageBox");
@@ -321,7 +324,7 @@ export function pickAndShowNextTetromino() {
 /*-----------------------------------------------*/
 
 export function gameOver() {
-    toggleMessageBox("GAME OVER");
+    showGameOverScreen();
     gameStatus.isOver = true;
 }
 

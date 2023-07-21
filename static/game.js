@@ -2,6 +2,7 @@ import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
 import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS } from "./gameStatusHandler.js"
+import { submitScore } from "./scoreboardHandler.js";
 
 /*----------------------------------------------------------------*/
 
@@ -9,6 +10,7 @@ window.addEventListener("DOMContentLoaded", function () {
     buttonListener("startButton", startGame);
     buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
+    buttonListener("submitScoreButton", submitScore);
 });
 
 /*----------------------------------------------------------------*/
@@ -31,7 +33,7 @@ function renewGame(event) {
 
 function startGame() {
     document.getElementById("startBox").style.display = "none";
-    document.getElementById("startScreenOverlay").style.display = "none";
+    document.getElementById("screenOverlay").style.display = "none";
     const now = performance.now()
     gameStatus.startInit(now);
     tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
@@ -71,11 +73,11 @@ class InputHandler {
                     break;
                 case "r":
                 case "R":
-                    if (!gameStatus.startScreen) renewGame(e);
+                    if (!gameStatus.startScreen && !gameStatus.gameOverScreen) renewGame(e);
                     break;
                 case "Enter":
                     if (gameStatus.startScreen) startGame();
-
+                    else if (gameStatus.readyToSubmitName) submitScore();
                     break;
             }
         });

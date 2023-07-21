@@ -112,3 +112,10 @@ export const tetrominoesData = [
     },
 
 ];
+
+export const responseTexts = {
+    "zero": ["Warm-up?", "Oops!"],
+    "low": ["Not bad!", "Keep going!", "Nice try!"],
+    "medium": ["Well done!", "Great job!", "Solid work!"],
+    "high": ["Unstoppable!", "Excellent work!"],
+}
