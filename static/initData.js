@@ -118,4 +118,6 @@ export const responseTexts = {
     "low": ["Not bad!", "Keep going!", "Nice try!"],
     "medium": ["Well done!", "Great job!", "Solid work!"],
     "high": ["Unstoppable!", "Excellent work!"],
-}
+};
+
+export const gameOverTextTemp = "{responseText} You've scored {score} points, ranking at position #XX on scoreboard, which puts you in the top XX% of all players.";

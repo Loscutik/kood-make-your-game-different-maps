@@ -1,5 +1,32 @@
 import { gameStatus } from "./gameStatusHandler.js";
-import { responseTexts } from "./initData.js";
+import { responseTexts, gameOverTextTemp } from "./initData.js";
+
+let socket;
+
+//In this startWebSocket func may be redundant things, just trying to understand how it works
+export function startWebSocket() {
+    socket = new WebSocket("ws://localhost:8080/socket");
+    console.log("Attempting connection...");
+
+    socket.onopen = () => {
+        console.log("Successfully connected");
+        socket.send("Hi from client!");
+    }
+
+    socket.onmessage = (event) => {
+        let message = JSON.parse(event.data);
+        console.log("Received data from server: ", message);
+    }
+
+    socket.onclose = event => {
+        console.log("Socket Closed Connection: ", event);
+        socket.send("Client Closed!")
+    };
+
+    socket.onerror = error => {
+        console.log("Socket Error: ", error);
+    };
+}
 
 function pickResponseText(score) {
     let response;
@@ -23,11 +50,10 @@ export function showGameOverScreen() {
 
     const nameInput = document.getElementById("nameInput");
     const submitButton = document.getElementById("submitScoreButton");
-    const gameOverTextEl = document.getElementById("gameOverText");
-    let gameOverText = gameOverTextEl.textContent.replace('{responseText}', responseText)
-                                                 .replace('{score}', gameStatus.statistic.score);
+    let gameOverText = gameOverTextTemp.replace('{responseText}', responseText)
+                                       .replace('{score}', gameStatus.statistic.score);
 
-    gameOverTextEl.textContent = gameOverText;
+    document.getElementById("gameOverText").textContent = gameOverText;
     document.getElementById("gameOverBox").style.display = "flex";
     document.getElementById("screenOverlay").style.display = "block";
     nameInput.focus();
@@ -41,11 +67,21 @@ export function showGameOverScreen() {
             gameStatus.readyToSubmitName = false;
         }
     })
-    
 }
 
 export function submitScore() {
     const nameInputEl = document.getElementById("nameInput");
+    
+    //Send last game's data to server
+    const lastGameData = {
+        name: nameInputEl.value,
+        score: gameStatus.statistic.score,
+        time: document.getElementById("mainTimer").textContent,
+    }
+    
+    socket.send(JSON.stringify(lastGameData));
+
+    //Close and reset game over elements
     nameInputEl.value = "";
     nameInputEl.blur();
     document.getElementById("submitScoreButton").disabled = true;

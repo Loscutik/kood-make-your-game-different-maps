@@ -1,8 +1,10 @@
+//Bug - Sometimes 3rd heart has animation paused when being removed
+
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
 import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS } from "./gameStatusHandler.js"
-import { submitScore } from "./scoreboardHandler.js";
+import { startWebSocket, submitScore } from "./scoreboardHandler.js";
 
 /*----------------------------------------------------------------*/
 
@@ -11,6 +13,7 @@ window.addEventListener("DOMContentLoaded", function () {
     buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
     buttonListener("submitScoreButton", submitScore);
+    startWebSocket();
 });
 
 /*----------------------------------------------------------------*/
