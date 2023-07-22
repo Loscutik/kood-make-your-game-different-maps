@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -8,19 +10,64 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type Message struct {
+	Type    string      `json:"type"`
+	Payload interface{} `json:"payload"`
+}
+
 var upgrader = websocket.Upgrader{}
 
-func sendScores(conn *websocket.Conn) {
+func sendScoresToClient(conn *websocket.Conn) {
+	//Get scores
 	scores, err := getAllScores()
 	if err != nil {
 		log.Printf("Failed to get all scores: %v", err)
 		return
 	}
 
+	//Create message
+	message := Message{
+		Type:    "scoreboard",
+		Payload: scores,
+	}
+
+	//Marshal the message
+	messageJson, err := json.Marshal(message)
+	if err != nil {
+		log.Printf("Failed to marshal message: %v", err)
+		return
+	}
+
 	//Send scores to front-end
-	if err := conn.WriteMessage(websocket.TextMessage, scores); err != nil {
+	if err := conn.WriteMessage(websocket.TextMessage, messageJson); err != nil {
 		log.Printf("Failed to send scores %v", err)
 	}
+}
+
+//If sent message was new entry, get the payload, add to database and send upadated scores to client
+func handleAddEntry(message Message, conn *websocket.Conn) error {
+	//Unmarshal the payload into a Score
+	payloadBytes, err := json.Marshal(message.Payload)
+	if err != nil {
+		return fmt.Errorf("error when marshaling payload: %w", err)
+	}
+	var score Score
+	err = json.Unmarshal(payloadBytes, &score)
+	if err != nil {
+		return fmt.Errorf("error when unmarshaling payload into score %w", err)
+	}
+
+	//Add score to json database
+	log.Println("Received score:", score)
+	err = addScore(score)
+	if err != nil {
+		return fmt.Errorf("error when adding score to database: %w", err)
+	}
+
+	//Send updated scoreboard
+	sendScoresToClient(conn)
+
+	return nil
 }
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
@@ -33,33 +80,52 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	//After establishing connection get and send all scores
-	sendScores(conn)
+	sendScoresToClient(conn)
 
 	//The event loop
 	for {
-		_, newScore, err := conn.ReadMessage()
+		//Wait for new message
+		_, messageJson, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error during message reading:", err)
 			break
 		}
-		log.Printf("Received score: %s", newScore)
-		err = addScore(newScore)
+
+		//Unmarshal message
+		var message Message
+		err = json.Unmarshal(messageJson, &message)
 		if err != nil {
-			log.Println("Error when adding score to database:", err)
+			log.Println("Error unmarshaling message:", err)
 		}
-		//Send update scoreboard
-		sendScores(conn)
+
+		//Check message type
+		switch message.Type {
+		case "addEntry":
+			if err := handleAddEntry(message, conn); err != nil {
+				log.Println(err)
+			}
+		case "getRankAndPercentile":
+			//TODO: This could be also separate function
+			score, ok := message.Payload.(float64)
+			if !ok {
+				log.Println("Invalid payload for getRankAndPercentile")
+				return
+			}
+			getRankAndPercentile(score)
+		default:
+			log.Println("Unknown type message received:", message.Type)
+		}
 	}
 }
 
 //Handle the main page
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	temp, err := template.ParseFiles("index.html")
+	tmpl, err := template.ParseFiles("index.html")
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusInternalServerError)
 		return
 	}
-	if e := temp.Execute(w, ""); e != nil {
+	if e := tmpl.Execute(w, ""); e != nil {
 		http.Redirect(w, r, "/", http.StatusInternalServerError)
 	}
 }

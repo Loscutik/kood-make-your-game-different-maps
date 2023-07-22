@@ -9,12 +9,6 @@ import (
 // server for running the game
 func main() {
 
-	//Open the database file
-	if err := initDB("./scoreboard.db"); err != nil {
-		log.Fatal(err)
-	}
-	defer closeDB()
-
 	//Set configurations for server
 	myhttp := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("./static/"))
