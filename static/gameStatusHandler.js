@@ -6,7 +6,7 @@ import { showGameOverScreen } from "./scoreboardHandler.js";
 
 const constantElements = {
     fpsDisplay: document.getElementById("fpsDisplay"),
-    mainTimer: document.getElementById('mainTimer'),
+    mainTimer: document.getElementById("mainTimer"),
     scoreSpan: document.getElementById("score"),
     linesSpan: document.getElementById("lines"),
     levelSpan: document.getElementById("level"),

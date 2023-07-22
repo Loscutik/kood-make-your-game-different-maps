@@ -8,10 +8,23 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{} // use default options
+var upgrader = websocket.Upgrader{}
+
+func sendScores(conn *websocket.Conn) {
+	scores, err := getAllScores()
+	if err != nil {
+		log.Printf("Failed to get all scores: %v", err)
+		return
+	}
+
+	//Send scores to front-end
+	if err := conn.WriteMessage(websocket.TextMessage, scores); err != nil {
+		log.Printf("Failed to send scores %v", err)
+	}
+}
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
-	// upgrade raw HTTP connection to a websocket based one
+	//Upgrade raw HTTP connection to a websocket based one
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("Error during connection upgradation:", err)
@@ -19,23 +32,27 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// The event loop
+	//After establishing connection get and send all scores
+	sendScores(conn)
+
+	//The event loop
 	for {
-		messageType, message, err := conn.ReadMessage()
+		_, newScore, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Error during message reading:", err)
 			break
 		}
-		log.Printf("Received: %s", message)
-		err = conn.WriteMessage(messageType, message)
+		log.Printf("Received score: %s", newScore)
+		err = addScore(newScore)
 		if err != nil {
-			log.Println("Error during message writing:", err)
-			break
+			log.Println("Error when adding score to database:", err)
 		}
+		//Send update scoreboard
+		sendScores(conn)
 	}
 }
 
-// handle the main page
+//Handle the main page
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	temp, err := template.ParseFiles("index.html")
 	if err != nil {

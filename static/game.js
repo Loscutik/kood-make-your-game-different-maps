@@ -4,16 +4,18 @@ import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
 import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS } from "./gameStatusHandler.js"
-import { startWebSocket, submitScore } from "./scoreboardHandler.js";
+import { startWebSocket, submitScore, prevScoresPage, nextScoresPage } from "./scoreboardHandler.js";
 
 /*----------------------------------------------------------------*/
 
 window.addEventListener("DOMContentLoaded", function () {
+    startWebSocket();
     buttonListener("startButton", startGame);
     buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
+    buttonListener("leftNavBtn", prevScoresPage);
+    buttonListener("rightNavBtn", nextScoresPage);
     buttonListener("submitScoreButton", submitScore);
-    startWebSocket();
 });
 
 /*----------------------------------------------------------------*/
