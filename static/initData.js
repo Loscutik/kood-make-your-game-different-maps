@@ -120,4 +120,4 @@ export const responseTexts = {
     "high": ["Unstoppable!", "Excellent work!"],
 };
 
-export const gameOverTextTemp = "{responseText} You've scored {score} points, ranking at position #XX on scoreboard, which puts you in the top XX% of all players.";
+export const gameOverTextTemp = "{responseText} You've scored {score} points, ranking at position #{rank} on scoreboard, which puts you in the top {percentile}% of all players.";

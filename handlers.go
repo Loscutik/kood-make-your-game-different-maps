@@ -15,13 +15,18 @@ type Message struct {
 	Payload interface{} `json:"payload"`
 }
 
+type RankAndPercentile struct {
+	Rank       int
+	Percentile string
+}
+
 var upgrader = websocket.Upgrader{}
 
 func sendScoresToClient(conn *websocket.Conn) {
 	//Get scores
 	scores, err := getAllScores()
 	if err != nil {
-		log.Printf("Failed to get all scores: %v", err)
+		log.Printf("failed to get all scores: %v", err)
 		return
 	}
 
@@ -34,17 +39,17 @@ func sendScoresToClient(conn *websocket.Conn) {
 	//Marshal the message
 	messageJson, err := json.Marshal(message)
 	if err != nil {
-		log.Printf("Failed to marshal message: %v", err)
+		log.Printf("failed to marshal message: %v", err)
 		return
 	}
 
 	//Send scores to front-end
 	if err := conn.WriteMessage(websocket.TextMessage, messageJson); err != nil {
-		log.Printf("Failed to send scores %v", err)
+		log.Printf("failed to send scores %v", err)
 	}
 }
 
-//If sent message was new entry, get the payload, add to database and send upadated scores to client
+//If new entry received, get the payload, add to database and send upadated scores to client
 func handleAddEntry(message Message, conn *websocket.Conn) error {
 	//Unmarshal the payload into a Score
 	payloadBytes, err := json.Marshal(message.Payload)
@@ -70,11 +75,50 @@ func handleAddEntry(message Message, conn *websocket.Conn) error {
 	return nil
 }
 
+//If rank and percentile was requested, calculate them and send back
+func handleGetRankAndPercentile(message Message, conn *websocket.Conn) error {
+	//Get score from payload
+	score, ok := message.Payload.(float64)
+	if !ok {
+		return fmt.Errorf("invalid payload for getRankAndPercentile")
+	}
+	//Get rand and percentile
+	rank, percentile, err := getRankAndPercentile(score)
+	if err != nil {
+		return fmt.Errorf("couldn't get rank and percentile %w", err)
+	}
+
+	//Create payload
+	payload := RankAndPercentile{
+		Rank:       rank,
+		Percentile: percentile,
+	}
+
+	//Create message
+	newMessage := Message{
+		Type:    "rankAndPercentile",
+		Payload: payload,
+	}
+
+	//Marshal the message
+	newMessageJson, err := json.Marshal(newMessage)
+	if err != nil {
+		return fmt.Errorf("failed to marshal message: %w", err)
+	}
+
+	//Send scores to front-end
+	if err := conn.WriteMessage(websocket.TextMessage, newMessageJson); err != nil {
+		return fmt.Errorf("failed to send scores %w", err)
+	}
+
+	return nil
+}
+
 func socketHandler(w http.ResponseWriter, r *http.Request) {
 	//Upgrade raw HTTP connection to a websocket based one
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Print("Error during connection upgradation:", err)
+		log.Print("error during connection upgradation:", err)
 		return
 	}
 	defer conn.Close()
@@ -87,7 +131,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		//Wait for new message
 		_, messageJson, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("Error during message reading:", err)
+			log.Println("error during message reading:", err)
 			break
 		}
 
@@ -95,7 +139,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		var message Message
 		err = json.Unmarshal(messageJson, &message)
 		if err != nil {
-			log.Println("Error unmarshaling message:", err)
+			log.Println("error unmarshaling message:", err)
 		}
 
 		//Check message type
@@ -105,15 +149,11 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 			}
 		case "getRankAndPercentile":
-			//TODO: This could be also separate function
-			score, ok := message.Payload.(float64)
-			if !ok {
-				log.Println("Invalid payload for getRankAndPercentile")
-				return
+			if err := handleGetRankAndPercentile(message, conn); err != nil {
+				log.Println(err)
 			}
-			getRankAndPercentile(score)
 		default:
-			log.Println("Unknown type message received:", message.Type)
+			log.Println("unknown type message received:", message.Type)
 		}
 	}
 }

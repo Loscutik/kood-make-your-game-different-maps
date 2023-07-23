@@ -2,7 +2,7 @@ import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
 import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS } from "./gameStatusHandler.js"
-import { startWebSocket, submitScore, prevScoresPage, nextScoresPage } from "./scoreboardHandler.js";
+import { startWebSocket, submitScore, prevScoresPage, nextScoresPage, nameInputEventListener } from "./scoreboardHandler.js";
 
 /*----------------------------------------------------------------*/
 
@@ -14,6 +14,7 @@ window.addEventListener("DOMContentLoaded", function () {
     buttonListener("leftNavBtn", prevScoresPage);
     buttonListener("rightNavBtn", nextScoresPage);
     buttonListener("submitScoreButton", submitScore);
+    nameInputEventListener();
 });
 
 /*----------------------------------------------------------------*/

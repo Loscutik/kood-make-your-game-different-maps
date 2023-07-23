@@ -76,6 +76,29 @@ func addScore(newScore Score) error {
 	return encoder.Encode(scores)
 }
 
-func getRankAndPercentile(score float64) {
-	fmt.Println(score)
+func getRankAndPercentile(newScore float64) (int, string, error) {
+	//Get score entries as an array
+	scoreEntries, err := readJSONFile()
+	if err != nil {
+		return 0, "", err
+	}
+	//Get only the scores itself
+	onlyScores := make([]int, len(scoreEntries))
+	for i, entry := range scoreEntries {
+		onlyScores[i] = entry.Score
+	}
+	//Sort the scores to descending order
+	sort.Slice(onlyScores, func(i, j int) bool {
+		return onlyScores[i] > onlyScores[j]
+	})
+
+	//Get rank
+	rank := 1 + sort.Search(len(onlyScores), func(i int) bool {
+		return onlyScores[i] <= int(newScore)
+	})
+
+	//Get percentile
+	percentile := fmt.Sprintf("%.1f", (float64(rank)/float64(len(onlyScores)+1))*100.0)
+
+	return rank, percentile, nil
 }

@@ -1,6 +1,6 @@
 import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
-import { showGameOverScreen } from "./scoreboardHandler.js";
+import { sendScoreForRankAndPercentile } from "./scoreboardHandler.js";
 
 /*-----------------------------------------------*/
 
@@ -324,7 +324,7 @@ export function pickAndShowNextTetromino() {
 /*-----------------------------------------------*/
 
 export function gameOver() {
-    showGameOverScreen();
+    sendScoreForRankAndPercentile();
     gameStatus.isOver = true;
 }
 

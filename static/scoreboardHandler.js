@@ -1,6 +1,6 @@
 //TODO: atm when new score is added, it jumps to page 1. Is that good behaviour?
 //TODO: Restructure files - go files to separate folder?
-//TODO: Show rank and percentile in game over window
+//TODO: Rank system could take into account multiple same scores
 //Bug - Sometimes 3rd heart has animation paused when being removed
 
 import { gameStatus } from "./gameStatusHandler.js";
@@ -17,6 +17,7 @@ const scoreboard = {
 const constantDOMElements = {
     navPageNumberEl: document.getElementById("navPageNumber"),
     scoresWrappersEl: document.getElementsByClassName("scoresWrapper"),
+    nameInput: document.getElementById("nameInput"),
 }
 
 //In this startWebSocket func may be redundant things, just trying to understand how it works
@@ -30,35 +31,30 @@ export function startWebSocket() {
 
     socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
-    
         if (message.type === 'scoreboard') {
             scoreboard.allCurrentScores = message.payload;
-            updateScoreboard(true);
-        }
+            updatePageNumber(true);
+            updateScoreboard();
+        } else if (message.type === 'rankAndPercentile') {
+            showGameOverScreen(message.payload);
+        };
     }
-
-    socket.onclose = event => {
-        console.log("Socket Closed Connection: ", event);
-        socket.send("Client Closed!")
-    };
-
-    socket.onerror = error => {
-        console.log("Socket Error: ", error);
-    };
 }
 
-function updateScoreboard(reset) {
+function updatePageNumber(reset) {
     if (reset) {
-    //Set current page number to 1 and update total amount
-    scoreboard.currentPage = 1;
-    scoreboard.totalPages = Math.ceil(scoreboard.allCurrentScores.length / 5);
+        //Set current page number to 1 and update total amount
+        scoreboard.currentPage = 1;
+        scoreboard.totalPages = Math.ceil(scoreboard.allCurrentScores.length / 5);
     }
-    
+        
     //Update current page number
     constantDOMElements.navPageNumberEl.innerHTML = scoreboard.currentPage + 
-                                                 "/" + 
-                                                 scoreboard.totalPages;
+                                                    "/" + 
+                                                    scoreboard.totalPages;
+}
 
+function updateScoreboard() {
     //Update top scores
     for (let i = 0; i < 5; i++) {
         const scoreEntryElements = constantDOMElements.scoresWrappersEl[i].children;
@@ -87,6 +83,7 @@ export function nextScoresPage() {
         scoreboard.currentPage += 1;
     }
 
+    updatePageNumber();
     updateScoreboard();
 }
 
@@ -97,6 +94,7 @@ export function prevScoresPage() {
         scoreboard.currentPage -= 1;
     }
 
+    updatePageNumber();
     updateScoreboard();
 }
 
@@ -115,7 +113,7 @@ function pickResponseText(score) {
     return response[randomIndex];
 }
 
-function sendScoreForRankAndPercentile() {
+export function sendScoreForRankAndPercentile() {
     const message = {
         type: "getRankAndPercentile",
         payload: gameStatus.statistic.score
@@ -124,24 +122,9 @@ function sendScoreForRankAndPercentile() {
     socket.send(JSON.stringify(message));
 }
 
-export function showGameOverScreen() {
-    gameStatus.gameOverScreen = true;
-
-    sendScoreForRankAndPercentile();
-
-    const responseText = pickResponseText(gameStatus.statistic.score);
-
-    const nameInput = document.getElementById("nameInput");
+export function nameInputEventListener() {
     const submitButton = document.getElementById("submitScoreButton");
-    let gameOverText = gameOverTextTemp.replace('{responseText}', responseText)
-                                       .replace('{score}', gameStatus.statistic.score);
-
-    document.getElementById("gameOverText").textContent = gameOverText;
-    document.getElementById("gameOverBox").style.display = "flex";
-    document.getElementById("screenOverlay").style.display = "block";
-    nameInput.focus();
-
-    nameInput.addEventListener("input", function() {
+    constantDOMElements.nameInput.addEventListener("input", function() {
         if (this.value.trim() !== "") {
             submitButton.disabled = false;
             gameStatus.readyToSubmitName = true;
@@ -150,6 +133,22 @@ export function showGameOverScreen() {
             gameStatus.readyToSubmitName = false;
         }
     })
+}
+
+function showGameOverScreen(rankAndPercentile) {
+    gameStatus.gameOverScreen = true;
+
+    const responseText = pickResponseText(gameStatus.statistic.score);
+
+    let gameOverText = gameOverTextTemp.replace('{responseText}', responseText)
+                                       .replace('{score}', gameStatus.statistic.score)
+                                       .replace('{rank}', rankAndPercentile["Rank"])
+                                       .replace('{percentile}', rankAndPercentile["Percentile"]);
+
+    document.getElementById("gameOverText").textContent = gameOverText;
+    document.getElementById("gameOverBox").style.display = "flex";
+    document.getElementById("screenOverlay").style.display = "block";
+    constantDOMElements.nameInput.focus();
 }
 
 export function submitScore() {
