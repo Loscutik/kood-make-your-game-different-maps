@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 )
@@ -94,28 +95,36 @@ func addScore(newScore Score) error {
 }
 
 func getRankAndPercentile(newScore float64) (int, string, error) {
-	//Get score entries as an array
-	scoreEntries, err := readJSONFile()
+	//Get all current scores
+	scores, err := getAllScores()
 	if err != nil {
 		return 0, "", err
 	}
-	//Get only the scores itself
-	onlyScores := make([]int, len(scoreEntries))
-	for i, entry := range scoreEntries {
-		onlyScores[i] = entry.Score
-	}
-	//Sort the scores to descending order
-	sort.Slice(onlyScores, func(i, j int) bool {
-		return onlyScores[i] > onlyScores[j]
-	})
 
 	//Get rank
-	rank := 1 + sort.Search(len(onlyScores), func(i int) bool {
-		return onlyScores[i] <= int(newScore)
-	})
+	var rank int
+	var percentile string
+	greatestRank := scores[len(scores)-1].Rank
+	for _, score := range scores {
+		if score.Score <= int(newScore) {
+			rank = score.Rank
+			break
+		}
+	}
 
-	//Get percentile
-	percentile := fmt.Sprintf("%.1f", (float64(rank)/float64(len(onlyScores)+1))*100.0)
+	if rank == 0 { //Edge case, if player is last in scoreboard
+		rank = greatestRank + 1
+		percentile = "100"
+	} else {
+		//Get percentile
+		percentileValue := float64(rank) / float64(greatestRank) * 100.0
+		percentileValue = math.Round(percentileValue*10) / 10 //Round to 1 decimal point
+		if percentileValue == float64(int(percentileValue)) { //If decimal point is zero, don't show it
+			percentile = fmt.Sprintf("%.0f", percentileValue)
+		} else {
+			percentile = fmt.Sprintf("%.1f", percentileValue)
+		}
+	}
 
 	return rank, percentile, nil
 }
