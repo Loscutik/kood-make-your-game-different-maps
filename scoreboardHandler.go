@@ -117,6 +117,9 @@ func getRankAndPercentile(newScore float64) (int, string, error) {
 		percentile = "100"
 	} else {
 		//Get percentile
+		if scores[len(scores)-1].Score < int(newScore) { //Shift ranks if new score isn't the last one
+			greatestRank += 1
+		}
 		percentileValue := float64(rank) / float64(greatestRank) * 100.0
 		percentileValue = math.Round(percentileValue*10) / 10 //Round to 1 decimal point
 		if percentileValue == float64(int(percentileValue)) { //If decimal point is zero, don't show it
