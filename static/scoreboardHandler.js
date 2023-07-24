@@ -20,7 +20,6 @@ const constantDOMElements = {
     nameInput: document.getElementById("nameInput"),
 }
 
-//In this startWebSocket func may be redundant things, just trying to understand how it works
 export function startWebSocket() {
     socket = new WebSocket("ws://localhost:8080/socket");
     console.log("Attempting connection to server...");

@@ -46,8 +46,25 @@ func getAllScores() (scores []Score, err error) {
 	})
 
 	//Add ranks to scores
+	currentRank := 1
+	skipRank := 0
 	for i := range scores {
-		scores[i].Rank = i + 1
+		//For first score entry just add rank and continue
+		if i == 0 {
+			scores[i].Rank = currentRank
+			continue
+		}
+
+		//If entry is same as previous, don't increase rank, but save the difference
+		if scores[i].Score == scores[i-1].Score {
+			skipRank += 1
+		} else if scores[i].Score < scores[i-1].Score { //If entry is different, increase rank including skipped ranks
+			currentRank += 1 + skipRank
+			skipRank = 0
+		}
+
+		//Add rank to entry
+		scores[i].Rank = currentRank
 	}
 
 	return scores, nil
