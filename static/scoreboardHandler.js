@@ -30,12 +30,23 @@ export function startWebSocket() {
 
     socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        if (message.type === 'scoreboard') {
-            scoreboard.allCurrentScores = message.payload;
-            updatePageNumber(true);
-            updateScoreboard();
-        } else if (message.type === 'rankAndPercentile') {
-            showGameOverScreen(message.payload);
+        switch (message.type) {
+            case 'scoreboard_start':
+                scoreboard.allCurrentScores = message.payload;
+                scoreboard.currentPage =1;
+                updatePageNumber(true);
+                updateScoreboard();
+                break;
+            case 'rankAndPercentile':
+                showGameOverScreen(message.payload);
+                scoreboard.currentPage = Math.ceil(message.payload.Position / 5);
+                console.log(message.payload)
+                break;
+            case 'scoreboard_added':
+                scoreboard.allCurrentScores = message.payload;
+                updatePageNumber(true);
+                updateScoreboard();
+                break;
         };
     }
 }
@@ -43,21 +54,21 @@ export function startWebSocket() {
 function updatePageNumber(reset) {
     if (reset) {
         //Set current page number to 1 and update total amount
-        scoreboard.currentPage = 1;
+        //scoreboard.currentPage = 1;
         scoreboard.totalPages = Math.ceil(scoreboard.allCurrentScores.length / 5);
     }
-        
+
     //Update current page number
-    constantDOMElements.navPageNumberEl.innerHTML = scoreboard.currentPage + 
-                                                    "/" + 
-                                                    scoreboard.totalPages;
+    constantDOMElements.navPageNumberEl.innerHTML = scoreboard.currentPage +
+        "/" +
+        scoreboard.totalPages;
 }
 
 function updateScoreboard() {
     //Update top scores
     for (let i = 0; i < 5; i++) {
         const scoreEntryElements = constantDOMElements.scoresWrappersEl[i].children;
-        let scoreEntryData = scoreboard.allCurrentScores[i + (5 * (scoreboard.currentPage-1))];
+        let scoreEntryData = scoreboard.allCurrentScores[i + (5 * (scoreboard.currentPage - 1))];
 
         if (scoreEntryData === undefined) {
             scoreEntryData = {
@@ -117,13 +128,13 @@ export function sendScoreForRankAndPercentile() {
         type: "getRankAndPercentile",
         payload: gameStatus.statistic.score
     }
-    
+
     socket.send(JSON.stringify(message));
 }
 
 export function nameInputEventListener() {
     const submitButton = document.getElementById("submitScoreButton");
-    constantDOMElements.nameInput.addEventListener("input", function() {
+    constantDOMElements.nameInput.addEventListener("input", function () {
         if (this.value.trim() !== "") {
             submitButton.disabled = false;
             gameStatus.readyToSubmitName = true;
@@ -140,9 +151,9 @@ function showGameOverScreen(rankAndPercentile) {
     const responseText = pickResponseText(gameStatus.statistic.score);
 
     let gameOverText = gameOverTextTemp.replace('{responseText}', responseText)
-                                       .replace('{score}', gameStatus.statistic.score)
-                                       .replace('{rank}', rankAndPercentile["Rank"])
-                                       .replace('{percentile}', rankAndPercentile["Percentile"]);
+        .replace('{score}', gameStatus.statistic.score)
+        .replace('{rank}', rankAndPercentile["Rank"])
+        .replace('{percentile}', rankAndPercentile["Percentile"]);
 
     document.getElementById("gameOverText").textContent = gameOverText;
     document.getElementById("gameOverBox").style.display = "flex";
@@ -152,7 +163,7 @@ function showGameOverScreen(rankAndPercentile) {
 
 export function submitScore() {
     const nameInputEl = document.getElementById("nameInput");
-    
+
     //Send last game's data to server
     const lastGameData = {
         name: nameInputEl.value,
@@ -164,7 +175,7 @@ export function submitScore() {
         type: "addEntry",
         payload: lastGameData
     }
-    
+
     socket.send(JSON.stringify(message));
 
     //Close and reset game over elements
@@ -175,4 +186,5 @@ export function submitScore() {
     document.getElementById("screenOverlay").style.display = "none";
     gameStatus.readyToSubmitName = false;
     gameStatus.gameOverScreen = false;
+
 }
