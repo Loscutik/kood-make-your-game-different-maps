@@ -8,6 +8,7 @@ import { startWebSocket, submitScore, prevScoresPage, nextScoresPage, nameInputE
 
 window.addEventListener("DOMContentLoaded", function () {
     startWebSocket();
+    document.getElementById("startButton").focus();
     buttonListener("startButton", startGame);
     buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
@@ -78,10 +79,6 @@ class InputHandler {
                 case "r":
                 case "R":
                     if (!gameStatus.startScreen && !gameStatus.gameOverScreen) renewGame(e);
-                    break;
-                case "Enter":
-                    if (gameStatus.startScreen) startGame();
-                    else if (gameStatus.readyToSubmitName) submitScore();
                     break;
             }
         });

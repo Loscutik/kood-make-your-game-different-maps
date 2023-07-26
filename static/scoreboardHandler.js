@@ -37,7 +37,6 @@ export function startWebSocket() {
             case 'rankAndPercentile':
                 showGameOverScreen(message.payload);
                 scoreboard.currentPage = Math.ceil(message.payload.Position / 5);
-                console.log(message.payload)
                 break;
             case 'scoreboard_added':
                 scoreboard.allCurrentScores = message.payload;
@@ -133,11 +132,13 @@ export function nameInputEventListener() {
     constantDOMElements.nameInput.addEventListener("input", function () {
         if (this.value.trim() !== "") {
             submitButton.disabled = false;
-            gameStatus.readyToSubmitName = true;
         } else {
             submitButton.disabled = true;
-            gameStatus.readyToSubmitName = false;
         }
+        
+    })
+    constantDOMElements.nameInput.addEventListener("keydown", function (event) {
+        if (event.key ==='Enter'&& this.value.trim() !== "") submitScore()
     })
 }
 
@@ -180,7 +181,6 @@ export function submitScore() {
     document.getElementById("submitScoreButton").disabled = true;
     document.getElementById("gameOverBox").style.display = "none";
     document.getElementById("screenOverlay").style.display = "none";
-    gameStatus.readyToSubmitName = false;
     gameStatus.gameOverScreen = false;
 
 }

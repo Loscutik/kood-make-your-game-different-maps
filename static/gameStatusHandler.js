@@ -17,7 +17,6 @@ const constantElements = {
 export let gameStatus = {
     startScreen: true,
     gameOverScreen: false,
-    readyToSubmitName: false,
     isOver: false,
     startTime: undefined,
     prevAnimationTime: undefined,
