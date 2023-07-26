@@ -290,6 +290,7 @@ function resetHearts() {
     [...hearts].forEach(heart => {
         heart.classList.remove("removedHeart");
         heart.classList.remove("heartBlinkLastSecs");
+        heart.style.animationPlayState = "running";
         heart.style.opacity = "1";
     });
 

@@ -1,7 +1,4 @@
-//TODO: atm when new score is added, it jumps to page 1. Is that good behaviour?
 //TODO: Restructure files - go files to separate folder?
-//TODO: Rank system could take into account multiple same scores
-//Bug - Sometimes 3rd heart has animation paused when being removed
 
 import { gameStatus } from "./gameStatusHandler.js";
 import { responseTexts, gameOverTextTemp } from "./initData.js";
@@ -53,8 +50,7 @@ export function startWebSocket() {
 
 function updatePageNumber(reset) {
     if (reset) {
-        //Set current page number to 1 and update total amount
-        //scoreboard.currentPage = 1;
+        //Update total page amount
         scoreboard.totalPages = Math.ceil(scoreboard.allCurrentScores.length / 5);
     }
 
