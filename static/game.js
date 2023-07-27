@@ -38,6 +38,7 @@ function renewGame(event) {
 /*----------------------------------------------------------------*/
 
 function startGame() {
+    document.getElementById("startButton").blur();
     document.getElementById("startBox").style.display = "none";
     document.getElementById("screenOverlay").style.display = "none";
     const now = performance.now()
