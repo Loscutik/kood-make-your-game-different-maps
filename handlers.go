@@ -15,101 +15,105 @@ type Message struct {
 	Payload interface{} `json:"payload"`
 }
 
-type RankAndPercentile struct {
+type Ranking struct {
 	Rank       int
 	Percentile string
-	Position int
+	Position   int
 }
 
 var upgrader = websocket.Upgrader{}
 
-func sendScoresToClient(conn *websocket.Conn,kind string) {
-	// Get scores
-	scores, err := getAllScores()
-	if err != nil {
-		log.Printf("failed to get all scores: %v", err)
-		return
+// implement Unmarshaler interface
+func (m *Message) UnmarshalJSON(data []byte) error {
+	type copyMessage Message
+	var tmpMessage copyMessage
+	json.Unmarshal(data, &tmpMessage)
+	if tmpMessage.Type == "addEntry" {
+		jsonObjectOfPayload, err := json.Marshal(tmpMessage.Payload)
+		if err != nil {
+			return fmt.Errorf("error when marshaling payload: %w", err)
+		}
+
+		var score Score
+		err = json.Unmarshal(jsonObjectOfPayload, &score)
+		if err != nil {
+			return fmt.Errorf("error when unmarshaling payload into score %w", err)
+		}
+
+		m.Type = tmpMessage.Type
+		m.Payload = score
+		return nil
 	}
 
-	// Create message
-	message := Message{
-		Type:    "scoreboard"+"_"+kind,
-		Payload: scores,
-	}
-
-	// Marshal the message
-	messageJson, err := json.Marshal(message)
-	if err != nil {
-		log.Printf("failed to marshal message: %v", err)
-		return
-	}
-
-	// Send scores to front-end
-	if err := conn.WriteMessage(websocket.TextMessage, messageJson); err != nil {
-		log.Printf("failed to send scores %v", err)
-	}
+	*m = Message(tmpMessage)
+	return nil
 }
 
 // If new entry received, get the payload, add to database and send upadated scores to client
-func handleAddEntry(message Message, conn *websocket.Conn) error {
-	// Unmarshal the payload into a Score
-	payloadBytes, err := json.Marshal(message.Payload)
-	if err != nil {
-		return fmt.Errorf("error when marshaling payload: %w", err)
-	}
-	var score Score
-	err = json.Unmarshal(payloadBytes, &score)
-	if err != nil {
-		return fmt.Errorf("error when unmarshaling payload into score %w", err)
+func saveScore(message Message) error {
+	score, ok := message.Payload.(Score)
+	if !ok {
+		return fmt.Errorf("invalid payload for scores in message %#v", message)
 	}
 
-	// Add score to json database
-	log.Println("Received score:", score)
-	err = addScore(score)
+	err := writeScoreToFile(score)
 	if err != nil {
 		return fmt.Errorf("error when adding score to database: %w", err)
 	}
 
-	// Send updated scoreboard
-	sendScoresToClient(conn, "added")
+	return nil
+}
+
+func sendScoresToClient(conn *websocket.Conn, typeSuffix string) error {
+	// Get scores
+	scores, err := getAllScores()
+	if err != nil {
+		return fmt.Errorf("failed to get all scores: %v", err)
+		
+	}
+
+	// Create message
+	message := Message{
+		Type:    "scoreboard" + "_" + typeSuffix,
+		Payload: scores,
+	}
+
+	// Send scores to front-end
+	if err := conn.WriteJSON(message); err != nil {
+		return fmt.Errorf("failed to send scores %w", err)
+	}
 
 	return nil
 }
 
 // If rank and percentile was requested, calculate them and send back
-func handleGetRankAndPercentile(message Message, conn *websocket.Conn) error {
+func getRanking(message Message)( Ranking, error) {
 	// Get score from payload
 	score, ok := message.Payload.(float64)
 	if !ok {
-		return fmt.Errorf("invalid payload for getRankAndPercentile")
+		return Ranking{} , fmt.Errorf("invalid payload for getRankAndPercentile")
 	}
-	// Get rand and percentile
-	rank, percentile, position, err := getRankAndPercentile(score)
+	// Get rank and percentile
+	rank, percentile, position, err := calcRankAndPercentile(score)
 	if err != nil {
-		return fmt.Errorf("couldn't get rank and percentile %w", err)
+		return Ranking{} , fmt.Errorf("couldn't get rank and percentile %w", err)
 	}
 
-	// Create payload
-	payload := RankAndPercentile{
+	return Ranking{
 		Rank:       rank,
 		Percentile: percentile,
-		Position: position,
-	}
+		Position:   position,
+	}, nil
+}
 
+func sendRankingToClient(conn *websocket.Conn, ranking Ranking) error {
 	// Create message
-	newMessage := Message{
+	message := Message{
 		Type:    "rankAndPercentile",
-		Payload: payload,
+		Payload: ranking,
 	}
 
-	// Marshal the message
-	newMessageJson, err := json.Marshal(newMessage)
-	if err != nil {
-		return fmt.Errorf("failed to marshal message: %w", err)
-	}
-
-	// Send scores to front-end
-	if err := conn.WriteMessage(websocket.TextMessage, newMessageJson); err != nil {
+	if err := conn.WriteJSON(message); err != nil {
 		return fmt.Errorf("failed to send scores %w", err)
 	}
 
@@ -131,29 +135,31 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// The event loop
 	for {
 		// Wait for new message
-		_, messageJson, err := conn.ReadMessage()
+		var message Message
+		err := conn.ReadJSON(&message)
 		if err != nil {
 			log.Println("error during message reading:", err)
 			break
 		}
 
-		// Unmarshal message
-		var message Message
-		err = json.Unmarshal(messageJson, &message)
-		if err != nil {
-			log.Println("error unmarshaling message:", err)
-		}
-
 		// Check message type
 		switch message.Type {
 		case "addEntry":
-			if err := handleAddEntry(message, conn); err != nil {
+			if err := saveScore(message); err != nil {
+				log.Println(err)
+			}
+			if err := sendScoresToClient(conn, "added"); err != nil {
 				log.Println(err)
 			}
 		case "getRankAndPercentile":
-			if err := handleGetRankAndPercentile(message, conn); err != nil {
+			ranking,err := getRanking(message)
+			if  err != nil {
 				log.Println(err)
 			}
+			if err = sendRankingToClient(conn,ranking); err != nil {
+				log.Println(err)
+			}
+
 		default:
 			log.Println("unknown type message received:", message.Type)
 		}
