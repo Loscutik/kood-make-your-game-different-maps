@@ -326,7 +326,7 @@ export function pickAndShowNextTetromino() {
 /*-----------------------------------------------*/
 
 export function gameOver() {
-    sendScoreForRankAndPercentile();
+    sendScoreForRanking();
     gameStatus.isOver = true;
 }
 
@@ -359,41 +359,41 @@ function msToMinutesSecondsString(ms) {
 /*--------------------- GAME OVER WINDOW ---------------------*/
 
 //Before showing game over window, send current score to server to receive rank and percentile
-function sendScoreForRankAndPercentile() {
+function sendScoreForRanking() {
     const message = { 
-        type: "getRankAndPercentile",
+        type: "getRanking",
         payload: gameStatus.statistic.score
     }
 
     socket.send(JSON.stringify(message));
 
-    socket.addEventListener("message", receiveRankAndPercentile);
+    socket.addEventListener("message", receiveRanking);
 }
 
 /*-----------------------------------------------*/
 
 //If rank and percentile are received, show game over window and update current scoreboard page
-function receiveRankAndPercentile(event) {
+function receiveRanking(event) {
     const message = JSON.parse(event.data);
-    if (message.type === "rankAndPercentile") {
+    if (message.type === "ranking") {
         showGameOverModal(message.payload);
         scoreboard.currentPage = Math.ceil(message.payload.Position / 5);
-        socket.removeEventListener("message", receiveRankAndPercentile);
+        socket.removeEventListener("message", receiveRanking);
     }
 }
 
 /*-----------------------------------------------*/
 
 //Fill game over modal with relevant response text, score, rank and percentile and show it
-function showGameOverModal(rankAndPercentile) {
+function showGameOverModal(rankingData) {
     gameStatus.gameOverModal = true;
 
     const responseText = pickResponseText(gameStatus.statistic.score);
 
     let gameOverText = gameOverTextTemp.replace('{responseText}', responseText)
         .replace('{score}', gameStatus.statistic.score)
-        .replace('{rank}', rankAndPercentile["Rank"])
-        .replace('{percentile}', rankAndPercentile["Percentile"]);
+        .replace('{rank}', rankingData["Rank"])
+        .replace('{percentile}', rankingData["Percentile"]);
 
     document.getElementById("gameOverText").textContent = gameOverText;
     document.getElementById("gameOverBox").style.display = "flex";

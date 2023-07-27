@@ -69,7 +69,7 @@ func sendScoresToClient(conn *websocket.Conn, typeSuffix string) error {
 	scores, err := getAllScores()
 	if err != nil {
 		return fmt.Errorf("failed to get all scores: %v", err)
-		
+
 	}
 
 	// Create message
@@ -87,16 +87,16 @@ func sendScoresToClient(conn *websocket.Conn, typeSuffix string) error {
 }
 
 // If rank and percentile was requested, calculate them and send back
-func getRanking(message Message)( Ranking, error) {
+func getRanking(message Message) (Ranking, error) {
 	// Get score from payload
 	score, ok := message.Payload.(float64)
 	if !ok {
-		return Ranking{} , fmt.Errorf("invalid payload for getRankAndPercentile")
+		return Ranking{}, fmt.Errorf("invalid payload for getRanking")
 	}
 	// Get rank and percentile
 	rank, percentile, position, err := calcRankAndPercentile(score)
 	if err != nil {
-		return Ranking{} , fmt.Errorf("couldn't get rank and percentile %w", err)
+		return Ranking{}, fmt.Errorf("couldn't get rank and percentile %w", err)
 	}
 
 	return Ranking{
@@ -109,7 +109,7 @@ func getRanking(message Message)( Ranking, error) {
 func sendRankingToClient(conn *websocket.Conn, ranking Ranking) error {
 	// Create message
 	message := Message{
-		Type:    "rankAndPercentile",
+		Type:    "ranking",
 		Payload: ranking,
 	}
 
@@ -151,12 +151,12 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			if err := sendScoresToClient(conn, "added"); err != nil {
 				log.Println(err)
 			}
-		case "getRankAndPercentile":
-			ranking,err := getRanking(message)
-			if  err != nil {
+		case "getRanking":
+			ranking, err := getRanking(message)
+			if err != nil {
 				log.Println(err)
 			}
-			if err = sendRankingToClient(conn,ranking); err != nil {
+			if err = sendRankingToClient(conn, ranking); err != nil {
 				log.Println(err)
 			}
 
