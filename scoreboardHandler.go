@@ -71,7 +71,7 @@ func getAllScores() (scores []Score, err error) {
 	return scores, nil
 }
 
-func addScore(newScore Score) error {
+func writeScoreToFile(newScore Score) error {
 	// Get scores as an array
 	scores, err := readJSONFile()
 	if err != nil {
@@ -94,7 +94,7 @@ func addScore(newScore Score) error {
 	return encoder.Encode(scores)
 }
 
-func getRankAndPercentile(newScore float64) (int, string, int, error) {
+func calcRankAndPercentile(newScore float64) (int, string, int, error) {
 	// Get all current scores
 	scores, err := getAllScores()
 	if err != nil {
