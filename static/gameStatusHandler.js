@@ -1,6 +1,7 @@
-import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF } from "./initData.js";
+import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF, responseTexts, gameOverTextTemp } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
-import { sendScoreForRankAndPercentile } from "./scoreboardHandler.js";
+import { socket } from "./websocket.js"
+import { scoreboard } from "./scoreboardHandler.js";
 
 /*-----------------------------------------------*/
 
@@ -10,13 +11,14 @@ const constantElements = {
     scoreSpan: document.getElementById("score"),
     linesSpan: document.getElementById("lines"),
     levelSpan: document.getElementById("level"),
+    nameInput: document.getElementById("nameInput"),
 }
 
 /*-----------------------------------------------*/
 
 export let gameStatus = {
     startScreen: true,
-    gameOverScreen: false,
+    gameOverModal: false,
     isOver: false,
     startTime: undefined,
     prevAnimationTime: undefined,
@@ -352,4 +354,111 @@ function msToMinutesSecondsString(ms) {
     var minutes = String(Math.floor(ms / 60000));
     var seconds = ((ms % 60000) / 1000).toFixed(0);
     return minutes.padStart(2,'0') + ":" + seconds.padStart(2,'0');
+}
+
+/*--------------------- GAME OVER WINDOW ---------------------*/
+
+//Before showing game over window, send current score to server to receive rank and percentile
+function sendScoreForRankAndPercentile() {
+    const message = { 
+        type: "getRankAndPercentile",
+        payload: gameStatus.statistic.score
+    }
+
+    socket.send(JSON.stringify(message));
+
+    socket.addEventListener("message", receiveRankAndPercentile);
+}
+
+/*-----------------------------------------------*/
+
+//If rank and percentile are received, show game over window and update current scoreboard page
+function receiveRankAndPercentile(event) {
+    const message = JSON.parse(event.data);
+    if (message.type === "rankAndPercentile") {
+        showGameOverModal(message.payload);
+        scoreboard.currentPage = Math.ceil(message.payload.Position / 5);
+        socket.removeEventListener("message", receiveRankAndPercentile);
+    }
+}
+
+/*-----------------------------------------------*/
+
+//Fill game over modal with relevant response text, score, rank and percentile and show it
+function showGameOverModal(rankAndPercentile) {
+    gameStatus.gameOverModal = true;
+
+    const responseText = pickResponseText(gameStatus.statistic.score);
+
+    let gameOverText = gameOverTextTemp.replace('{responseText}', responseText)
+        .replace('{score}', gameStatus.statistic.score)
+        .replace('{rank}', rankAndPercentile["Rank"])
+        .replace('{percentile}', rankAndPercentile["Percentile"]);
+
+    document.getElementById("gameOverText").textContent = gameOverText;
+    document.getElementById("gameOverBox").style.display = "flex";
+    document.getElementById("screenOverlay").style.display = "block";
+    constantElements.nameInput.focus();
+}
+
+/*-----------------------------------------------*/
+
+//Pick game over response text according to player's score
+function pickResponseText(score) {
+    let response;
+    if (score === 0) {
+        response = responseTexts["zero"];
+    } else if (score < 3000) {
+        response = responseTexts["low"];
+    } else if (score < 15000) {
+        response = responseTexts["medium"];
+    } else {
+        response = responseTexts["high"];
+    }
+    let randomIndex = Math.floor(Math.random() * response.length);
+    return response[randomIndex];
+}
+
+/*-----------------------------------------------*/
+
+//If player inputs valid name (not empty spaces) make score input button active and listen for Enter press
+export function nameInputEventListener() {
+    const submitButton = document.getElementById("submitScoreButton");
+    constantElements.nameInput.addEventListener("input", function () {
+        if (this.value.trim() !== "") {
+            submitButton.disabled = false;
+        } else {
+            submitButton.disabled = true;
+        }
+        
+    })
+    constantElements.nameInput.addEventListener("keydown", function (event) {
+        if (event.key ==='Enter'&& this.value.trim() !== "") submitScore()
+    })
+}
+
+/*-----------------------------------------------*/
+
+//Send last game's data to server and close game over modal
+export function submitScore() {
+    const lastGameData = {
+        name: constantElements.nameInput.value,
+        score: gameStatus.statistic.score,
+        time: document.getElementById("mainTimer").textContent,
+    }
+
+    const message = {
+        type: "addEntry",
+        payload: lastGameData
+    }
+
+    socket.send(JSON.stringify(message));
+
+    //Close and reset game over elements
+    constantElements.nameInput.value = "";
+    constantElements.nameInput.blur();
+    document.getElementById("submitScoreButton").disabled = true;
+    document.getElementById("gameOverBox").style.display = "none";
+    document.getElementById("screenOverlay").style.display = "none";
+    gameStatus.gameOverModal = false;
 }

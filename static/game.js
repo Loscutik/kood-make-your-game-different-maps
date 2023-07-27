@@ -1,8 +1,9 @@
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS } from "./gameStatusHandler.js"
-import { startWebSocket, submitScore, prevScoresPage, nextScoresPage, nameInputEventListener } from "./scoreboardHandler.js";
+import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS, submitScore, nameInputEventListener } from "./gameStatusHandler.js"
+import { prevScoresPage, nextScoresPage } from "./scoreboardHandler.js";
+import { startWebSocket } from "./websocket.js"
 
 /*----------------------------------------------------------------*/
 
@@ -78,7 +79,7 @@ class InputHandler {
                     break;
                 case "r":
                 case "R":
-                    if (!gameStatus.startScreen && !gameStatus.gameOverScreen) renewGame(e);
+                    if (!gameStatus.startScreen && !gameStatus.gameOverModal) renewGame(e);
                     break;
             }
         });
