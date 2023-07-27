@@ -1,7 +1,8 @@
-# Make your game
+# Make your game - Scoreboard
 
-The goal for this task was to create a game using only plain JavaScript and HTML. 
-Usage of frameworks and canvas was not allowed.
+The goal for this task was to create a game using only plain JavaScript and HTML 
+(usage of frameworks and canvas was not allowed) and implement also a scoreboard
+which would run in Go server and store the scoreboard in JSON file.
 
 # Authors
 
@@ -10,7 +11,15 @@ Erik Hans Sepp (ehspp)
 
 # Usage
 
-Run the Go httpServer using `go run . `
+This project uses the Gorilla WebSocket package for handling WebSocket connections.
+Ensure you have this package installed before attempting to run the server.
+For installation run the following command in your terminal:
+
+`go get github.com/gorilla/websocket`
+
+If you have the Gorilla Websocket installed run the Go server with:
+
+`go run . `
 
 # Rules
 
