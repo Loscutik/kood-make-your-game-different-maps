@@ -2,6 +2,10 @@ import { tetrominoesData, HEART_TIME, START_SPEED, RISE_SPEED_COEFF, responseTex
 import { Tetromino } from "./tetrominoClass.js";
 import { socket } from "./websocket.js"
 import { scoreboard } from "./scoreboardHandler.js";
+import { createTetrominoElm } from "./tetrominoClass.js"
+import { gamebox } from "./gameBox.js"
+import { BOX_ROWS, BOX_COLUMNS, TILE_SIZE } from "./initData.js";
+
 
 /*-----------------------------------------------*/
 
@@ -18,6 +22,7 @@ const constantElements = {
 
 export let gameStatus = {
     startScreen: true,
+    levelOfDifficulty: 0,
     gameOverModal: false,
     isOver: false,
     startTime: undefined,
@@ -47,7 +52,7 @@ export let gameStatus = {
             this.activeStopperEl.textContent = HEART_TIME;
             this.activeSymbolEl.classList.remove("heartBlinkLastSecs");
             this.activeWrapperEl.classList.add("refillHeart");
-            setTimeout(()=>this.activeWrapperEl.classList.remove("refillHeart"),620)
+            setTimeout(() => this.activeWrapperEl.classList.remove("refillHeart"), 620)
             this.startTime = fireTime + 1000;
             this.pauseDuration = 0;
         }
@@ -119,7 +124,7 @@ export let gameStatus = {
     /*----------------*/
 
     levelUp() {
-        if ( this.statistic.completedLines / 10 >= this.statistic.level) {
+        if (this.statistic.completedLines / 10 >= this.statistic.level) {
             this.statistic.level++;
             this.currentTetromino.speed.current += RISE_SPEED_COEFF * START_SPEED;
             this.currentTetromino.delayBeforeFreeze -= 50;
@@ -171,7 +176,7 @@ export let gameStatus = {
             this.activeHeart.activeStopperEl = document.getElementsByClassName("heartStopper")[this.statistic.heartsLeft - 1];
 
             //Wait for previous hearts dissapearing animation to finish, then show seconds on next active heart
-            setTimeout( () => {
+            setTimeout(() => {
                 this.activeHeart.activeStopperEl.textContent = HEART_TIME;
             }, 500)
         }
@@ -216,6 +221,42 @@ export let gameStatus = {
 }
 
 /*-----------------------------------------------*/
+export function fillStartBox() {
+    const startMap = {
+
+        color: "gold",
+        colorCodes: ["#d5d50d", "#ff4245", "#a61b1e", "#9c191c"],
+        rows: gameStatus.levelOfDifficulty * 2,
+        cols: BOX_COLUMNS,
+        height: `${gameStatus.levelOfDifficulty * 2 * TILE_SIZE}px`,
+        width: `${BOX_COLUMNS * TILE_SIZE}px`,
+    }
+    const quantity = gameStatus.levelOfDifficulty * 4;
+    const setOfMapTiles = new Set();
+    while (setOfMapTiles.size < quantity) {
+        setOfMapTiles.add(Math.floor(Math.random() * startMap.rows * startMap.cols));
+    }
+
+    startMap.placement = Array(startMap.rows);
+    for (let r = 0; r < startMap.rows; r++) {
+        startMap.placement[r] = Array(startMap.cols);
+        for (let c = 0; c < startMap.cols; c++) {
+            startMap.placement[r][c] = false;
+        }
+
+    }
+    for (let tilenumber of setOfMapTiles) {
+        const r = Math.trunc(tilenumber / startMap.cols);
+        const c = tilenumber % startMap.cols;
+        startMap.placement[r][c] = true;
+        gamebox.grid[BOX_ROWS - startMap.rows + r][c] = true;
+    }
+    
+    createTetrominoElm(0,(BOX_ROWS  - startMap.rows)*TILE_SIZE , startMap.height, startMap.width, startMap.placement, startMap.colorCodes);
+
+}
+
+/*-----------------------------------------------*/
 
 function chooseTetrominoNumber() {
     return Math.floor(Math.random() * 7)
@@ -227,7 +268,7 @@ export function pauseResumeToggle(timeStamp) {
     const pauseBtn = document.getElementById("pauseButton");
     const pauseBtnText = document.getElementById("pauseButtonText");
     if (gameStatus.pause.is === true) {
-        const newPauseDuration =timeStamp - gameStatus.pause.startTime;
+        const newPauseDuration = timeStamp - gameStatus.pause.startTime;
         gameStatus.pause.duration += newPauseDuration;
         gameStatus.activeHeart.pauseDuration += newPauseDuration;
         togglePauseButton(pauseBtn, pauseBtnText, "PAUSE", "pauseButtonGreen", "pauseButtonBlue")
@@ -353,14 +394,14 @@ export function updateMainTimer(time) {
 function msToMinutesSecondsString(ms) {
     var minutes = String(Math.floor(ms / 60000));
     var seconds = ((ms % 60000) / 1000).toFixed(0);
-    return minutes.padStart(2,'0') + ":" + seconds.padStart(2,'0');
+    return minutes.padStart(2, '0') + ":" + seconds.padStart(2, '0');
 }
 
 /*--------------------- GAME OVER WINDOW ---------------------*/
 
 //Before showing game over window, send current score to server to receive rank and percentile
 function sendScoreForRanking() {
-    const message = { 
+    const message = {
         type: "getRanking",
         payload: gameStatus.statistic.score
     }
@@ -430,10 +471,10 @@ export function nameInputEventListener() {
         } else {
             submitButton.disabled = true;
         }
-        
+
     })
     constantElements.nameInput.addEventListener("keydown", function (event) {
-        if (event.key ==='Enter'&& this.value.trim() !== "") submitScore()
+        if (event.key === 'Enter' && this.value.trim() !== "") submitScore()
     })
 }
 

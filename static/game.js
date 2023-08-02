@@ -1,7 +1,7 @@
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS, submitScore, nameInputEventListener } from "./gameStatusHandler.js"
+import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS, submitScore, nameInputEventListener, fillStartBox } from "./gameStatusHandler.js"
 import { prevScoresPage, nextScoresPage } from "./scoreboardHandler.js";
 import { startWebSocket } from "./websocket.js"
 
@@ -11,6 +11,7 @@ window.addEventListener("DOMContentLoaded", function () {
     startWebSocket();
     document.getElementById("startButton").focus();
     buttonListener("startButton", startGame);
+    buttonListener("startMappedButton", startMappedGame);
     buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
     buttonListener("leftNavBtn", prevScoresPage);
@@ -24,7 +25,7 @@ window.addEventListener("DOMContentLoaded", function () {
 //Helper function to handle button clicks
 function buttonListener(buttonId, callback) {
     const button = document.getElementById(buttonId);
-    button.addEventListener("click", callback);
+    button.addEventListener("click", (event)=>{button.blur();callback(event)});
 }
 
 /*----------------------------------------------------------------*/
@@ -32,6 +33,7 @@ function buttonListener(buttonId, callback) {
 function renewGame(event) {
     gamebox.resetGrid();
     tetromino = restartGame(event.timeStamp);
+    if (gameStatus.levelOfDifficulty > 0) fillStartBox();
     gameLoop(event.timeStamp);
 }
 
@@ -46,6 +48,13 @@ function startGame() {
     tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
     pickAndShowNextTetromino();
     gameLoop(now);
+}
+
+/*----------------------------------------------------------------*/
+function startMappedGame() {
+    gameStatus.levelOfDifficulty = 2;
+    fillStartBox();
+    startGame();
 }
 
 /*----------------------------------------------------------------*/

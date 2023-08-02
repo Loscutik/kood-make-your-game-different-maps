@@ -13,6 +13,8 @@ class Gamebox {
                 this.grid[r][c] = null;
             }
         }
+
+        
     }
     /*--------------------*/
 
@@ -118,8 +120,8 @@ class Gamebox {
 
         for (let i = 0; i < completedRowIndexes.length; i++) rowShifts[completedRowIndexes[i]] = 0;
         for (let i = 0; i < completedRowIndexes[0]; i++) rowShifts[i] = completedRowIndexes.length;
-        for (let i = 0; i < completedRowIndexes.length-1; i++){
-            for (let j = completedRowIndexes[i]+1; j <completedRowIndexes[i+1];j++) rowShifts[j] = completedRowIndexes.length-1-i;
+        for (let i = 0; i < completedRowIndexes.length - 1; i++) {
+            for (let j = completedRowIndexes[i] + 1; j < completedRowIndexes[i + 1]; j++) rowShifts[j] = completedRowIndexes.length - 1 - i;
         }
 
         //Sort tiles by which have to be removed and which have to move down

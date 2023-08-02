@@ -125,14 +125,14 @@ export class Tetromino {
         if (!gamebox.isCellsFree(this.model.getOccupiedCells())) {
             this.model.rows = 1;
             this.model.placement = [this.model.placement[1]];
-            this.view.element = createTetrominoElm((BOX_COLUMNS / 2 - Math.ceil(this.model.columns / 2)) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
+            this.view.element = createTetrominoElm((BOX_COLUMNS / 2 - Math.ceil(this.model.columns / 2)) * TILE_SIZE, 0,this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
             delete this.shape;
             delete this.model;
             delete this.view;
             return;
         }
 
-        this.view.element = createTetrominoElm((BOX_COLUMNS / 2 - Math.ceil(this.model.columns / 2)) * TILE_SIZE, this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
+        this.view.element = createTetrominoElm((BOX_COLUMNS / 2 - Math.ceil(this.model.columns / 2)) * TILE_SIZE, 0,this.model.rows * TILE_SIZE, this.model.columns * TILE_SIZE, this.model.placement, this.view.colorCodes);
     }
 
     /*----------------------------------------------------------------------------------------*/
@@ -270,7 +270,7 @@ export class Tetromino {
 }
 
 /*----------------------------------------------------------------------------------------*/
-function createTetrominoElm(left, height, width, placement, colorCodes) {
+export function createTetrominoElm(left, top, height, width, placement, colorCodes) {
     const newTetromino = document.createElement("div");
     newTetromino.classList.add("tetromino");
     for (let position of placement.flat()) {
@@ -285,6 +285,7 @@ function createTetrominoElm(left, height, width, placement, colorCodes) {
     newTetromino.style.width = width + "px";
     newTetromino.style.height = height + "px";
     newTetromino.style.left = left + "px";
+    newTetromino.style.top = top + "px";
     gamebox.element.appendChild(newTetromino);
     return newTetromino;
 }
