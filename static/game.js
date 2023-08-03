@@ -9,9 +9,7 @@ import { startWebSocket } from "./websocket.js"
 
 window.addEventListener("DOMContentLoaded", function () {
     startWebSocket();
-    document.getElementById("startButton").focus();
-    buttonListener("startButton", startGame);
-    buttonListener("startMappedButton", startMappedGame);
+    buttonListener("chooseDifficultyButton", showDifficultyModal);
     buttonListener("pauseButton", pauseGame);
     buttonListener("restartButton", renewGame);
     buttonListener("leftNavBtn", prevScoresPage);
@@ -39,22 +37,29 @@ function renewGame(event) {
 
 /*----------------------------------------------------------------*/
 
-function startGame() {
-    document.getElementById("startButton").blur();
+function showDifficultyModal() {
     document.getElementById("startBox").style.display = "none";
+    document.getElementById("chooseDifficultyModal").style.display = "flex";
+    buttonListener("startButton", startGame);
+}
+
+/*----------------------------------------------------------------*/
+
+function startGame() {
+    //Get selected difficulty value
+    const selectedDifficulty = Number(document.querySelector('input[name="difficultyOption"]:checked').value);
+
+    //If pre-filled game mode was chosen fill gamebox with tiles according to difficulty level
+    gameStatus.levelOfDifficulty = selectedDifficulty;
+    fillStartBox();
+
+    document.getElementById("chooseDifficultyModal").style.display = "none";
     document.getElementById("screenOverlay").style.display = "none";
     const now = performance.now()
     gameStatus.startInit(now);
     tetromino = new Tetromino(tetrominoesData[gameStatus.nextTetromino]);
     pickAndShowNextTetromino();
     gameLoop(now);
-}
-
-/*----------------------------------------------------------------*/
-function startMappedGame() {
-    gameStatus.levelOfDifficulty = 2;
-    fillStartBox();
-    startGame();
 }
 
 /*----------------------------------------------------------------*/

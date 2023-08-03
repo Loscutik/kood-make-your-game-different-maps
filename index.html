@@ -11,7 +11,7 @@
         <span>FPS:</span>
         <span id="fpsDisplay">0</span>
     </div>
-    <div id="startBox">
+    <div id="startBox" class="startModal">
         <span id="gameTitle">TETRIS</span>
         <span class="controlsTitle">CONTROLS:</span>
         <div id="controlsWrapper">
@@ -25,20 +25,44 @@
         <span id="newTwistText">Besides standard tetris rules, you get three lives.<span class="break"></span>
                                 If no line is completed in 25 seconds, a life is lost.<span class="break"></span>
                                 Losing all lives ends the game.</span>
-        <div id="startButtons">
-            <button id="startButton">
-                <div class="buttonTextWrapper">
-                    <div class="startSubmitButtonText">START</div>
-                    <div class="startSubmitButtonTextShortcut">(Enter)</div>
-                </div>
-            </button>
-            <button id="startMappedButton">
-                <div class="buttonTextWrapper">
-                    <div class="startSubmitButtonText">START MAP</div>
-                    <div class="startSubmitButtonTextShortcut"></div>
-                </div>
-            </button>
+        
+        <button id="chooseDifficultyButton">
+            <div class="buttonTextWrapper">
+                <div id="chooseDifficultyButtonText">CHOOSE<br>DIFFICULTY</div>
+            </div>
+        </button>
+    </div>
+    <div id="chooseDifficultyModal" class="startModal">
+        <span id="chooseDifficultyTitle">CHOOSE DIFFICULTY</span>
+        <span id="difficultyChoosingText">For an extra challenge you can select a difficulty level and fill up the gameboard with some pre-arranged tiles:</span>
+        <div class="radioButtonWrapper">
+            <input type="radio" id="noMap" class="hiddenRadioButton" name="difficultyOption" value="0" checked>
+            <label for="noMap" class="customRadioButton"></label>
+            <span class="mapOptionText">Classic Tetris, no pre-set tiles</span>
         </div>
+        <div class="radioButtonWrapper">
+            <input type="radio" id="easyMap" class="hiddenRadioButton" name="difficultyOption" value="1">
+            <label for="easyMap" class="customRadioButton"></label>
+            <span class="mapOptionText">Easy gameboard</span>
+        </div>
+        <div class="radioButtonWrapper">
+            <input type="radio" id="mediumMap" class="hiddenRadioButton" name="difficultyOption" value="2">
+            <label for="mediumMap" class="customRadioButton"></label>
+            <span class="mapOptionText">Medium gameboard</span>
+        </div>
+        <div class="radioButtonWrapper">
+            <input type="radio" id="hardMap" class="hiddenRadioButton" name="difficultyOption" value="3">
+            <label for="hardMap" class="customRadioButton"></label>
+            <span class="mapOptionText">Hard gameboard</span>
+        </div>
+        <div class="radioButtonWrapper">
+            <input type="radio" id="expertMap" class="hiddenRadioButton" name="difficultyOption" value="4">
+            <label for="expertMap" class="customRadioButton"></label>
+            <span class="mapOptionText">Extreme gameboard</span>
+        </div>
+        <button id="startButton">
+            <div id="startButtonText">START</div>
+        </button>
     </div>
     <div id="gameOverBox">
         <span id="gameOverTitle">GAME OVER</span>
@@ -47,8 +71,8 @@
         <input id="nameInput" maxlength="14">
         <button id="submitScoreButton" disabled>
             <div class="buttonTextWrapper">
-                <div class="startSubmitButtonText">SUBMIT</div>
-                <div class="startSubmitButtonTextShortcut">(Enter)</div>
+                <div class="submitButtonText">SUBMIT</div>
+                <div class="submitButtonTextShortcut">(Enter)</div>
             </div>
         </button>
     </div>
