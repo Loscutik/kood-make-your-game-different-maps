@@ -194,14 +194,14 @@ export let gameStatus = {
 
     /*--------------------*/
 
-    reset(now) {
-        this.startTime = now;
+    reset() {
+        // this.startTime = now;
         this.isOver = false;
-        this.prevAnimationTime = now;
+        // this.prevAnimationTime = now;
         this.gameOneSecond = 0;
         this.pause.duration = 0;
         this.pause.is = false;
-        this.activeHeart.startTime = now;
+        // this.activeHeart.startTime = now;
         this.activeHeart.pauseDuration = 0;
         this.activeHeart.activeWrapperEl = document.getElementsByClassName("heartWrapper")[2];
         this.activeHeart.activeSymbolEl = document.getElementsByClassName("heart")[2];
@@ -212,7 +212,7 @@ export let gameStatus = {
         this.currentTetromino.speed.current = START_SPEED;
         this.currentTetromino.speed.fraction = 0;
         this.frame.count = 0;
-        this.frame.last = now;
+        // this.frame.last = now;
         this.statistic.heartsLeft = 3;
         this.statistic.score = 0;
         this.statistic.completedLines = 0;
@@ -296,7 +296,7 @@ function togglePauseButton(pauseBtn, pauseBtnText, text, classToRemove, classToA
 
 /*-----------------------------------------------*/
 
-export function restartGame(now) {
+export function resetGame() {
     window.cancelAnimationFrame(gameStatus.frame.animationId);
     constantElements.mainTimer.textContent = "00:00";
 
@@ -314,15 +314,15 @@ export function restartGame(now) {
     const messageBox = document.getElementById("gameMessageBox");
     messageBox.style.display = "none";
 
-    gameStatus.reset(now);
+    gameStatus.reset();
     resetHearts();
 
     gameStatus.statistic.displayScore();
     gameStatus.statistic.displayLines();
     gameStatus.statistic.displayLevel();
 
-    pickAndShowNextTetromino();
-    return new Tetromino(tetrominoesData[chooseTetrominoNumber()]);
+    // pickAndShowNextTetromino();
+    // return new Tetromino(tetrominoesData[chooseTetrominoNumber()]);
 }
 
 /*-----------------------------------------------*/

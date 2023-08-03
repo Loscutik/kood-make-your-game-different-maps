@@ -1,7 +1,7 @@
 import { tetrominoesData } from "./initData.js";
 import { Tetromino } from "./tetrominoClass.js";
 import { gamebox } from "./gameBox.js"
-import { gameStatus, pauseResumeToggle, restartGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS, submitScore, nameInputEventListener, fillStartBox } from "./gameStatusHandler.js"
+import { gameStatus, pauseResumeToggle, resetGame, gameOver, updateMainTimer, pickAndShowNextTetromino, calculateFPS, submitScore, nameInputEventListener, fillStartBox } from "./gameStatusHandler.js"
 import { prevScoresPage, nextScoresPage } from "./scoreboardHandler.js";
 import { startWebSocket } from "./websocket.js"
 
@@ -28,11 +28,21 @@ function buttonListener(buttonId, callback) {
 
 /*----------------------------------------------------------------*/
 
-function renewGame(event) {
+// function renewGame(event) {
+//     gamebox.resetGrid();
+//     tetromino = restartGame(event.timeStamp);
+//     if (gameStatus.levelOfDifficulty > 0) fillStartBox();
+//     gameLoop(event.timeStamp);
+// }
+
+/*----------------------------------------------------------------*/
+
+function renewGame() {
     gamebox.resetGrid();
-    tetromino = restartGame(event.timeStamp);
-    if (gameStatus.levelOfDifficulty > 0) fillStartBox();
-    gameLoop(event.timeStamp);
+    tetromino = resetGame();
+    gameStatus.startScreen = true;
+    document.getElementById("chooseDifficultyModal").style.display = "flex";
+    document.getElementById("screenOverlay").style.display = "block";
 }
 
 /*----------------------------------------------------------------*/

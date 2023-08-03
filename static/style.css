@@ -189,13 +189,15 @@ body {
 #chooseDifficultyTitle {
     font-size: 25px;
     letter-spacing: 1px;
-    margin-bottom: -5px;
+    margin-bottom: 30px;
     margin-top: 35px;
 }
 
 #difficultyChoosingText {
-    margin: 25px 47px;
+    margin-left: 47px;
+    margin-right: 47px;
     margin-bottom: 30px;
+    margin-top: -10px;
 }
 
 .radioButtonWrapper {
