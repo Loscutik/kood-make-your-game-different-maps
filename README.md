@@ -1,8 +1,8 @@
-# Make your game - Scoreboard
+# Make your game - different-maps
+
 
 The goal for this task was to create a game using only plain JavaScript and HTML 
-(usage of frameworks and canvas was not allowed) and implement also a scoreboard
-which would run in Go server and store the scoreboard in JSON file.
+(usage of frameworks and canvas was not allowed) and also to generate tile maps at the start of the game.
 
 # Authors
 
@@ -30,6 +30,13 @@ faster.
 As the task included also to implement lives system, the game starts with 3 lives.
 If no line is completed in 25 seconds, players loses
 one heart. Losing all hearts ends the game.
+Before the game starts you will be prompted to choose the difficulty level of the game, 
+which determines how full the game board is with some pre-arranged tiles:
+- Classic Tetris, no pre-set tiles
+- Easy gameboard
+- Medium gameboard
+- Hard gameboard
+- Extreme gameboard.
 
 # Scoring 
 
